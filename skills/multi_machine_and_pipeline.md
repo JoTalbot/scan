@@ -19,7 +19,9 @@ python3 port_scanner.py run --batch 1000000 --shard 1 --shard-total 4 --concurre
 ```bash
 ./pipeline.sh 100000    # скан 100k + аудит + probe + sync
 ```
-Этапы: git pull → lock → скан → подсчёт новых → raw-аудит (--fast) → browser-аудит (fast) → **SSH/Telnet-аудит** (router_ssh_telnet_audit.py по открытым 22/23) → port probe (доп. порты + SNMP) → уведомление о находках (Telegram, если настроен в .env: TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID) → complete → sync_manager → push.
+Этапы: git pull → lock → скан → подсчёт новых → raw-аудит (--fast) → browser-аудит (fast) → уведомление о находках (Telegram, если настроен в .env: TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID) → complete → sync_manager → push.
+
+⚠️ **SSH/Telnet-аудит и Port probe+SNMP в автоцикле ОТКЛЮЧЕНЫ** (по запросу владельца). Соответствующие блоки в pipeline.sh закомментированы с пометкой «ОТКЛЮЧЕНО» — при необходимости раскомментировать. Инструменты `router_ssh_telnet_audit.py` и `port_probe.py` при этом остаются доступны для ручного запуска.
 
 Пример cron (каждые 6 часов):
 ```
