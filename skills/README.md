@@ -10,6 +10,7 @@
 
 | Скилл | Файл | Описание |
 | :--- | :--- | :--- |
+| **Расчет и индексация диапазонов IP** | [`ip_range_expansion_and_indexing.md`](ip_range_expansion_and_indexing.md) | Развертывание CIDR в диапазоны (Start-End), расчет Netmask/Wildcard и оптимизация SQLite индексов. |
 | **Сбор и индексация CIDR баз данных** | [`isp_cidr_discovery_and_indexing.md`](isp_cidr_discovery_and_indexing.md) | Парсинг дампов RIPE NCC, ARIN, сведение диапазонов в CIDR и оптимизация SQLite индексов. |
 | **Распределенная оркестрация агентов** | [`distributed_multi_agent_orchestration.md`](distributed_multi_agent_orchestration.md) | Протокол синхронизации шагов, блокировок и глубокого исследования перед каждым действием. |
 | **Генерация правил сетевых фаерволов** | [`network_firewall_export_generator.md`](network_firewall_export_generator.md) | Экспорт CIDR в форматы MikroTik, Linux IPSet/IPTables, NFTables, Nginx Geo и Cisco ACL. |

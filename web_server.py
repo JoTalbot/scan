@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ISP CIDR Web Dashboard Server
+ISP CIDR & IP Range Web Dashboard Server
 Runs on 0.0.0.0:8000 and serves an interactive search, analytics, and export dashboard.
 """
 
@@ -68,7 +68,19 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
     def get_stats(self):
         conn = get_db()
         cur = conn.cursor()
-        cur.execute("SELECT * FROM regions ORDER BY total_ipv4_ips DESC")
+        cur.execute("""
+            SELECT 
+                region,
+                COUNT(DISTINCT country_code) AS total_countries,
+                SUM(total_asns) AS total_asns,
+                SUM(total_v4_cidrs) AS total_v4_cidrs,
+                SUM(total_v6_cidrs) AS total_v6_cidrs,
+                SUM(total_cidrs) AS total_cidrs,
+                SUM(total_ipv4_ips) AS total_ipv4_ips
+            FROM countries
+            GROUP BY region
+            ORDER BY total_ipv4_ips DESC
+        """)
         regions = [dict(r) for r in cur.fetchall()]
         cur.execute("""
             SELECT country_code, country_name_en, country_name_ru, region,
@@ -108,29 +120,23 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
             ip_int = int(ip_obj)
             cur.execute("""
                 SELECT 
-                    c.cidr, c.ip_version, c.asn,
-                    COALESCE(p.org_name, 'Unknown Provider') AS isp_name,
-                    c.country_code, cnt.country_name_en, cnt.country_name_ru, cnt.region,
-                    c.start_ip, c.end_ip, c.ip_count
-                FROM cidr_blocks c
-                LEFT JOIN providers p ON c.asn = p.asn
-                LEFT JOIN countries cnt ON c.country_code = cnt.country_code
-                WHERE c.ip_version = 4 AND c.start_ip_int <= ? AND c.end_ip_int >= ?
-                ORDER BY (c.end_ip_int - c.start_ip_int) ASC
+                    id, cidr, ip_version, asn, isp_name,
+                    country_code, country_name_en, country_name_ru, region,
+                    start_ip, end_ip, netmask, wildcard_mask, ip_count
+                FROM v_cidr_details
+                WHERE ip_version = 4 AND start_ip_int <= ? AND end_ip_int >= ?
+                ORDER BY (end_ip_int - start_ip_int) ASC
                 LIMIT 1
             """, (ip_int, ip_int))
             row = cur.fetchone()
         else:
             cur.execute("""
                 SELECT 
-                    c.cidr, c.ip_version, c.asn,
-                    COALESCE(p.org_name, 'Unknown Provider') AS isp_name,
-                    c.country_code, cnt.country_name_en, cnt.country_name_ru, cnt.region,
-                    c.start_ip, c.end_ip, c.ip_count
-                FROM cidr_blocks c
-                LEFT JOIN providers p ON c.asn = p.asn
-                LEFT JOIN countries cnt ON c.country_code = cnt.country_code
-                WHERE c.ip_version = 6
+                    id, cidr, ip_version, asn, isp_name,
+                    country_code, country_name_en, country_name_ru, region,
+                    start_ip, end_ip, netmask, wildcard_mask, ip_count
+                FROM v_cidr_details
+                WHERE ip_version = 6
             """)
             row = None
             for candidate in cur.fetchall():
@@ -153,49 +159,38 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
         params = []
 
         if country:
-            conditions.append("c.country_code = ?")
+            conditions.append("country_code = ?")
             params.append(country.upper())
         if region:
-            conditions.append("cnt.region = ?")
+            conditions.append("region = ?")
             params.append(region)
         if ip_ver in ["4", "6"]:
-            conditions.append("c.ip_version = ?")
+            conditions.append("ip_version = ?")
             params.append(int(ip_ver))
 
         if q:
             clean_asn = q.upper().replace("AS", "").strip()
             if clean_asn.isdigit():
-                conditions.append("(c.asn = ? OR c.cidr LIKE ?)")
+                conditions.append("(asn = ? OR cidr LIKE ?)")
                 params.extend([int(clean_asn), f"%{q.strip()}%"])
             else:
-                conditions.append("(p.org_name LIKE ? OR p.as_name LIKE ? OR c.cidr LIKE ? OR cnt.country_name_ru LIKE ?)")
+                conditions.append("(isp_name LIKE ? OR cidr LIKE ? OR country_name_ru LIKE ? OR start_ip LIKE ?)")
                 pat = f"%{q.strip()}%"
                 params.extend([pat, pat, pat, pat])
 
         where = " WHERE " + " AND ".join(conditions) if conditions else ""
 
-        # Count total
-        cur.execute(f"""
-            SELECT COUNT(*) as count 
-            FROM cidr_blocks c
-            LEFT JOIN providers p ON c.asn = p.asn
-            LEFT JOIN countries cnt ON c.country_code = cnt.country_code
-            {where}
-        """, params)
+        cur.execute(f"SELECT COUNT(*) as count FROM v_cidr_details {where}", params)
         total_count = cur.fetchone()["count"]
 
-        # Fetch records
         query = f"""
             SELECT 
-                c.id, c.cidr, c.ip_version, c.asn,
-                COALESCE(p.org_name, 'Unknown Provider') AS isp_name,
-                c.country_code, cnt.country_name_en, cnt.country_name_ru, cnt.region,
-                c.start_ip, c.end_ip, c.ip_count
-            FROM cidr_blocks c
-            LEFT JOIN providers p ON c.asn = p.asn
-            LEFT JOIN countries cnt ON c.country_code = cnt.country_code
+                id, cidr, ip_version, asn, isp_name,
+                country_code, country_name_en, country_name_ru, region,
+                start_ip, end_ip, netmask, wildcard_mask, ip_count
+            FROM v_cidr_details
             {where}
-            ORDER BY c.ip_version, c.start_ip_int
+            ORDER BY ip_version, start_ip_int
             LIMIT ? OFFSET ?
         """
         cur.execute(query, params + [limit, offset])
@@ -239,27 +234,25 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
         conds = []
         params = []
         if country:
-            conds.append("c.country_code = ?")
+            conds.append("country_code = ?")
             params.append(country.upper())
         if region:
-            conds.append("cnt.region = ?")
+            conds.append("region = ?")
             params.append(region)
         if asn and asn.isdigit():
-            conds.append("c.asn = ?")
+            conds.append("asn = ?")
             params.append(int(asn))
         if ip_ver in ["4", "6"]:
-            conds.append("c.ip_version = ?")
+            conds.append("ip_version = ?")
             params.append(int(ip_ver))
         where = " WHERE " + " AND ".join(conds) if conds else ""
 
         cur.execute(f"""
-            SELECT c.cidr, c.ip_version, c.asn, COALESCE(p.org_name, 'Unknown') AS isp_name,
-                   c.country_code, cnt.country_name_ru, c.start_ip, c.end_ip, c.ip_count
-            FROM cidr_blocks c
-            LEFT JOIN providers p ON c.asn = p.asn
-            LEFT JOIN countries cnt ON c.country_code = cnt.country_code
+            SELECT cidr, ip_version, asn, isp_name,
+                   country_code, country_name_ru, start_ip, end_ip, netmask, wildcard_mask, ip_count
+            FROM v_cidr_details
             {where}
-            ORDER BY c.ip_version, c.start_ip_int
+            ORDER BY ip_version, start_ip_int
         """, params)
         rows = [dict(r) for r in cur.fetchall()]
         conn.close()
@@ -269,10 +262,13 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
 
         if fmt == "csv":
             mime = "text/csv; charset=utf-8"
-            out = "CIDR,IP_Version,ASN,ISP_Name,Country_Code,Country_Name,Start_IP,End_IP,IP_Count\n"
+            out = "CIDR,IP_Version,Start_IP,End_IP,Netmask,Wildcard_Mask,Total_IPs,ASN,ISP_Name,Country_Code,Country_Name\n"
             for r in rows:
-                name = r['isp_name'].replace('"', '""')
-                out += f'{r["cidr"]},{r["ip_version"]},{r["asn"]},"{name}",{r["country_code"]},{r["country_name_ru"]},{r["start_ip"]},{r["end_ip"]},{r["ip_count"] or ""}\n'
+                name = (r['isp_name'] or "").replace('"', '""')
+                out += f'{r["cidr"]},{r["ip_version"]},{r["start_ip"]},{r["end_ip"]},{r["netmask"] or ""},{r["wildcard_mask"] or ""},{r["ip_count"] or ""},{r["asn"]},"{name}",{r["country_code"]},{r["country_name_ru"]}\n'
+        elif fmt == "ranges":
+            mime = "text/plain; charset=utf-8"
+            out = "\n".join(f"{r['start_ip']} - {r['end_ip']}\tAS{r['asn']}\t{r['isp_name']}" for r in rows)
         elif fmt == "json":
             mime = "application/json; charset=utf-8"
             out = json.dumps(rows, ensure_ascii=False, indent=2)
@@ -295,7 +291,7 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
             for r in rows:
                 out += f"    {r['cidr']} 1;\n"
             out += "}\n"
-        else: # txt
+        else:
             mime = "text/plain; charset=utf-8"
             out = "\n".join(r["cidr"] for r in rows)
 
@@ -308,12 +304,15 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(content)
 
     def serve_html(self):
+        with open("/home/user/web_server.py", "r", encoding="utf-8") as f:
+            full_code = f.read()
+        
         html_code = """<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>База данных CIDR провайдеров (Украина, США, Европа)</title>
+<title>База данных CIDR и диапазонов IP провайдеров (Украина, США, Европа)</title>
 <style>
   :root {
     --bg: #0d1117;
@@ -578,20 +577,20 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
 <div class="container">
   <header>
     <div class="title-group">
-      <h1>🌐 База Данных CIDR Провайдеров</h1>
-      <p>Официальные пулы IP-адресов, автономные системы (ASN) и подсети провайдеров Украины, США и Европы</p>
+      <h1>🌐 База Данных CIDR и Диапазонов IP</h1>
+      <p>Официальные пулы IP-адресов, автономные системы (ASN), диапазоны от начального до конечного IP и маски подсетей (Украина, США, Европа)</p>
     </div>
     <div>
-      <span class="badge-tag">RIPE NCC + ARIN Data</span>
+      <span class="badge-tag">RIPE NCC + ARIN</span>
       <span class="badge-tag">508,879 CIDRs</span>
-      <span class="badge-tag">40,650 ASNs</span>
+      <span class="badge-tag">508,879 IP Ranges</span>
     </div>
   </header>
 
   <!-- Overview Stats -->
   <div class="stats-grid" id="statsGrid">
     <div class="stat-card">
-      <div class="stat-title">Всего CIDR подсетей</div>
+      <div class="stat-title">Всего CIDR & Диапазонов</div>
       <div class="stat-val" id="stTotalCidrs">508,879</div>
       <div class="stat-sub">385k IPv4 / 123k IPv6</div>
     </div>
@@ -614,8 +613,8 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
 
   <!-- Instant IP Lookup Section -->
   <div class="lookup-section">
-    <h3 style="color: var(--text-bright); font-size: 16px; margin-bottom: 4px;">🔍 Мгновенный поиск по IP адресу</h3>
-    <p style="font-size: 13px; color: var(--text-muted);">Введите любой IPv4 или IPv6 адрес, чтобы узнать его CIDR, ASN, имя интернет-провайдера и страну</p>
+    <h3 style="color: var(--text-bright); font-size: 16px; margin-bottom: 4px;">🔍 Мгновенный поиск диапазона по IP адресу</h3>
+    <p style="font-size: 13px; color: var(--text-muted);">Введите любой IPv4 или IPv6 адрес, чтобы узнать начальный/конечный IP, маску, CIDR, ASN и интернет-провайдера</p>
     
     <div class="lookup-box">
       <input type="text" id="ipInput" placeholder="Например: 5.248.10.20, 195.138.64.1, 8.8.8.8, 88.198.50.1, 2001:678:c8::1" />
@@ -632,7 +631,7 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
   <!-- Main Database Explorer -->
   <div class="section-card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
-      <h3 style="color: var(--text-bright); font-size: 18px;">📋 Обозреватель подсетей CIDR и Провайдеров</h3>
+      <h3 style="color: var(--text-bright); font-size: 18px;">📋 Обозреватель CIDR и Диапазонов IP (Таблицы cidr_blocks & ip_ranges)</h3>
       <div class="quick-filters">
         <button class="pill active" onclick="setRegionFilter('', this)">Все регионы</button>
         <button class="pill" onclick="setCountryFilter('UA', this)">🇺🇦 Украина</button>
@@ -648,7 +647,7 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
 
     <!-- Filters Row -->
     <div class="filters-row">
-      <input type="text" id="searchQuery" placeholder="Поиск по названию (Kyivstar, Vodafone, Hetzner, Comcast) или ASN (15895)..." oninput="debounceSearch()" style="min-width: 320px;" />
+      <input type="text" id="searchQuery" placeholder="Поиск по названию (Kyivstar, Vodafone, Hetzner, Comcast), ASN (15895) или начальному IP..." oninput="debounceSearch()" style="min-width: 320px;" />
       
       <select id="countrySelect" onchange="runSearch()">
         <option value="">Все страны</option>
@@ -683,17 +682,18 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
       <table>
         <thead>
           <tr>
-            <th>CIDR Подсеть</th>
-            <th>Версия</th>
+            <th>CIDR</th>
+            <th>Начальный IP</th>
+            <th>Конечный IP</th>
+            <th>Маска</th>
             <th>ASN</th>
-            <th>Интернет-провайдер / Организация</th>
+            <th>Интернет-провайдер</th>
             <th>Страна</th>
-            <th>Диапазон IP</th>
             <th>Количество IP</th>
           </tr>
         </thead>
         <tbody id="cidrTableBody">
-          <tr><td colspan="7" style="text-align: center; padding: 30px; color: var(--text-muted);">Загрузка данных...</td></tr>
+          <tr><td colspan="8" style="text-align: center; padding: 30px; color: var(--text-muted);">Загрузка данных...</td></tr>
         </tbody>
       </table>
     </div>
@@ -711,13 +711,14 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
     <!-- Export Panel -->
     <div class="export-panel">
       <div>
-        <div style="font-weight: 600; color: var(--text-bright); font-size: 14px;">Экспорт CIDR подсетей текущей выборки:</div>
-        <div style="font-size: 12px; color: var(--text-muted);">Скачивание готовых правил для сетевого оборудования и файрволов</div>
+        <div style="font-weight: 600; color: var(--text-bright); font-size: 14px;">Экспорт диапазонов и CIDR текущей выборки:</div>
+        <div style="font-size: 12px; color: var(--text-muted);">Скачивание готовых файлов и правил для фаерволов и маршрутизаторов</div>
       </div>
       <div class="export-controls">
         <select id="exportFormat">
           <option value="txt">Список CIDR (.txt)</option>
-          <option value="csv">Таблица CSV (.csv)</option>
+          <option value="ranges">Диапазоны Start-End (.txt)</option>
+          <option value="csv">Таблица с масками (.csv)</option>
           <option value="json">Данные JSON (.json)</option>
           <option value="mikrotik">MikroTik RouterOS Script (.rsc)</option>
           <option value="iptables">Linux IPTables Rules (.sh)</option>
@@ -831,7 +832,7 @@ async function runSearch() {
 function renderTable(data) {
   const tbody = document.getElementById('cidrTableBody');
   if (!data.results || data.results.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 24px; color: var(--text-muted);">Ничего не найдено по заданным фильтрам.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 24px; color: var(--text-muted);">Ничего не найдено по заданным фильтрам.</td></tr>';
     document.getElementById('pageInfo').textContent = 'Найдено: 0';
     document.getElementById('curPageNum').textContent = '1 / 1';
     return;
@@ -839,17 +840,18 @@ function renderTable(data) {
 
   let html = '';
   for (const r of data.results) {
-    const vBadge = r.ip_version === 4 ? '<span class="tag-v4">IPv4</span>' : '<span class="tag-v6">IPv6</span>';
     const asnBadge = r.asn ? `<span class="tag-asn" style="cursor:pointer" onclick="filterByAsn(${r.asn})">AS${r.asn}</span>` : '-';
     const ipsCount = r.ip_count ? Number(r.ip_count).toLocaleString() : (r.ip_version === 6 ? 'IPv6 блок' : '-');
+    const maskStr = r.netmask ? `<span class="font-mono" style="font-size:11px; color: var(--text-muted);">${r.netmask}</span>` : '-';
 
     html += `<tr>
       <td class="font-mono" style="font-weight:600; color: var(--accent);">${r.cidr}</td>
-      <td>${vBadge}</td>
+      <td class="font-mono" style="color: var(--text-bright);">${r.start_ip}</td>
+      <td class="font-mono" style="color: var(--text-bright);">${r.end_ip}</td>
+      <td>${maskStr}</td>
       <td>${asnBadge}</td>
       <td style="color: var(--text-bright);">${escapeHtml(r.isp_name)}</td>
       <td><span class="tag-country">${r.country_code}</span> ${r.country_name_ru}</td>
-      <td class="font-mono" style="font-size:12px; color: var(--text-muted);">${r.start_ip} - ${r.end_ip}</td>
       <td class="font-mono">${ipsCount}</td>
     </tr>`;
   }
@@ -939,6 +941,14 @@ async function doLookup() {
             <span class="res-val" style="color: #58a6ff;">${d.cidr} (IPv${d.ip_version})</span>
           </div>
           <div class="res-item">
+            <span class="res-lbl">Диапазон IP (Start - End)</span>
+            <span class="res-val" style="color: #7ee787;">${d.start_ip} - ${d.end_ip}</span>
+          </div>
+          <div class="res-item">
+            <span class="res-lbl">Сетевая маска (Netmask)</span>
+            <span class="res-val">${d.netmask || '-'} (Wildcard: ${d.wildcard_mask || '-'})</span>
+          </div>
+          <div class="res-item">
             <span class="res-lbl">Автономная система</span>
             <span class="res-val" style="color: #bc8cff;">AS${d.asn}</span>
           </div>
@@ -951,12 +961,8 @@ async function doLookup() {
             <span class="res-val" style="color: #3fb950;">${d.country_name_ru} (${d.country_code}) • ${d.region}</span>
           </div>
           <div class="res-item">
-            <span class="res-lbl">Диапазон адресов</span>
-            <span class="res-val">${d.start_ip} - ${d.end_ip}</span>
-          </div>
-          <div class="res-item">
             <span class="res-lbl">Емкость подсети</span>
-            <span class="res-val">${d.ip_count ? Number(d.ip_count).toLocaleString() + ' IPs' : 'IPv6 /48'}</span>
+            <span class="res-val">${d.ip_count ? Number(d.ip_count).toLocaleString() + ' IPs' : 'IPv6'}</span>
           </div>
         </div>
       `;

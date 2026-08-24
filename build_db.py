@@ -9,11 +9,9 @@ import re
 start_time = time.time()
 print("Starting database generation...")
 
-# Target countries map
 COUNTRIES = {
     'UA': {'name_en': 'Ukraine', 'name_ru': 'Украина', 'region': 'Ukraine'},
     'US': {'name_en': 'United States', 'name_ru': 'США', 'region': 'United States'},
-    # Europe
     'AL': {'name_en': 'Albania', 'name_ru': 'Албания', 'region': 'Europe'},
     'AD': {'name_en': 'Andorra', 'name_ru': 'Андорра', 'region': 'Europe'},
     'AT': {'name_en': 'Austria', 'name_ru': 'Австрия', 'region': 'Europe'},
@@ -67,7 +65,6 @@ COUNTRIES = {
     'XK': {'name_en': 'Kosovo', 'name_ru': 'Косово', 'region': 'Europe'},
 }
 
-# 1. Download/Load RIPE ASN directory
 print("Fetching RIPE ASN database...")
 asn_names = {}
 try:
@@ -91,7 +88,6 @@ try:
 except Exception as e:
     print(f"Warning downloading ASN directory: {e}")
 
-# 2. Download / open ip2asn combined dataset
 tsv_path = '/tmp/ip2asn.tsv.gz'
 if not os.path.exists(tsv_path):
     print("Downloading ip2asn combined dataset...")
@@ -111,7 +107,6 @@ cur.execute("PRAGMA synchronous = OFF;")
 cur.execute("PRAGMA journal_mode = MEMORY;")
 cur.execute("PRAGMA cache_size = 100000;")
 
-# Tables schema
 cur.execute("""
 CREATE TABLE countries (
     country_code TEXT PRIMARY KEY,
@@ -148,17 +143,26 @@ CREATE TABLE cidr_blocks (
     ip_version INTEGER NOT NULL,
     asn INTEGER,
     country_code TEXT NOT NULL,
+    total_ips INTEGER
+);
+""")
+
+cur.execute("""
+CREATE TABLE ip_ranges (
+    cidr_id INTEGER PRIMARY KEY REFERENCES cidr_blocks(id),
     start_ip TEXT NOT NULL,
     end_ip TEXT NOT NULL,
     start_ip_int INTEGER,
     end_ip_int INTEGER,
-    ip_count INTEGER
+    netmask TEXT,
+    wildcard_mask TEXT
 );
 """)
 
-print("Parsing IP blocks and calculating CIDR subnets...")
-provider_stats = {} # asn -> data
-batch = []
+print("Parsing IP blocks and calculating CIDR subnets & ranges...")
+provider_stats = {}
+batch_cidr = []
+batch_ranges = []
 total_cidrs = 0
 
 with gzip.open(tsv_path, 'rt', encoding='utf-8', errors='ignore') as f:
@@ -180,7 +184,6 @@ with gzip.open(tsv_path, 'rt', encoding='utf-8', errors='ignore') as f:
         c_en = c_info['name_en']
         c_ru = c_info['name_ru']
         
-        # Best ISP Name
         isp_name = org_desc
         if asn in asn_names and asn_names[asn]['full']:
             ripe_name = asn_names[asn]['full']
@@ -210,6 +213,8 @@ with gzip.open(tsv_path, 'rt', encoding='utf-8', errors='ignore') as f:
         p_stat = provider_stats.get(asn)
         
         for net in subnets:
+            total_cidrs += 1
+            c_id = total_cidrs
             cidr_str = str(net)
             v = net.version
             n_addrs = net.num_addresses
@@ -218,6 +223,17 @@ with gzip.open(tsv_path, 'rt', encoding='utf-8', errors='ignore') as f:
             s_str = str(net.network_address)
             e_str = str(net.broadcast_address)
             
+            netmask = None
+            wildcard = None
+            if v == 4:
+                prefix_len = int(cidr_str.split('/')[1])
+                mask_int = (0xFFFFFFFF << (32 - prefix_len)) & 0xFFFFFFFF
+                wildcard_int = ~mask_int & 0xFFFFFFFF
+                netmask = str(ipaddress.IPv4Address(mask_int))
+                wildcard = str(ipaddress.IPv4Address(wildcard_int))
+            else:
+                netmask = '/' + cidr_str.split('/')[1]
+
             if p_stat:
                 if v == 4:
                     p_stat['v4_cidrs'] += 1
@@ -225,42 +241,26 @@ with gzip.open(tsv_path, 'rt', encoding='utf-8', errors='ignore') as f:
                 else:
                     p_stat['v6_cidrs'] += 1
                     
-            batch.append((
-                cidr_str,
-                v,
-                asn if asn > 0 else None,
-                cc,
-                s_str,
-                e_str,
-                s_int,
-                e_int,
-                n_addrs if v == 4 else None
-            ))
-            total_cidrs += 1
+            batch_cidr.append((c_id, cidr_str, v, asn if asn > 0 else None, cc, n_addrs if v == 4 else None))
+            batch_ranges.append((c_id, s_str, e_str, s_int, e_int, netmask, wildcard))
             
-            if len(batch) >= 50000:
-                cur.executemany("""
-                INSERT INTO cidr_blocks (
-                    cidr, ip_version, asn, country_code,
-                    start_ip, end_ip, start_ip_int, end_ip_int, ip_count
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, batch)
+            if len(batch_cidr) >= 50000:
+                cur.executemany("INSERT INTO cidr_blocks VALUES (?, ?, ?, ?, ?, ?)", batch_cidr)
+                cur.executemany("INSERT INTO ip_ranges VALUES (?, ?, ?, ?, ?, ?, ?)", batch_ranges)
                 conn.commit()
-                batch.clear()
+                batch_cidr.clear()
+                batch_ranges.clear()
 
-if batch:
-    cur.executemany("""
-    INSERT INTO cidr_blocks (
-        cidr, ip_version, asn, country_code,
-        start_ip, end_ip, start_ip_int, end_ip_int, ip_count
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, batch)
+if batch_cidr:
+    cur.executemany("INSERT INTO cidr_blocks VALUES (?, ?, ?, ?, ?, ?)", batch_cidr)
+    cur.executemany("INSERT INTO ip_ranges VALUES (?, ?, ?, ?, ?, ?, ?)", batch_ranges)
     conn.commit()
-    batch.clear()
+    batch_cidr.clear()
+    batch_ranges.clear()
 
-print(f"Total CIDRs inserted: {total_cidrs}")
+print(f"Total CIDRs and Ranges inserted: {total_cidrs}")
 
-# Insert providers
+# Providers
 prov_batch = []
 for asn, info in provider_stats.items():
     full_n = info['name']
@@ -287,7 +287,7 @@ INSERT INTO providers (
 """, prov_batch)
 conn.commit()
 
-# Populate countries table
+# Countries
 cur.execute("""
 INSERT INTO countries (
     country_code, country_name_en, country_name_ru, region,
@@ -302,13 +302,12 @@ SELECT
     SUM(CASE WHEN c.ip_version = 4 THEN 1 ELSE 0 END),
     SUM(CASE WHEN c.ip_version = 6 THEN 1 ELSE 0 END),
     COUNT(*),
-    SUM(COALESCE(c.ip_count, 0))
+    SUM(COALESCE(c.total_ips, 0))
 FROM cidr_blocks c
 LEFT JOIN providers p ON c.asn = p.asn
 GROUP BY c.country_code;
 """)
 
-# Fix any null country names
 for cc, c_info in COUNTRIES.items():
     cur.execute("""
     UPDATE countries 
@@ -316,22 +315,7 @@ for cc, c_info in COUNTRIES.items():
     WHERE country_code = ? AND (country_name_en IS NULL OR country_name_ru IS NULL)
     """, (c_info['name_en'], c_info['name_ru'], c_info['region'], cc))
 
-# Create regions table
-cur.execute("""
-CREATE TABLE regions AS
-SELECT 
-    region,
-    COUNT(DISTINCT country_code) AS total_countries,
-    SUM(total_asns) AS total_asns,
-    SUM(total_v4_cidrs) AS total_v4_cidrs,
-    SUM(total_v6_cidrs) AS total_v6_cidrs,
-    SUM(total_cidrs) AS total_cidrs,
-    SUM(total_ipv4_ips) AS total_ipv4_ips
-FROM countries
-GROUP BY region;
-""")
-
-# Create rich view
+# Views
 cur.execute("""
 CREATE VIEW v_cidr_details AS
 SELECT 
@@ -344,32 +328,56 @@ SELECT
     cnt.country_name_en,
     cnt.country_name_ru,
     cnt.region,
-    c.start_ip,
-    c.end_ip,
-    c.start_ip_int,
-    c.end_ip_int,
-    c.ip_count
+    r.start_ip,
+    r.end_ip,
+    r.start_ip_int,
+    r.end_ip_int,
+    r.netmask,
+    r.wildcard_mask,
+    c.total_ips AS ip_count
 FROM cidr_blocks c
+LEFT JOIN ip_ranges r ON c.id = r.cidr_id
 LEFT JOIN providers p ON c.asn = p.asn
 LEFT JOIN countries cnt ON c.country_code = cnt.country_code;
 """)
 
-# Create indexes
+cur.execute("""
+CREATE VIEW v_ip_ranges AS
+SELECT 
+    r.cidr_id,
+    c.cidr,
+    c.ip_version,
+    r.start_ip,
+    r.end_ip,
+    r.start_ip_int,
+    r.end_ip_int,
+    r.netmask,
+    r.wildcard_mask,
+    c.total_ips,
+    c.asn,
+    COALESCE(p.org_name, 'Unknown Provider') AS isp_name,
+    c.country_code,
+    cnt.country_name_en,
+    cnt.country_name_ru,
+    cnt.region
+FROM ip_ranges r
+JOIN cidr_blocks c ON r.cidr_id = c.id
+LEFT JOIN providers p ON c.asn = p.asn
+LEFT JOIN countries cnt ON c.country_code = cnt.country_code;
+""")
+
+# Indexes
 print("Creating database indexes...")
 cur.execute("CREATE INDEX idx_cidr_cidr ON cidr_blocks(cidr);")
 cur.execute("CREATE INDEX idx_cidr_asn ON cidr_blocks(asn);")
 cur.execute("CREATE INDEX idx_cidr_cc ON cidr_blocks(country_code);")
-cur.execute("CREATE INDEX idx_cidr_range ON cidr_blocks(start_ip_int, end_ip_int);")
-cur.execute("CREATE INDEX idx_cidr_version ON cidr_blocks(ip_version);")
-
+cur.execute("CREATE INDEX idx_range_range ON ip_ranges(start_ip_int, end_ip_int);")
 cur.execute("CREATE INDEX idx_prov_org ON providers(org_name);")
 cur.execute("CREATE INDEX idx_prov_cc ON providers(country_code);")
-cur.execute("CREATE INDEX idx_prov_reg ON providers(region);")
-cur.execute("CREATE INDEX idx_prov_ips ON providers(total_ipv4_ips DESC);")
 
 conn.commit()
 conn.execute("VACUUM;")
 conn.close()
 
 db_size_mb = os.path.getsize(db_dest) / (1024 * 1024)
-print(f"Database successfully generated in {time.time() - start_time:.2f}s! File: {db_dest} ({db_size_mb:.2f} MB)")
+print(f"Database generated successfully in {time.time() - start_time:.2f}s! DB size: {db_size_mb:.2f} MB")

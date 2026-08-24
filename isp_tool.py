@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-ISP CIDR Database Tool - Query, Search, and Export Tool
-Supports Ukraine, USA, and European Countries.
+ISP CIDR & IP Range Database Tool - Query, Search, and Export Tool
+Supports Ukraine, USA, and European Countries with explicit IP ranges.
 """
 
 import sys
@@ -35,15 +35,12 @@ def ip_lookup(ip_str):
         ip_int = int(ip_obj)
         cur.execute("""
             SELECT 
-                c.id, c.cidr, c.ip_version, c.asn,
-                COALESCE(p.org_name, 'Unknown Provider') AS isp_name,
-                c.country_code, cnt.country_name_en, cnt.country_name_ru, cnt.region,
-                c.start_ip, c.end_ip, c.ip_count
-            FROM cidr_blocks c
-            LEFT JOIN providers p ON c.asn = p.asn
-            LEFT JOIN countries cnt ON c.country_code = cnt.country_code
-            WHERE c.ip_version = 4 AND c.start_ip_int <= ? AND c.end_ip_int >= ?
-            ORDER BY (c.end_ip_int - c.start_ip_int) ASC
+                id, cidr, ip_version, asn, isp_name,
+                country_code, country_name_en, country_name_ru, region,
+                start_ip, end_ip, netmask, wildcard_mask, ip_count
+            FROM v_cidr_details
+            WHERE ip_version = 4 AND start_ip_int <= ? AND end_ip_int >= ?
+            ORDER BY (end_ip_int - start_ip_int) ASC
             LIMIT 1
         """, (ip_int, ip_int))
         row = cur.fetchone()
@@ -51,14 +48,11 @@ def ip_lookup(ip_str):
         # IPv6 lookup
         cur.execute("""
             SELECT 
-                c.id, c.cidr, c.ip_version, c.asn,
-                COALESCE(p.org_name, 'Unknown Provider') AS isp_name,
-                c.country_code, cnt.country_name_en, cnt.country_name_ru, cnt.region,
-                c.start_ip, c.end_ip, c.ip_count
-            FROM cidr_blocks c
-            LEFT JOIN providers p ON c.asn = p.asn
-            LEFT JOIN countries cnt ON c.country_code = cnt.country_code
-            WHERE c.ip_version = 6
+                id, cidr, ip_version, asn, isp_name,
+                country_code, country_name_en, country_name_ru, region,
+                start_ip, end_ip, netmask, wildcard_mask, ip_count
+            FROM v_cidr_details
+            WHERE ip_version = 6
         """)
         row = None
         for candidate in cur.fetchall():
@@ -76,7 +70,6 @@ def search_providers(query, limit=20):
     conn = get_db()
     cur = conn.cursor()
     
-    # Check if query is ASN number
     asn_query = None
     clean_q = query.strip().upper().replace("AS", "")
     if clean_q.isdigit():
@@ -113,35 +106,56 @@ def get_cidrs(asn=None, country=None, region=None, ip_version=None, limit=1000):
     params = []
 
     if asn:
-        conditions.append("c.asn = ?")
+        conditions.append("asn = ?")
         params.append(asn)
     if country:
-        conditions.append("c.country_code = ?")
+        conditions.append("country_code = ?")
         params.append(country.upper())
     if region:
-        conditions.append("cnt.region = ?")
+        conditions.append("region = ?")
         params.append(region)
     if ip_version:
-        conditions.append("c.ip_version = ?")
+        conditions.append("ip_version = ?")
         params.append(int(ip_version))
 
     where_clause = " WHERE " + " AND ".join(conditions) if conditions else ""
     query = f"""
         SELECT 
-            c.id, c.cidr, c.ip_version, c.asn,
-            COALESCE(p.org_name, 'Unknown Provider') AS isp_name,
-            c.country_code, cnt.country_name_en, cnt.country_name_ru, cnt.region,
-            c.start_ip, c.end_ip, c.ip_count
-        FROM cidr_blocks c
-        LEFT JOIN providers p ON c.asn = p.asn
-        LEFT JOIN countries cnt ON c.country_code = cnt.country_code
+            id, cidr, ip_version, asn, isp_name,
+            country_code, country_name_en, country_name_ru, region,
+            start_ip, end_ip, netmask, wildcard_mask, ip_count
+        FROM v_cidr_details
         {where_clause}
-        ORDER BY c.ip_version, c.start_ip_int
+        ORDER BY ip_version, start_ip_int
     """
     if limit:
         query += f" LIMIT {int(limit)}"
 
     cur.execute(query, params)
+    rows = [dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
+
+def get_ranges(asn=None, country=None, limit=50):
+    conn = get_db()
+    cur = conn.cursor()
+    conditions = []
+    params = []
+    if asn:
+        conditions.append("asn = ?")
+        params.append(asn)
+    if country:
+        conditions.append("country_code = ?")
+        params.append(country.upper())
+    where = " WHERE " + " AND ".join(conditions) if conditions else ""
+    cur.execute(f"""
+        SELECT cidr_id, cidr, ip_version, start_ip, end_ip, netmask, wildcard_mask,
+               total_ips, asn, isp_name, country_code, country_name_ru
+        FROM v_ip_ranges
+        {where}
+        ORDER BY ip_version, start_ip_int
+        LIMIT ?
+    """, params + [limit])
     rows = [dict(r) for r in cur.fetchall()]
     conn.close()
     return rows
@@ -179,7 +193,19 @@ def get_summary():
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM regions ORDER BY total_ipv4_ips DESC")
+    cur.execute("""
+        SELECT 
+            region,
+            COUNT(DISTINCT country_code) AS total_countries,
+            SUM(total_asns) AS total_asns,
+            SUM(total_v4_cidrs) AS total_v4_cidrs,
+            SUM(total_v6_cidrs) AS total_v6_cidrs,
+            SUM(total_cidrs) AS total_cidrs,
+            SUM(total_ipv4_ips) AS total_ipv4_ips
+        FROM countries
+        GROUP BY region
+        ORDER BY total_ipv4_ips DESC
+    """)
     regions = [dict(r) for r in cur.fetchall()]
 
     cur.execute("""
@@ -207,11 +233,14 @@ def export_cidrs(asn=None, country=None, region=None, ip_version=None, fmt="txt"
     if fmt == "txt":
         for r in cidrs_data:
             output_lines.append(r["cidr"])
-    elif fmt == "csv":
-        output_lines.append("CIDR,IP_Version,ASN,ISP_Name,Country_Code,Country_Name,Start_IP,End_IP,IP_Count")
+    elif fmt == "ranges":
         for r in cidrs_data:
-            name = r['isp_name'].replace('"', '""')
-            output_lines.append(f'{r["cidr"]},{r["ip_version"]},{r["asn"]},"{name}",{r["country_code"]},{r["country_name_ru"]},{r["start_ip"]},{r["end_ip"]},{r["ip_count"] or ""}')
+            output_lines.append(f"{r['start_ip']} - {r['end_ip']} (AS{r['asn']} {r['isp_name']})")
+    elif fmt == "csv":
+        output_lines.append("CIDR,IP_Version,Start_IP,End_IP,Netmask,Wildcard_Mask,Total_IPs,ASN,ISP_Name,Country_Code,Country_Name")
+        for r in cidrs_data:
+            name = (r['isp_name'] or "").replace('"', '""')
+            output_lines.append(f'{r["cidr"]},{r["ip_version"]},{r["start_ip"]},{r["end_ip"]},{r["netmask"] or ""},{r["wildcard_mask"] or ""},{r["ip_count"] or ""},{r["asn"]},"{name}",{r["country_code"]},{r["country_name_ru"]}')
     elif fmt == "json":
         output_lines.append(json.dumps(cidrs_data, ensure_ascii=False, indent=2))
     elif fmt == "mikrotik":
@@ -269,19 +298,16 @@ def export_cidrs(asn=None, country=None, region=None, ip_version=None, fmt="txt"
         print(result_text)
 
 def main():
-    parser = argparse.ArgumentParser(description="ISP CIDR Database CLI Tool (Ukraine, USA, Europe)")
+    parser = argparse.ArgumentParser(description="ISP CIDR & IP Range Database CLI Tool (Ukraine, USA, Europe)")
     subparsers = parser.add_subparsers(dest="command", help="Command to run")
 
-    # Command: lookup
     p_lookup = subparsers.add_parser("lookup", help="Lookup IP address details")
     p_lookup.add_argument("ip", help="IPv4 or IPv6 address to lookup")
 
-    # Command: search
     p_search = subparsers.add_parser("search", help="Search ISP providers by name or ASN")
     p_search.add_argument("query", help="Provider name or ASN (e.g. Kyivstar, Comcast, AS15895)")
     p_search.add_argument("--limit", type=int, default=15, help="Max results")
 
-    # Command: cidrs
     p_cidrs = subparsers.add_parser("cidrs", help="List CIDRs for ASN, country, or region")
     p_cidrs.add_argument("--asn", type=int, help="Autonomous System Number")
     p_cidrs.add_argument("--country", help="2-letter country code (UA, US, DE, FR, etc.)")
@@ -289,22 +315,24 @@ def main():
     p_cidrs.add_argument("--ipv", choices=[4, 6], type=int, help="IP Version (4 or 6)")
     p_cidrs.add_argument("--limit", type=int, default=25, help="Max results to display")
 
-    # Command: top
+    p_ranges = subparsers.add_parser("ranges", help="List explicit IP ranges (start_ip - end_ip)")
+    p_ranges.add_argument("--country", help="Country code (e.g. UA, DE)")
+    p_ranges.add_argument("--asn", type=int, help="ASN number")
+    p_ranges.add_argument("--limit", type=int, default=20, help="Max results")
+
     p_top = subparsers.add_parser("top", help="Show top providers by allocated IPs")
     p_top.add_argument("--country", help="Filter by country (e.g. UA, US, DE)")
     p_top.add_argument("--region", help="Filter by region (Ukraine, United States, Europe)")
     p_top.add_argument("--limit", type=int, default=15, help="Number of results")
 
-    # Command: stats
     subparsers.add_parser("stats", help="Show global statistics of the database")
 
-    # Command: export
     p_export = subparsers.add_parser("export", help="Export CIDR list in various formats")
     p_export.add_argument("--asn", type=int, help="Filter by ASN")
     p_export.add_argument("--country", help="Filter by 2-letter country code (e.g. UA, US, DE)")
     p_export.add_argument("--region", help="Filter by region (Ukraine, United States, Europe)")
     p_export.add_argument("--ipv", choices=[4, 6], type=int, help="IP Version (4 or 6)")
-    p_export.add_argument("--format", choices=["txt", "csv", "json", "mikrotik", "iptables", "ipset", "nftables", "nginx", "cisco"], default="txt")
+    p_export.add_argument("--format", choices=["txt", "ranges", "csv", "json", "mikrotik", "iptables", "ipset", "nftables", "nginx", "cisco"], default="txt")
     p_export.add_argument("--out", help="Output file path (prints to stdout if omitted)")
 
     args = parser.parse_args()
@@ -317,7 +345,7 @@ def main():
             print(res["message"])
         else:
             print(f"\n🔍 IP Lookup Result for: {args.ip}")
-            print("=" * 55)
+            print("=" * 60)
             print(f"CIDR Subnet:    {res['cidr']}")
             print(f"IP Version:     IPv{res['ip_version']}")
             print(f"ASN:            AS{res['asn']}")
@@ -325,9 +353,13 @@ def main():
             print(f"Country:        {res['country_name_ru']} ({res['country_code']})")
             print(f"Region:         {res['region']}")
             print(f"IP Range:       {res['start_ip']} - {res['end_ip']}")
-            if res['ip_count']:
+            if res.get('netmask'):
+                print(f"Netmask:        {res['netmask']}")
+            if res.get('wildcard_mask'):
+                print(f"Wildcard Mask:  {res['wildcard_mask']}")
+            if res.get('ip_count'):
                 print(f"Total IPs:      {res['ip_count']:,}")
-            print("=" * 55)
+            print("=" * 60)
 
     elif args.command == "search":
         results = search_providers(args.query, limit=args.limit)
@@ -354,6 +386,17 @@ def main():
             print(f"{r['cidr']:<20} IPv{r['ip_version']:<2} {asn_str:<9} {r['country_code']:<8} {r['isp_name'][:40]}")
         print("=" * 85)
 
+    elif args.command == "ranges":
+        rows = get_ranges(asn=args.asn, country=args.country, limit=args.limit)
+        print(f"\n🌐 Explicit IP Ranges (Showing up to {args.limit}):")
+        print("=" * 95)
+        print(f"{'Start IP':<18} {'End IP':<18} {'CIDR':<18} {'ASN':<9} {'Provider / Organization'}")
+        print("-" * 95)
+        for r in rows:
+            asn_str = f"AS{r['asn']}" if r['asn'] else "-"
+            print(f"{r['start_ip']:<18} {r['end_ip']:<18} {r['cidr']:<18} {asn_str:<9} {r['isp_name'][:30]}")
+        print("=" * 95)
+
     elif args.command == "top":
         results = get_top_providers(country=args.country, region=args.region, limit=args.limit)
         title = "TOP PROVIDERS"
@@ -372,20 +415,13 @@ def main():
 
     elif args.command == "stats":
         data = get_summary()
-        print("\n📊 ISP CIDR DATABASE OVERVIEW")
+        print("\n📊 ISP CIDR & RANGE DATABASE OVERVIEW")
         print("=" * 80)
         print(f"{'Region':<16} {'Countries':<11} {'ASNs':<9} {'IPv4 CIDRs':<12} {'IPv6 CIDRs':<12} {'Total IPs'}")
         print("-" * 80)
         for reg in data["regions"]:
             ips = f"{reg['total_ipv4_ips']:,}"
             print(f"{reg['region']:<16} {reg['total_countries']:<11} {reg['total_asns']:<9} {reg['total_v4_cidrs']:<12} {reg['total_v6_cidrs']:<12} {ips}")
-        print("=" * 80)
-        print("\nTop 15 Countries by IPv4 Volume:")
-        print(f"{'Code':<6} {'Country Name':<20} {'Region':<15} {'ASNs':<8} {'CIDRs':<10} {'Allocated IPv4'}")
-        print("-" * 80)
-        for c in data["countries"][:15]:
-            ips = f"{c['total_ipv4_ips']:,}"
-            print(f"{c['country_code']:<6} {c['country_name_ru']:<20} {c['region']:<15} {c['total_asns']:<8} {c['total_cidrs']:<10} {ips}")
         print("=" * 80)
 
     elif args.command == "export":
