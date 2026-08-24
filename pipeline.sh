@@ -54,11 +54,31 @@ if [ "$NEW_BR" -gt 0 ]; then
     --concurrency 4 --timeout 7 --wait 2.5 >> "$LOG" 2>&1 || true
 fi
 
-# 7. port probe for new routers (доп. порты + SNMP)
+# 7. SSH/Telnet audit (по открытым 22/23 портам)
+SSH_N=$(python3 -c "
+import sqlite3, json
+conn = sqlite3.connect('isp_cidr.db')
+n = 0
+for r in conn.execute('SELECT extra_ports FROM scan_routers WHERE extra_ports IS NOT NULL'):
+    try:
+        ports = json.loads(r[0])
+    except Exception:
+        continue
+    if 22 in ports or 23 in ports:
+        n += 1
+conn.close()
+print(n)
+")
+if [ "$SSH_N" -gt 0 ]; then
+  log "SSH/Telnet audit ($SSH_N устройств)..."
+  timeout 900 .venv/bin/python -u router_ssh_telnet_audit.py --concurrency 25 --timeout 5 >> "$LOG" 2>&1 || true
+fi
+
+# 8. port probe for new routers (доп. порты + SNMP)
 log "Port probe..."
 timeout 300 python3 port_probe.py --concurrency 50 --timeout 2 >> "$LOG" 2>&1 || true
 
-# 8. results & notify
+# 9. results & notify
 FOUND=$(python3 -c "
 import sqlite3
 conn = sqlite3.connect('isp_cidr.db')
@@ -92,7 +112,7 @@ else
   log "Паролей не найдено (все устройства закрыты)."
 fi
 
-# 9. complete + sync + push
+# 10. complete + sync + push
 python3 agent_sync.py complete --agent "$AGENT" --task "Auto pipeline scan" >> "$LOG" 2>&1 || true
 python3 sync_manager.py "$AGENT" >> "$LOG" 2>&1 || true
 log "=== PIPELINE DONE ==="
