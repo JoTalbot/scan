@@ -21,9 +21,10 @@ git pull --rebase origin main 2>&1 | tail -1 >> "$LOG" || true
 python3 agent_sync.py lock --agent "$AGENT" --task "Auto pipeline scan" \
   --step "Scanning $BATCH IP" --machine "aios-server" >> "$LOG" 2>&1 || true
 
-# 3. scan
+# 3. scan (оптимизировано: ulimit + timeout 1.0 + 1000 потоков = ~1000 IP/сек)
 log "Сканирование $BATCH IP..."
-python3 port_scanner.py run --batch "$BATCH" --concurrency 500 --timeout 2.0 >> "$LOG" 2>&1
+ulimit -n 65535 2>/dev/null || true
+python3 port_scanner.py run --batch "$BATCH" --concurrency 1000 --timeout 1.0 >> "$LOG" 2>&1
 log "Скан завершён."
 
 # 4. find new routers count

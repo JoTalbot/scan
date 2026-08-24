@@ -11,8 +11,8 @@
 ## Пошаговый алгоритм
 1. **Синхронизация:** `git pull --rebase` (сначала закоммитить/stash незакоммиченные изменения).
 2. **Lock задачи:** `python3 agent_sync.py lock --agent "<AGENT>" --task "Port 80 Scan (one-shot N)" --step "..." --machine "<HOST>"`.
-3. **Запуск скана** (фоновый, переживает SSH): `setsid nohup python3 port_scanner.py run --batch 10000 --concurrency 500 --timeout 2.0 > logs/scan_10k.log 2>&1 < /dev/null &`.
-4. **Мониторинг:** `cat logs/scan_10k.log` — прогресс печатается каждые 250 IP; скорость ~260 IP/сек.
+3. **Запуск скана** (фоновый, переживает SSH): `ulimit -n 65535 && setsid nohup python3 port_scanner.py run --batch 100000 --concurrency 1000 --timeout 1.0 > logs/scan.log 2>&1 < /dev/null &`.
+4. **Мониторинг:** `cat logs/scan.log` — прогресс печатается каждые 250 IP; скорость **~1000-1100 IP/сек** (timeout 1.0 + 1000 потоков + ulimit 65535 — ускорение ~4x против 500/2.0).
 5. **Complete:** `python3 agent_sync.py complete --agent "<AGENT>" --task "..."`.
 6. **Обновить ченджлог** в `STATUS.md` (метрики: время, открытые порты, баннеры).
 7. **Синхронизация:** `python3 sync_manager.py "<AGENT>"` — экспорт `data/scans/*.csv.gz`, VACUUM + gzip БД, git add/commit/push.

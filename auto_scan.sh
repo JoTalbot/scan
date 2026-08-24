@@ -2,7 +2,7 @@
 set -e
 
 BATCH_SIZE=${1:-100000}
-CONCURRENCY=${2:-500}
+CONCURRENCY=${2:-1000}
 AGENT_ID="aios-agent-01"
 
 cd /root/scan
@@ -15,7 +15,8 @@ echo "=========================================="
 python3 agent_sync.py lock --agent "$AGENT_ID" --task "Port 80 Scan" --step "Сканирование $BATCH_SIZE IP" --machine "aios-server" || true
 
 # 2. Сканирование
-python3 port_scanner.py run --batch "$BATCH_SIZE" --concurrency "$CONCURRENCY"
+ulimit -n 65535 2>/dev/null || true
+python3 port_scanner.py run --batch "$BATCH_SIZE" --concurrency "$CONCURRENCY" --timeout 1.0
 
 # 3. Завершение задачи в STATUS.md
 python3 agent_sync.py complete --agent "$AGENT_ID" --task "Port 80 Scan" || true
