@@ -161,6 +161,29 @@ def load_extra_creds():
     return extra
 
 
+# Fast mode: vendor-specific defaults + ONLY top-5 generic pairs (Router Scan
+# philosophy — few, well-chosen pairs per device, not a 56-pair shotgun).
+FAST_GENERIC_TOP = GENERIC_POPULAR[:5]
+
+
+def creds_for_fast(vendor, extra):
+    pairs = []
+    seen = set()
+    if vendor in VENDOR_DEFAULTS:
+        pairs.extend(VENDOR_DEFAULTS[vendor])
+    for v_key, v_creds in extra.items():
+        if vendor.lower() in v_key.lower() or v_key.lower() in vendor.lower():
+            pairs.extend(v_creds)
+    pairs.extend(FAST_GENERIC_TOP)
+    out = []
+    for u, p in pairs:
+        key = (u.lower(), p.lower())
+        if key not in seen:
+            seen.add(key)
+            out.append((u, p))
+    return out
+
+
 def creds_for(vendor, extra):
     pairs = []
     seen = set()
@@ -611,6 +634,7 @@ def main():
     parser.add_argument("--concurrency", type=int, default=20, help="Parallel targets (default 20)")
     parser.add_argument("--timeout", type=float, default=5.0, help="Per-request timeout seconds")
     parser.add_argument("--vendor", help="Check only one vendor (e.g. MIKROTIK)")
+    parser.add_argument("--fast", action="store_true", help="Fast mode: vendor defaults + top-5 generic pairs only")
     parser.add_argument("--dry-run", action="store_true", help="List pending routers without checking")
     args = parser.parse_args()
 
@@ -631,8 +655,9 @@ def main():
     extra = load_extra_creds()
     creds_map = {}
     for r in routers:
-        creds_map[r[3]] = creds_for(r[3], extra)
-    print(f"   Среднее число пар на роутер: {sum(len(v) for v in creds_map.values()) // max(1, len(creds_map))}")
+        creds_map[r[3]] = creds_for_fast(r[3], extra) if args.fast else creds_for(r[3], extra)
+    avg = sum(len(v) for v in creds_map.values()) // max(1, len(creds_map))
+    print(f"   Среднее число пар на роутер: {avg}" + (" (FAST mode)" if args.fast else ""))
     if args.dry_run:
         for r in routers:
             print(f"   {r[0]:<16} {r[3] or '-':<18} {r[4] or '-'}")

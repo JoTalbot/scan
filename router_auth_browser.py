@@ -127,11 +127,13 @@ async def form_visible(page):
         return False
 
 
-async def submit_login(page, user, pwd, wait_ms):
+async def submit_login(page, user, pwd, wait_ms, delayed_ms=15000):
     """Fill the login form and submit. Returns 'success' ONLY if:
       1. the password field disappeared after submit,
       2. no login error text is visible on the page,
-      3. a page reload still shows NO password field (session persisted).
+      3. (delayed auth, e.g. MikroTik WebFig) after delayed_ms the form must
+         still be gone and no auth error text visible,
+      4. a page reload still shows NO password field (session persisted).
     Returns 'fail' otherwise, 'error' on exception."""
     import re as _re
     try:
@@ -168,9 +170,11 @@ async def submit_login(page, user, pwd, wait_ms):
         # 1b. DELAYED AUTH: some devices (MikroTik WebFig) show "Loading" and
         # only then complete auth; a failed login bounces BACK to the login
         # form after ~15s. Wait and re-check, otherwise we record false hits.
-        await page.wait_for_timeout(15000)
-        if await form_visible(page):
-            return "fail"
+        # Only applied when the caller knows the device uses delayed auth.
+        if delayed_ms:
+            await page.wait_for_timeout(delayed_ms)
+            if await form_visible(page):
+                return "fail"
         try:
             t_check = await page.evaluate("document.body ? document.body.innerText.slice(0, 3000) : ''")
         except Exception:
@@ -269,12 +273,15 @@ async def check_device(browser, router, pairs, timeout, wait_ms, agent, machine)
     page, context = await probe_page(browser, ip, port, timeout, admin_port)
     if page is None:
         return ip, {"result": "browser-no-login-form"}, []
+    # Delayed auth re-check only for devices known to do it (MikroTik WebFig);
+    # other vendors authenticate synchronously, so we skip the 15s stall.
+    delayed_ms = 15000 if (vendor or "").lower() == "mikrotik" else 0
 
     try:
         url_before = page.url
 
         # --- control: deliberately wrong pair ---
-        ctrl = await submit_login(page, "zzz_ctrl", "zzz_wrong_12345", wait_ms)
+        ctrl = await submit_login(page, "zzz_ctrl", "zzz_wrong_12345", wait_ms, delayed_ms)
         if ctrl == "success":  # wrong creds must NOT log in
             return ip, {"result": "browser-unstable"}, []
         if ctrl == "error":
@@ -289,7 +296,7 @@ async def check_device(browser, router, pairs, timeout, wait_ms, agent, machine)
 
         found = []
         for user, pwd in pairs:
-            ok = await submit_login(page, user, pwd, wait_ms)
+            ok = await submit_login(page, user, pwd, wait_ms, delayed_ms)
             if ok == "success":
                 # success: form disappeared
                 try:
