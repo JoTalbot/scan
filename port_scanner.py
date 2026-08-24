@@ -270,31 +270,44 @@ def flush(cur, conn, records):
     conn.commit()
 
 async def run_scan(targets, concurrency=500, port=80, timeout=2.0, agent="Agent-01", machine="aios"):
-    sem = asyncio.Semaphore(concurrency)
-    q = asyncio.Queue(maxsize=50000)
-    w_task = asyncio.create_task(db_writer(q, DB_PATH))
+    """Scan with a FIXED worker pool (scales to millions of targets).
+
+    Targets are consumed from a queue by `concurrency` workers; a separate
+    writer task persists results in batches. No per-target task is created,
+    so memory stays flat regardless of batch size."""
+    work_q = asyncio.Queue(maxsize=concurrency * 4)
+    res_q = asyncio.Queue(maxsize=50000)
+    w_task = asyncio.create_task(db_writer(res_q, DB_PATH))
 
     total = len(targets)
     done, banners, opens = 0, 0, 0
     t0 = time.time()
 
-    async def worker(t):
+    async def producer():
+        for t in targets:
+            await work_q.put(t)
+        for _ in range(concurrency):
+            await work_q.put(None)  # sentinel per worker
+
+    async def worker():
         nonlocal done, banners, opens
-        async with sem:
+        while True:
+            t = await work_q.get()
+            if t is None:
+                return
             res = await scan_single_target(t, port, timeout, agent, machine)
             done += 1
             if res["status"] == "open": opens += 1
             if res["has_banner"]: banners += 1
-            await q.put(res)
+            await res_q.put(res)
             if done % 250 == 0 or done == total:
                 dt = time.time() - t0
                 pps = int(done / dt) if dt > 0 else 0
                 pct = (done / total) * 100
                 print(f"\r🚀 [{pct:5.1f}%] {done:,}/{total:,} | Скорость: {pps:,} IP/сек | Открыто: {opens:,} | Баннеров: {banners:,}", end="", flush=True)
 
-    tasks = [asyncio.create_task(worker(t)) for t in targets]
-    await asyncio.gather(*tasks)
-    await q.put(None)
+    await asyncio.gather(producer(), *[asyncio.create_task(worker()) for _ in range(concurrency)])
+    await res_q.put(None)
     await w_task
     print(f"\n\n✨ Сканирование завершено за {time.time()-t0:.2f}с! Найдено баннеров: {banners:,}")
 
