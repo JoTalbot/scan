@@ -1,0 +1,21 @@
+# Environment & secrets
+.env
+*.key
+*.pem
+*.secret
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Temporary build files
+/tmp/
+*.tmp

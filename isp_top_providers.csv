@@ -1,0 +1,501 @@
+ASN,AS_Handle,ISP_Organization_Name,Country_Code,Country_Name,Region,IPv4_CIDRs,IPv6_CIDRs,Total_IPv4_Addresses
+749,DNIC-AS-00749,DNIC-AS-00749 - United States Department of Defense (DoD),US,США,United States,5169,0,222265856
+16509,AMAZON-02,"AMAZON-02 - Amazon.com, Inc.",US,США,United States,7956,7547,155010558
+7018,ATT-INTERNET4,"ATT-INTERNET4 - AT&T Enterprises, LLC",US,США,United States,7604,103,89228664
+8075,MICROSOFT-CORP-MSN-AS-BLOCK,MICROSOFT-CORP-MSN-AS-BLOCK - Microsoft Corporation,US,США,United States,1256,227,80740352
+7922,COMCAST-7922,"COMCAST-7922 - Comcast Cable Communications, LLC",US,США,United States,3616,1947,42057472
+701,UUNET,UUNET - Verizon Business,US,США,United States,4833,317,40576256
+3320,DTAG,DTAG Internet service provider operations,DE,Германия,Europe,809,75,34154240
+721,DNIC-ASBLK-00721-00726,DNIC-ASBLK-00721-00726 - United States Department of Defense (DoD),US,США,United States,5176,49,29374720
+3356,LEVEL3,"LEVEL3 - Level 3 Parent, LLC",US,США,United States,4657,316,27343488
+174,COGENT-174,"COGENT-174 - Cogent Communications, LLC",US,США,United States,9909,1359,24372351
+14618,AMAZON-AES,"AMAZON-AES - Amazon.com, Inc.",US,США,United States,1075,484,21557760
+3215,France,France Telecom - Orange,FR,Франция,Europe,603,25,20146688
+3269,ASN-IBSNAZ,ASN-IBSNAZ Telecom Italia S.p.A.,IT,Италия,Europe,400,1,20090368
+396982,GOOGLE-CLOUD-PLATFORM,GOOGLE-CLOUD-PLATFORM - Google LLC,US,США,United States,735,214,19959296
+6167,CELLCO-PART,CELLCO-PART - Verizon Business,US,США,United States,560,896,18017280
+714,APPLE-ENGINEERING,APPLE-ENGINEERING - Apple Inc.,US,США,United States,1468,824,16915200
+31399,DAIMLER-AS,DAIMLER-AS Mercedes-Benz Group AG,DE,Германия,Europe,10,3,16805888
+15557,LDCOMNET,LDCOMNET Societe Francaise Du Radiotelephone - SFR SA,FR,Франция,Europe,184,9,15810816
+209,CENTURYLINK-US-LEGACY-QWEST,"CENTURYLINK-US-LEGACY-QWEST - CenturyLink Communications, LLC",US,США,United States,4906,97,15507200
+2856,BT-UK-AS,BT-UK-AS British Telecommunications Limited,GB,Великобритания,Europe,506,5,13809664
+21928,T-MOBILE-AS21928,"T-MOBILE-AS21928 - T-Mobile USA, Inc.",US,США,United States,127,193,13121792
+3209,VODANET,VODANET International IP-Backbone of Vodafone,DE,Германия,Europe,197,14,12766208
+22773,ASN-CXA-ALL-CCI-22773-RDC,ASN-CXA-ALL-CCI-22773-RDC - Cox Communications Inc.,US,США,United States,3112,2088,12763904
+20115,CHARTER-20115,CHARTER-20115 - Charter Communications LLC,US,США,United States,1183,4579,12739840
+22394,CELLCO,CELLCO - Verizon Business,US,США,United States,393,1854,12374528
+7377,UCSD,"UCSD - University of California, San Diego",US,США,United States,776,34,12068362
+5650,FRONTIER-FRTR,"FRONTIER-FRTR - Frontier Communications of America, Inc.",US,США,United States,1289,36,10660096
+3352,Telefonica_de_EspaNa,Telefonica_de_EspaNa TELEFONICA DE ESPANA S.A.U.,ES,Испания,Europe,399,27,10382592
+7029,WINDSTREAM,WINDSTREAM - Windstream Communications LLC,US,США,United States,2174,155,10271232
+12322,PROXAD,PROXAD Free SAS,FR,Франция,Europe,17,12,8822784
+5089,NTL,NTL Virgin Media Limited,GB,Великобритания,Europe,124,13,8493568
+6805,TDDE-ASN1,TDDE-ASN1 Telefonica Germany GmbH & Co.OHG,DE,Германия,Europe,32,4,8351232
+20940,AKAMAI-ASN1,AKAMAI-ASN1 Akamai International B.V.,NL,Нидерланды,Europe,4462,12271,8045988
+56,DNIC-AS-00056,DNIC-AS-00056 - United States Department of Defense (DoD),US,США,United States,1039,0,7982592
+680,DFN,DFN Verein zur Foerderung eines Deutschen Forschungsnetzes e.V.,DE,Германия,Europe,376,154,7671296
+10796,TWC-10796-MIDWEST,TWC-10796-MIDWEST - Charter Communications Inc,US,США,United States,680,50,7474944
+1267,ASN-WINDTRE,ASN-WINDTRE WIND TRE S.P.A.,IT,Италия,Europe,107,2,7412736
+1136,KPN,KPN KPN National,NL,Нидерланды,Europe,411,15,7267583
+1103,SURFNET-NL,"SURFNET-NL SURFnet, The Netherlands",NL,Нидерланды,Europe,143,14,7194335
+20001,TWC-20001-PACWEST,TWC-20001-PACWEST - Charter Communications Inc,US,США,United States,619,169,7140096
+5410,BOUYGTEL-ISP,BOUYGTEL-ISP Bouygues Telecom SA,FR,Франция,Europe,50,12,7087616
+12479,UNI2-AS,UNI2-AS Orange Espagne SA,ES,Испания,Europe,3626,1063,7007232
+786,JANET,JANET - Jisc Services Limited,GB,Великобритания,Europe,198,7,6895616
+5607,BSKYB-BROADBAND-AS,BSKYB-BROADBAND-AS Sky UK Limited,GB,Великобритания,Europe,43,6,6614016
+33915,TNF-AS,TNF-AS Vodafone Libertel B.V.,NL,Нидерланды,Europe,143,26,6588928
+3301,TELIANET-SWEDEN,TELIANET-SWEDEN Telia Company AB,SE,Швеция,Europe,302,43,6535680
+2828,XO-AS15,XO-AS15 - Verizon Business,US,США,United States,1135,1,6533120
+3561,CENTURYLINK-LEGACY-SAVVIS,"CENTURYLINK-LEGACY-SAVVIS - CenturyLink Communications, LLC",US,США,United States,1393,2,6370816
+1540,DNIC-ASBLK-01534-01546,"DNIC-ASBLK-01534-01546 - Headquarters, USAISC",US,США,United States,806,42,6073088
+11427,TWC-11427-TEXAS,TWC-11427-TEXAS - Charter Communications Inc,US,США,United States,537,38,5812992
+33363,BHN-33363,"BHN-33363 - Charter Communications, Inc",US,США,United States,584,69,5811968
+702,UUNET,UUNET - Verizon Business,US,США,United States,913,89,5718528
+30722,VODAFONE-IT-ASN,VODAFONE-IT-ASN Fastweb SpA,IT,Италия,Europe,174,3,5575936
+5617,TPNET,TPNET Orange Polska Spolka Akcyjna,PL,Польша,Europe,228,10,5478400
+31898,ORACLE-BMC-31898,ORACLE-BMC-31898 - Oracle Corporation,US,США,United States,1297,831,5414144
+3292,TDC,TDC TDC Holding A/S,DK,Дания,Europe,176,4,5189120
+6128,CABLE-NET-1,CABLE-NET-1 - Cablevision Systems Corp.,US,США,United States,929,2,4863488
+2914,NTT-DATA-2914,"NTT-DATA-2914 - NTT America, Inc.",US,США,United States,2081,189,4597838
+16276,OVH,OVH OVH SAS,FR,Франция,Europe,882,69,4595966
+306,DNIC-ASBLK-00306-00371,DNIC-ASBLK-00306-00371 - United States Department of Defense (DoD),US,США,United States,777,51,4557312
+3549,LVLT-3549,"LVLT-3549 - Level 3 Parent, LLC",US,США,United States,3452,224,4515584
+6389,BELLSOUTH-NET-BLK,"BELLSOUTH-NET-BLK - AT&T Enterprises, LLC",US,США,United States,587,0,4442880
+11426,TWC-11426-CAROLINAS,TWC-11426-CAROLINAS - Charter Communications Inc,US,США,United States,288,11,4386048
+3257,GTT-BACKBONE,GTT-BACKBONE GTT Communications Inc.,US,США,United States,3616,209,4330496
+11351,TWC-11351-NORTHEAST,TWC-11351-NORTHEAST - Charter Communications Inc,US,США,United States,197,15,4317440
+16625,AKAMAI-AS,"AKAMAI-AS - Akamai Technologies, Inc.",US,США,United States,1650,9,4284928
+6079,RCN-AS,RCN-AS - RCN,US,США,United States,1314,118,4269824
+2119,TELENOR-NEXTEL,TELENOR-NEXTEL Telenor Norge AS,NO,Норвегия,Europe,91,17,4247296
+11003,PANDG,PANDG - The Procter and Gamble Company,US,США,United States,170,0,4090624
+4249,LILLY-AS,LILLY-AS - Eli Lilly and Company,US,США,United States,216,0,4063232
+20057,ATT-MOBILITY-LLC-AS20057,"ATT-MOBILITY-LLC-AS20057 - AT&T Enterprises, LLC",US,США,United States,1180,121,4050176
+13285,OPALTELECOM-AS,OPALTELECOM-AS TalkTalk Communications Limited,GB,Великобритания,Europe,70,5,3954944
+5432,PROXIMUS-ISP-AS,PROXIMUS-ISP-AS Proximus NV,BE,Бельгия,Europe,38,3,3917056
+719,ELISA-AS,ELISA-AS ELISA OYJ,FI,Финляндия,Europe,167,23,3673344
+12430,VODAFONE_ES,VODAFONE_ES VODAFONE ESPANA S.A.U.,ES,Испания,Europe,158,2,3656960
+36351,SOFTLAYER,SOFTLAYER - IBM Cloud,US,США,United States,740,72,3625984
+12874,FASTWEB,FASTWEB Fastweb SpA,IT,Италия,Europe,63,1,3563008
+3303,SWISSCOM,SWISSCOM Swisscom Switzerland Ltd,CH,Швейцария,Europe,412,105,3493888
+1759,TSF-IP-CORE,TSF-IP-CORE Telia Finland Oyj,FI,Финляндия,Europe,164,9,3325440
+24940,HETZNER-AS,HETZNER-AS Hetzner Online GmbH,DE,Германия,Europe,108,5,3171582
+4155,USDA-1,USDA-1 - USDA,US,США,United States,33,1,3147776
+33491,COMCAST-33491,"COMCAST-33491 - Comcast Cable Communications, LLC",US,США,United States,326,206,3142912
+14061,DIGITALOCEAN-ASN,"DIGITALOCEAN-ASN - DigitalOcean, LLC",US,США,United States,211,13,3128317
+19901,BRIGHTSPEED,BRIGHTSPEED - Brightspeed,US,США,United States,599,42,3030784
+12271,TWC-12271-NYC,TWC-12271-NYC - Charter Communications Inc,US,США,United States,170,39,2859008
+19108,SUDDENLINK-COMMUNICATIONS,SUDDENLINK-COMMUNICATIONS - Optimum,US,США,United States,877,70,2840320
+1761,TDIR-CAPNET,TDIR-CAPNET - General Services Commission,US,США,United States,33,0,2753024
+137,ASGARR,ASGARR Consortium GARR,IT,Италия,Europe,87,2,2745344
+8447,A1TELEKOM-AT,A1TELEKOM-AT A1 Telekom Austria AG,AT,Австрия,Europe,257,13,2738688
+8434,TELENOR-SE,TELENOR-SE Telenor Sverige AB,SE,Швеция,Europe,75,7,2646016
+668,DNIC-AS-00668,DNIC-AS-00668 - United States Department of Defense (DoD),US,США,United States,175,115,2563840
+5378,Vodafone,Vodafone Limited,GB,Великобритания,Europe,10,1,2531328
+2200,FR-RENATER,FR-RENATER Reseau National de telecommunications pour la Technologie,FR,Франция,Europe,294,17,2520576
+367,DNIC-ASBLK-00306-00371,DNIC-ASBLK-00306-00371 - United States Department of Defense (DoD),US,США,United States,755,24,2378496
+9158,TELENOR_DANMARK_AS,TELENOR_DANMARK_AS Telenor A/S,DK,Дания,Europe,26,2,2315776
+6848,TELENET-AS,TELENET-AS Telenet BV,BE,Бельгия,Europe,66,22,2305280
+33651,CMCS,"CMCS - Comcast Cable Communications, LLC",US,США,United States,191,176,2270720
+16591,GOOGLE-FIBER,GOOGLE-FIBER - Google Fiber Inc.,US,США,United States,74,1,2244608
+237,MERIT-AS-14,MERIT-AS-14 - Merit Network Inc.,US,США,United States,138,33,2209404
+559,SWITCH,"SWITCH Switch, Swiss Academic and Research Network",CH,Швейцария,Europe,106,8,2184960
+553,BELWUE,BELWUE Universitaet Stuttgart,DE,Германия,Europe,112,17,2109696
+6871,Plusnet,Plusnet British Telecommunications Limited,GB,Великобритания,Europe,59,2,2097664
+81,NCREN,NCREN - MCNC,US,США,United States,196,66,2023168
+11404,AS-WAVE-1,AS-WAVE-1 - Wave Broadband,US,США,United States,547,21,2007296
+6730,SUNRISE,SUNRISE Sunrise GmbH,CH,Швейцария,Europe,116,14,1988608
+6799,OTENET-GR,OTENET-GR Ote SA (Hellenic Telecommunications Organisation),GR,Греция,Europe,118,62,1957632
+2152,CENIC-2152,CENIC-2152 - CENIC,US,США,United States,1744,1455,1915899
+1101,IP-EEND-AS,IP-EEND-AS IP-EEND BV,NL,Нидерланды,Europe,15,3,1904128
+16086,DNA,DNA DNA Oyj,FI,Финляндия,Europe,77,7,1889280
+270,AS270,AS270 - National Aeronautics and Space Administration,US,США,United States,108,0,1859328
+33668,CMCS,"CMCS - Comcast Cable Communications, LLC",US,США,United States,191,74,1857536
+1213,Asiera,Asiera ASIERA TECHNOLOGY SERVICES CLG,IE,Ирландия,Europe,24,1,1842944
+3,MIT-GATEWAYS,MIT-GATEWAYS - Massachusetts Institute of Technology,US,США,United States,105,6,1836543
+3243,MEO-RESIDENCIAL,MEO-RESIDENCIAL MEO - SERVICOS DE COMUNICACOES E MULTIMEDIA S.A.,PT,Португалия,Europe,17,1,1836032
+50266,Odido,Odido Odido Netherlands B.V.,NL,Нидерланды,Europe,46,1,1807104
+2116,GlobalConnect-AS2116,GlobalConnect-AS2116 GLOBALCONNECT AS,NO,Норвегия,Europe,173,21,1806080
+6739,ONO-AS,"ONO-AS VODAFONE ONO, S.A.",ES,Испания,Europe,204,1,1805568
+8881,VERSATEL,VERSATEL 1&1 Versatel GmbH,DE,Германия,Europe,473,43,1795328
+8708,RCS-RDS,RCS-RDS 73-75 Dr. Staicovici,RO,Румыния,Europe,224,120,1784064
+16232,ASN-TIM,ASN-TIM Telecom Italia S.p.A.,IT,Италия,Europe,9,1,1777664
+2860,NOS_COMUNICACOES,"NOS_COMUNICACOES NOS COMUNICACOES, S.A.",PT,Португалия,Europe,52,21,1770496
+33652,CMCS,"CMCS - Comcast Cable Communications, LLC",US,США,United States,166,156,1759744
+4181,TDS-AS,TDS-AS - TDS TELECOM,US,США,United States,721,4,1741056
+20214,COMCAST-20214,"COMCAST-20214 - Comcast Cable Communications, LLC",US,США,United States,191,100,1720832
+25400,TELIA-NORWAY-AS,TELIA-NORWAY-AS Telia Norway Core Networks,NO,Норвегия,Europe,106,13,1633280
+9141,AS9141,AS9141 P4 Sp. z o.o.,PL,Польша,Europe,28,2,1612288
+5483,MAGYAR-TELEKOM-MAIN-AS,MAGYAR-TELEKOM-MAIN-AS Magyar Telekom Nyrt.,HU,Венгрия,Europe,291,5,1597696
+7385,ABUL-14-7385,"ABUL-14-7385 - Allstream Business US, LLC",US,США,United States,449,40,1594112
+6461,ZAYO-6461,ZAYO-6461 - Zayo Bandwidth,US,США,United States,1168,116,1582848
+7016,CCCH-3,"CCCH-3 - Comcast Cable Communications, LLC",US,США,United States,198,217,1577984
+8412,TMA,TMA T-Mobile Austria GmbH,AT,Австрия,Europe,93,54,1554176
+33657,CMCS,"CMCS - Comcast Cable Communications, LLC",US,США,United States,180,239,1553664
+5610,O2-CZECH-REPUBLIC,"O2-CZECH-REPUBLIC O2 Czech Republic, a.s.",CZ,Чехия,Europe,101,4,1540608
+9009,M247,M247 M247 Europe SRL,RO,Румыния,Europe,2561,404,1531392
+10695,WAL-MART,"WAL-MART - Wal-Mart Stores, Inc.",US,США,United States,95,0,1501696
+3479,PEACHNET-AS3479,PEACHNET-AS3479 - Board of Regents of the University System of Georgia,US,США,United States,44,0,1497856
+8220,COLT,COLT COLT Technology Services Group Limited,GB,Великобритания,Europe,279,32,1489407
+27064,DNIC-ASBLK-27032-27159,DNIC-ASBLK-27032-27159 - United States Department of Defense (DoD),US,США,United States,844,32,1481472
+15830,Equinix,Equinix Equinix (EMEA) Acquisition Enterprises B.V.,NL,Нидерланды,Europe,844,259,1481216
+30036,MEDIACOM-ENTERPRISE-BUSINESS,MEDIACOM-ENTERPRISE-BUSINESS - Mediacom Communications Corp,US,США,United States,581,226,1473536
+7725,COMCAST-7725,"COMCAST-7725 - Comcast Cable Communications, LLC",US,США,United States,263,133,1466624
+9050,RTD,RTD Orange Romania S.A.,RO,Румыния,Europe,108,1,1465856
+20473,AS-VULTR,"AS-VULTR - The Constant Company, LLC",US,США,United States,649,427,1433856
+210,WEST-NET-WEST,WEST-NET-WEST - Utah Education Network,US,США,United States,27,1,1424128
+2686,ATGS-MMD-AS,"ATGS-MMD-AS - AT&T Enterprises, LLC",US,США,United States,320,1,1371904
+766,RedIRIS,RedIRIS Entidad Publica Empresarial Red.es,ES,Испания,Europe,31,2,1371648
+13335,CLOUDFLARENET,"CLOUDFLARENET - Cloudflare, Inc.",US,США,United States,877,1801,1346816
+51207,FREEM,FREEM Free Mobile SAS,FR,Франция,Europe,5,1,1320960
+15169,GOOGLE,GOOGLE - Google LLC,US,США,United States,317,140,1314816
+33287,COMCAST-33287,"COMCAST-33287 - Comcast Cable Communications, LLC",US,США,United States,159,296,1312768
+8987,AWS-GOVCLOUD,AWS-GOVCLOUD AWS-GOVCLOUD,US,США,United States,99,131,1283840
+51964,ORANGE-BUSINESS-SERVICES-IPSN-ASN,ORANGE-BUSINESS-SERVICES-IPSN-ASN ORANGE BUSINESS SERVICES U.S. Inc.,US,США,United States,362,65,1277440
+47583,AS-HOSTINGER,AS-HOSTINGER Hostinger International Limited,CY,Кипр,Europe,410,29,1254912
+11492,CABLEONE,"CABLEONE - CABLE ONE, INC.",US,США,United States,1179,312,1251840
+5619,NO-TTSN-ASN1,NO-TTSN-ASN1 TietoEVRY Norway,NO,Норвегия,Europe,18,2,1230848
+12741,AS-NETIA,AS-NETIA Netia SA,PL,Польша,Europe,207,18,1212160
+22561,CENTURYLINK-LEGACY-LIGHTCORE,"CENTURYLINK-LEGACY-LIGHTCORE - CenturyLink Communications, LLC",US,США,United States,429,0,1211904
+16019,VODAFONE-CZ-AS,VODAFONE-CZ-AS Vodafone Czech Republic a.s.,CZ,Чехия,Europe,46,13,1210368
+12353,VODAFONE-PT,VODAFONE-PT Vodafone Portugal - Communicacoes Pessoais S.A.,PT,Португалия,Europe,28,1,1207040
+7459,GRANDECOM-AS1,"GRANDECOM-AS1 - Grande Communications Networks, LLC",US,США,United States,403,45,1195776
+6830,LIBERTYGLOBAL,"LIBERTYGLOBAL Liberty Global formerly UPC Broadband Holding, aka AORTA",NL,Нидерланды,Europe,112,3,1184768
+4010,DNIC-AS-04010,"DNIC-AS-04010 - Headquarters, USAISC",US,США,United States,68,0,1172480
+33659,CMCS,"CMCS - Comcast Cable Communications, LLC",US,США,United States,141,127,1158656
+3371,MCI-ASN,MCI-ASN - Verizon Business,US,США,United States,133,3,1154304
+72,SCHLUMBERGER-AS,SCHLUMBERGER-AS - Schlumberger Limited,US,США,United States,172,0,1152256
+3329,HOL-GR,HOL-GR Vodafone-panafon Hellenic Telecommunications Company SA,GR,Греция,Europe,190,112,1146624
+7155,VIASAT-SP-BACKBONE,"VIASAT-SP-BACKBONE - ViaSat,Inc.",US,США,United States,306,19,1143296
+109,CISCOSYSTEMS,"CISCOSYSTEMS - CISCO SYSTEMS, INC.",US,США,United States,78,54,1141504
+5391,T-HT,T-HT Croatian Telecom Inc.,HR,Хорватия,Europe,69,1,1124352
+5006,VOYANT,"VOYANT - Inteliquent, inc.",US,США,United States,450,0,1114624
+29695,Altibox_AS,Altibox_AS Lyse Tele AS,NO,Норвегия,Europe,145,10,1114112
+5466,EIRCOM,EIRCOM Internet House,IE,Ирландия,Europe,32,3,1110528
+12912,TMPL,TMPL T-Mobile Polska S.A.,PL,Польша,Europe,209,19,1092608
+22284,AS22284-DOI-OPS,AS22284-DOI-OPS - U.S. Department of the Interior,US,США,United States,246,16,1085952
+22909,COMCAST-22909,"COMCAST-22909 - Comcast Cable Communications, LLC",US,США,United States,215,69,1075968
+8070,MICROSOFT-CORP-MSN-AS-BLOCK,MICROSOFT-CORP-MSN-AS-BLOCK - Microsoft Corporation,US,США,United States,28,12,1073920
+6697,BELPAK-AS,BELPAK-AS Republican Unitary Telecommunication Enterprise Beltelecom,BY,Беларусь,Europe,213,41,1067776
+11776,ATLANTICBB-JOHNSTOWN,ATLANTICBB-JOHNSTOWN - Breezeline,US,США,United States,488,19,1053184
+224,UNINETT,"UNINETT UNINETT, The Norwegian University & Research Network",NO,Норвегия,Europe,17,2,1050944
+46690,SNET-FCC,"SNET-FCC - Southern New England Telephone Company and SNET America, Inc.",US,США,United States,2,2,1049088
+212238,CDNEXT,CDNEXT Datacamp Limited,GB,Великобритания,Europe,2680,178,1046528
+1226,CTA-42-AS1226,CTA-42-AS1226 - California Department of Technology,US,США,United States,51,0,1037056
+12302,VODAFONE_RO,VODAFONE_RO Charles de Gaulle nr.15,RO,Румыния,Europe,191,3,1019648
+8866,VIVACOM-AS,VIVACOM-AS Vivacom Bulgaria EAD,BG,Болгария,Europe,581,66,1018112
+44034,hi3g,hi3g Hi3G Access AB,SE,Швеция,Europe,10,1,1007616
+13367,COMCAST-13367,"COMCAST-13367 - Comcast Cable Communications, LLC",US,США,United States,110,71,1005056
+13036,TMOBILE-CZ,TMOBILE-CZ T-Mobile Czech Republic a.s.,CZ,Чехия,Europe,34,3,992256
+33667,CMCS,"CMCS - Comcast Cable Communications, LLC",US,США,United States,181,136,992000
+29447,TIF-AS,TIF-AS Iliad Italia S.p.A,FR,Франция,Europe,5,3,983040
+18676,AVAYA,AVAYA - Avaya LLC,US,США,United States,83,0,978944
+36352,AS-COLOCROSSING,AS-COLOCROSSING - HostPapa,US,США,United States,1291,16,966399
+20055,AS-WHOLESAIL,AS-WHOLESAIL - Wholesail networks LLC,US,США,United States,94,5,950016
+7792,3M-HDQ-AS,3M-HDQ-AS - 3M Company,US,США,United States,20,0,941568
+15895,KSNET-AS,"KSNET-AS ""Kyivstar"" PJSC",UA,Украина,Ukraine,44,2,940800
+637,DNIC-ASBLK-00616-00665,DNIC-ASBLK-00616-00665 - United States Department of Defense (DoD),US,США,United States,346,0,928768
+9145,EWETEL,EWETEL EWE TEL GmbH,DE,Германия,Europe,44,7,925184
+20676,PLUSNET,PLUSNET *****************,DE,Германия,Europe,71,5,918016
+14654,WAYPORT,"WAYPORT - AT&T Enterprises, LLC",US,США,United States,117,1,916480
+158,ERI-AS,ERI-AS - Ericsson Inc.,US,США,United States,101,13,912640
+8426,CLARANET-AS,CLARANET-AS Claranet Limited,GB,Великобритания,Europe,93,20,904192
+19527,GOOGLE-2,GOOGLE-2 - Google LLC,US,США,United States,125,43,903680
+600,OARNET-AS,OARNET-AS - OARnet,US,США,United States,270,2,899548
+47377,ORANGE_BELGIUM_SA,ORANGE_BELGIUM_SA New company name is Orange Belgium SA,BE,Бельгия,Europe,59,3,898048
+14593,SPACEX-STARLINK,SPACEX-STARLINK - Space Exploration Technologies Corporation,US,США,United States,267,342,896512
+21334,ASN-ONE-HU,ASN-ONE-HU 2Connect Telecommunications Infrastructure & Network Services Ltd.,HU,Венгрия,Europe,38,3,886272
+12083,WOW-INTERNET,WOW-INTERNET - WideOpenWest Finance LLC,US,США,United States,638,1,866816
+2611,BELNET,BELNET BELNET,BE,Бельгия,Europe,40,45,866560
+8764,Telia-Lietuva,"Telia-Lietuva Telia Lietuva, AB",LT,Литва,Europe,192,28,861952
+29518,BREDBAND2,BREDBAND2 Bredband2 AB,SE,Швеция,Europe,114,12,854016
+33490,COMCAST-33490,"COMCAST-33490 - Comcast Cable Communications, LLC",US,США,United States,131,61,854016
+2852,CESNET2,CESNET2 CESNET z.s.p.o.,CZ,Чехия,Europe,21,1,849920
+33588,BRESNAN-33588,BRESNAN-33588 - Charter Communications LLC,US,США,United States,36,13,841984
+15704,AS15704,AS15704 XTRA TELECOM S.A.,ES,Испания,Europe,252,25,835840
+1906,NORTHROP-GRUMMAN,NORTHROP-GRUMMAN - Northrop Grumman,US,США,United States,67,0,833792
+17378,AS17378,"AS17378 - TierPoint, LLC",US,США,United States,427,59,833024
+14340,SALESFORCE,"SALESFORCE - Salesforce.com, Inc.",US,США,United States,39,17,830208
+36375,UMICH-AS-5,UMICH-AS-5 - University of Michigan,US,США,United States,26,16,826496
+8400,TELEKOM-AS,TELEKOM-AS TELEKOM SRBIJA a.d.,RS,Сербия,Europe,95,3,823296
+8968,BT-Italia,BT-Italia RETELIT-X S.R.L.,IT,Италия,Europe,31,1,821504
+6181,FUSE-NET,FUSE-NET - Cincinnati Bell Telephone Company LLC,US,США,United States,149,2,819200
+46887,CROWNCASTLE-AS46887,CROWNCASTLE-AS46887 - Crown Castle Fiber LLC,US,США,United States,612,279,815872
+33070,RMH-14,RMH-14 - Rackspace Hosting,US,США,United States,135,1,798961
+231,MISU-231,MISU-231 - Michigan State University,US,США,United States,18,31,783360
+5603,SIOL-NET,"SIOL-NET Telekom Slovenije, d.d.",SI,Словения,Europe,39,21,781568
+11232,MIDCO-NET,MIDCO-NET - Midcontinent Communications,US,США,United States,158,73,779776
+8560,IONOS-AS,"IONOS-AS This is the joint network for IONOS, Fasthosts, Arsys, 1&1 Mail and Media and 1&1 Telecom. Formerly known as 1&1 Internet SE.",DE,Германия,Europe,532,86,773120
+8103,STATE-OF-FLA,STATE-OF-FLA - Florida Department of Management Services - Division of Telecommunications,US,США,United States,437,17,772096
+13127,ODIDO,ODIDO AS for the Odido IP Transport backbone,NL,Нидерланды,Europe,21,8,756224
+243,HARRIS-ATD-AS,"HARRIS-ATD-AS - L3Harris Technologies, Inc.",US,США,United States,191,0,749824
+2572,MORENET,MORENET - University of Missouri - dba the Missouri Research and Education Network (MOREnet),US,США,United States,48,25,743552
+11686,ZAYO-ENA-11686,ZAYO-ENA-11686 - Zayo Bandwidth,US,США,United States,187,16,734720
+5413,Wavenet-AS5413,Wavenet-AS5413 Wavenet Limited,GB,Великобритания,Europe,102,4,734208
+2687,ATGS-MMD-AS,"ATGS-MMD-AS - AT&T Enterprises, LLC",US,США,United States,232,2,730368
+6325,ILLINOIS-CENTURY,ILLINOIS-CENTURY - Illinois Century Network,US,США,United States,164,4,725760
+14265,US-TELEPACIFIC,US-TELEPACIFIC - TPx Communications,US,США,United States,356,6,716800
+5400,BT,BT British Telecommunications Limited,GB,Великобритания,Europe,76,55,713216
+703,UUNET,UUNET - Verizon Business,US,США,United States,166,43,694528
+21508,COMCAST-21508,"COMCAST-21508 - Comcast Cable Communications, LLC",US,США,United States,141,69,689152
+3737,AS-PTD,AS-PTD - PenTeleData Inc.,US,США,United States,77,1,686592
+8011,MONGO-8011,"MONGO-8011 - MongoDB, Inc.",US,США,United States,25,0,679936
+46375,AS-SONICTELECOM,AS-SONICTELECOM - Sonic Telecom LLC,US,США,United States,55,54,673024
+22258,COMCAST-22258,"COMCAST-22258 - Comcast Cable Communications, LLC",US,США,United States,94,22,664064
+6855,SK-TELEKOM,SK-TELEKOM Slovak Telekom  T-Mobile CZ,SK,Словакия,Europe,38,9,662784
+31822,CITY-UNIVERSITY-OF-NEW-YORK,CITY-UNIVERSITY-OF-NEW-YORK - City University of New York,US,США,United States,12,0,659712
+21859,ZEN-ECN,ZEN-ECN - Zenlayer Inc,US,США,United States,952,161,659456
+4193,WA-STATE-GOV,WA-STATE-GOV - State of Washington,US,США,United States,36,1,655872
+3128,BRUWS-AS3128,BRUWS-AS3128 - University of Wisconsin System,US,США,United States,17,1,655616
+20845,DIGICABLE,DIGICABLE DIGI Tavkozlesi es Szolgaltato Kft.,HU,Венгрия,Europe,115,2,652288
+297,AS297,AS297 - National Aeronautics and Space Administration,US,США,United States,58,50,649472
+33489,COMCAST-33489,"COMCAST-33489 - Comcast Cable Communications, LLC",US,США,United States,186,62,648192
+14962,NCR-252,NCR-252 - NCR Voyix Corporation,US,США,United States,46,0,637184
+33661,CMCS,"CMCS - Comcast Cable Communications, LLC",US,США,United States,165,43,630528
+87,INDIANA-AS,INDIANA-AS - Indiana University,US,США,United States,11,5,622848
+33660,CMCS,"CMCS - Comcast Cable Communications, LLC",US,США,United States,97,55,622080
+3302,AS-RETELIT-IRIDEOS,AS-RETELIT-IRIDEOS Retelit Digital Services S.p.A.,IT,Италия,Europe,68,14,617984
+10753,LUMEN-LEGACY-L3-CUSTOMER-SHARED-USE,"LUMEN-LEGACY-L3-CUSTOMER-SHARED-USE - Level 3 Parent, LLC",US,США,United States,697,14,611840
+1741,FUNETAS,FUNETAS CSC - Tieteen tietotekniikan keskus Oy,FI,Финляндия,Europe,28,17,609792
+31655,ASN-GammaTelecom,ASN-GammaTelecom Gamma Telecom Holdings Ltd,GB,Великобритания,Europe,52,3,609536
+6849,UKRTELNET,"UKRTELNET JSC ""Ukrtelecom""",UA,Украина,Ukraine,219,0,605184
+3249,ESTPAK,ESTPAK Telia Eesti AS,EE,Эстония,Europe,30,4,603392
+1241,FORTHNET-GR,FORTHNET-GR Nova Telecommunications & Media Single Member S.A,GR,Греция,Europe,114,16,602368
+21021,MULTIMEDIA-AS,MULTIMEDIA-AS Cable DTV Internet Voice Provider in Poland.,PL,Польша,Europe,67,2,601344
+29314,VECTRANET-AS,"VECTRANET-AS Al. Zwyciestwa 253, 81-525 Gdynia, Poland",PL,Польша,Europe,197,98,600576
+14977,STATE-OF-WYOMING-ASN,STATE-OF-WYOMING-ASN - State of Wyoming Department A&I,US,США,United States,11,1,595200
+10361,BLOOMBERG-NET,"BLOOMBERG-NET - Bloomberg, LP",US,США,United States,101,0,593664
+8473,BAHNHOF,BAHNHOF Bahnhof AB,SE,Швеция,Europe,111,39,592384
+2897,GEORGIA-1,GEORGIA-1 - Georgia Technology Authority,US,США,United States,21,0,589824
+23089,HOTWIRE-COMMUNICATIONS,HOTWIRE-COMMUNICATIONS - Hotwire Communications,US,США,United States,429,10,583680
+25255,H3G-Austria-AS,H3G-Austria-AS Hutchison Drei Austria GmbH,AT,Австрия,Europe,34,2,575232
+8422,NETCOLOGNE,NETCOLOGNE NetCologne Gesellschaft fur Telekommunikation mbH,DE,Германия,Europe,42,30,572160
+39603,P4NET,P4NET P4 Play network operator,PL,Польша,Europe,9,1,565248
+12552,GlobalConnect-AS12552,GlobalConnect-AS12552 GlobalConnect AB,SE,Швеция,Europe,297,64,560896
+39642,Sinal-AS,Sinal-AS Sinal A/S,DK,Дания,Europe,41,9,558592
+6621,HNS-DIRECPC,"HNS-DIRECPC - Hughes Network Systems, LLC",US,США,United States,169,67,550912
+46606,UNIFIEDLAYER-AS-1,UNIFIEDLAYER-AS-1 - Unified Layer,US,США,United States,231,0,550912
+395954,LEASEWEB-USA-LAX,"LEASEWEB-USA-LAX - Leaseweb USA, Inc.",US,США,United States,173,3,550144
+8437,UTA-AS,UTA-AS Hutchison Drei Austria GmbH,AT,Австрия,Europe,86,67,549887
+21497,UMC-AS,"UMC-AS PrJSC ""VF UKRAINE""",UA,Украина,Ukraine,66,1,548608
+19773,MOTOROLA-SOLUTIONS,"MOTOROLA-SOLUTIONS - Motorola, Inc.",US,США,United States,99,1,545280
+2379,CENTURYLINK-LEGACY-EMBARQ-WNPK,"CENTURYLINK-LEGACY-EMBARQ-WNPK - CenturyLink Communications, LLC",US,США,United States,461,0,544512
+51167,CONTABO,CONTABO Contabo GmbH,DE,Германия,Europe,250,2,542720
+6866,CYTA-NETWORK,CYTA-NETWORK Cyprus Telecommunications Authority,CY,Кипр,Europe,91,39,541440
+10430,WA-K20,WA-K20 - Washington State K-20 Telecommunications Network,US,США,United States,87,1,539392
+19994,RACKSPACE,RACKSPACE - Rackspace Hosting,US,США,United States,60,1,537088
+24608,WINDTRE-AS,WINDTRE-AS WIND TRE S.P.A.,IT,Италия,Europe,5,0,533504
+13237,LAMBDANET-AS,LAMBDANET-AS European Backbone of AS13237,DE,Германия,Europe,138,97,531456
+3598,MICROSOFT-CORP-AS,MICROSOFT-CORP-AS - Microsoft Corporation,US,США,United States,27,81,531200
+7726,FITC-AS,FITC-AS - FedEx Internet Technologies Corporation,US,США,United States,38,53,530176
+206067,H3GUK,H3GUK Hutchison 3G UK Limited,GB,Великобритания,Europe,129,60,529152
+13037,ZEN-AS,ZEN-AS Zen Internet - UK,GB,Великобритания,Europe,36,1,527616
+2607,SANET,SANET Zdruzenie pouzivatelov Slovenskej akademickej datovej siete SANET,SK,Словакия,Europe,12,1,526080
+8612,TISCALI-IT,TISCALI-IT Smeraldo S.p.A.,IT,Италия,Europe,25,1,525056
+19165,WEBPASS,WEBPASS - Webpass Inc.,US,США,United States,24,20,523776
+7046,RFC2270-UUNET-CUSTOMER,RFC2270-UUNET-CUSTOMER - Verizon Business,US,США,United States,191,25,520704
+8767,MNET-AS,MNET-AS M-net Telekommunikations GmbH,DE,Германия,Europe,69,10,520704
+12338,EUSKALTEL,EUSKALTEL Euskaltel S.A.,ES,Испания,Europe,108,63,514304
+3300,BT,BT British Telecommunications Limited,GB,Великобритания,Europe,103,21,513280
+13649,ASN-FLEXENTIAL,ASN-FLEXENTIAL - Flexential Colorado Corp.,US,США,United States,598,176,509952
+13325,STOMI,STOMI - Michigan State Government,US,США,United States,9,0,508160
+2381,WISCNET1-AS,WISCNET1-AS - WiscNet,US,США,United States,108,22,506880
+12312,ECOTEL,ECOTEL ecotel communication ag,DE,Германия,Europe,28,4,505856
+54600,PEG-SV,PEG-SV - PEG TECH INC,US,США,United States,345,1,505344
+12876,AS12876,AS12876 Scaleway SAS,FR,Франция,Europe,84,27,504059
+26496,AS-26496-GO-DADDY-COM-LLC,"AS-26496-GO-DADDY-COM-LLC - GoDaddy.com, LLC",US,США,United States,320,18,503552
+7979,SERVERS-COM,"SERVERS-COM - Servers.com, Inc.",US,США,United States,362,15,503296
+15502,Vodafone-Ireland-ASN,Vodafone-Ireland-ASN Vodafone Ireland Limited,IE,Ирландия,Europe,53,0,501760
+31713,GWCOMMS-MPLS,GWCOMMS-MPLS Gateway Communications,BE,Бельгия,Europe,410,0,498944
+29802,HVC-AS,"HVC-AS - HIVELOCITY, Inc.",US,США,United States,2128,157,498513
+44559,ITHOSTLINE,ITHOSTLINE IT HOSTLINE LTD,CY,Кипр,Europe,911,1,498176
+31042,SERBIA-BROADBAND-AS,SERBIA-BROADBAND-AS Serbia BroadBand-Srpske Kablovske mreze d.o.o.,RS,Сербия,Europe,27,2,496384
+35916,MULTA-ASN1,MULTA-ASN1 - MULTACOM CORPORATION,US,США,United States,245,11,493823
+5852,DNIC-ASBLK-05800-06055,DNIC-ASBLK-05800-06055 - United States Department of Defense (DoD),US,США,United States,381,4,493312
+13977,CTELCO,CTELCO - Fidium,US,США,United States,262,29,492032
+1836,GREEN,GREEN green.ch AG Autonomous System,CH,Швейцария,Europe,80,5,491008
+22616,ZSCALER-SJC1,"ZSCALER-SJC1 - ZSCALER, INC.",US,США,United States,421,22,490496
+12578,APOLLO-AS,APOLLO-AS SIA Tet,LV,Латвия,Europe,156,19,487936
+42689,Glide,Glide Glide Student & Residential Limited,GB,Великобритания,Europe,305,5,486912
+17306,RISE-BROADBAND,"RISE-BROADBAND - JAB Wireless, INC.",US,США,United States,142,5,481024
+29119,SERVIHOSTING-AS,SERVIHOSTING-AS AIRE NETWORKS DEL MEDITERRANEO SL UNIPERSONAL,ES,Испания,Europe,540,81,481024
+8926,MOLDTELECOM-AS,MOLDTELECOM-AS Moldtelecom Autonomous System,MD,Молдова,Europe,126,20,477440
+31615,Odido,Odido Odido Netherlands B.V.,NL,Нидерланды,Europe,19,0,475136
+6453,AS6453,AS6453 - TATA COMMUNICATIONS (AMERICA) INC,US,США,United States,322,195,473856
+8,RICE-AS,RICE-AS - Rice University,US,США,United States,15,1,462336
+12663,VODAFONE-GROUP,VODAFONE-GROUP Fastweb SpA,IT,Италия,Europe,263,2,461312
+40065,CNSERVERS,CNSERVERS - CNSERVERS LLC,US,США,United States,409,0,461312
+394089,GCP-ENTERPRISE-USER-TRAFFIC,GCP-ENTERPRISE-USER-TRAFFIC - Google LLC,US,США,United States,83,1,460032
+6614,USCC-ASN,"USCC-ASN - T-Mobile USA, Inc.",US,США,United States,46,0,449280
+32934,FACEBOOK,"FACEBOOK - Facebook, Inc.",US,США,United States,169,330,444928
+3999,PENN-STATE,PENN-STATE - The Pennsylvania State University,US,США,United States,11,1,443904
+398781,OSL-188,OSL-188 - OCULUS NETWORKS INC,US,США,United States,375,0,437504
+8851,EDGE,EDGE GCI Network Solutions Limited,GB,Великобритания,Europe,519,6,437248
+398101,GO-DADDY-COM-LLC,"GO-DADDY-COM-LLC - GoDaddy.com, LLC",US,США,United States,235,5,435456
+8001,COLOGIX,"COLOGIX - Cologix, Inc",US,США,United States,176,19,426752
+3372,MCI-ASN,MCI-ASN - Verizon Business,US,США,United States,84,1,424704
+12392,ASVOO,ASVOO Orange Belgium SA,BE,Бельгия,Europe,16,5,422912
+62904,AS62904,AS62904 - Eonix Corporation,US,США,United States,520,60,422912
+8374,PLUSNET,PLUSNET Plus network operator in Poland,PL,Польша,Europe,20,2,422656
+12334,R,"R Cable y Telecable Telecomunicaciones, S.A.U.",ES,Испания,Europe,69,8,422656
+7287,PBI-NET-BLK2,"PBI-NET-BLK2 - AT&T Enterprises, LLC",US,США,United States,282,173,420608
+34058,LIFECELL-AS,"LIFECELL-AS Limited Liability Company ""lifecell""",UA,Украина,Ukraine,15,1,418816
+5511,Opentransit,Opentransit Orange S.A.,FR,Франция,Europe,663,31,418048
+60781,LEASEWEB-NL-AMS-01,LEASEWEB-NL-AMS-01 LeaseWeb Netherlands B.V.,NL,Нидерланды,Europe,307,315,411904
+13188,TRIOLAN,TRIOLAN CONTENT DELIVERY NETWORK LTD,UA,Украина,Ukraine,27,33,410880
+6559,NCIH,NCIH - State of NC - State Telecommunications Services,US,США,United States,9,0,410368
+2107,ARNES-NET,ARNES-NET Academic and Research Network of Slovenia,SI,Словения,Europe,25,1,409344
+43515,YOUTUBE,YOUTUBE Google Ireland Limited,IE,Ирландия,Europe,85,36,404992
+15395,RACKSPACE-LON,RACKSPACE-LON Rackspace Ltd.,GB,Великобритания,Europe,49,1,402176
+1955,HBONE-AS,HBONE-AS KIFU (Governmental Info Tech Development Agency),HU,Венгрия,Europe,18,1,395520
+12816,MWN-AS,MWN-AS Leibniz-Rechenzentrum,DE,Германия,Europe,9,1,395008
+3136,STATE-OF-WISCONSIN-AS1,STATE-OF-WISCONSIN-AS1 - State of WI Dept. of Administration,US,США,United States,28,1,394496
+1715,FR-REMIP2000,FR-REMIP2000 REMIP 2000 Autonomous System,FR,Франция,Europe,9,0,393984
+17055,UTAH,UTAH - University of Utah,US,США,United States,32,1,393984
+12291,DPAG-AS,DPAG-AS Deutsche Post AG,DE,Германия,Europe,5,0,393728
+357,DNIC-ASBLK-00306-00371,DNIC-ASBLK-00306-00371 - United States Department of Defense (DoD),US,США,United States,4,1,393216
+361,DNIC-ASBLK-00306-00371,DNIC-ASBLK-00306-00371 - United States Department of Defense (DoD),US,США,United States,15,1,393216
+11663,SUG-1,SUG-1 - State of Utah,US,США,United States,21,0,392704
+15854,DXC_Customer,DXC_Customer EntServ Deutschland GmbH,DE,Германия,Europe,37,0,391424
+54004,LIGHTPATH,LIGHTPATH - Cablevision Lightpath LLC,US,США,United States,407,53,385280
+20860,IOMART-AS,IOMART-AS IOMART CLOUD SERVICES LIMITED,GB,Великобритания,Europe,263,19,384768
+1299,TWELVE99,"TWELVE99 Arelion, fka Telia Carrier",SE,Швеция,Europe,103,33,382976
+31027,GlobalConnect-AS31027,GlobalConnect-AS31027 GlobalConnect A/S,DK,Дания,Europe,124,14,381696
+6122,ICN-AS,ICN-AS - Iowa Communications Network,US,США,United States,88,25,377600
+6939,HURRICANE,HURRICANE - Hurricane Electric LLC,US,США,United States,461,211,373504
+30058,FDCSERVERS,FDCSERVERS - FDCservers.net,US,США,United States,537,103,372478
+2047,ASN-ROCHE-BASLE,ASN-ROCHE-BASLE Hoffmann - La Roche Ltd.,CH,Швейцария,Europe,19,17,371456
+36149,HAWAIIAN-TELCOM,"HAWAIIAN-TELCOM - Hawaiian Telcom Services Company, Inc.",US,США,United States,39,1,369152
+647,DNIC-ASBLK-00616-00665,DNIC-ASBLK-00616-00665 - United States Department of Defense (DoD),US,США,United States,310,0,364032
+54113,FASTLY,"FASTLY - Fastly, Inc.",US,США,United States,275,1005,363008
+35612,NGI-AS,NGI-AS EOLO S.p.A.,IT,Италия,Europe,16,1,361472
+1930,RCCN,"RCCN Fundacao para a Ciencia e a Tecnologia, I.P.",PT,Португалия,Europe,73,1,359936
+62240,CLOUVIDER,CLOUVIDER Clouvider - Global ASN,GB,Великобритания,Europe,776,480,359680
+61157,PLUSSERVER-ASN1,PLUSSERVER-ASN1 PlusServer GmbH,DE,Германия,Europe,181,52,358912
+8468,ENTANET,ENTANET ENTANET International Limited,GB,Великобритания,Europe,44,5,358400
+3354,THENET-AS-3354,THENET-AS-3354 - University of Texas System,US,США,United States,85,8,355840
+513,CERN,CERN CERN - European Organization for Nuclear Research,CH,Швейцария,Europe,19,1,354816
+15943,WTNET-AS,WTNET-AS wilhelm.tel GmbH,DE,Германия,Europe,66,4,354304
+3212,TELEMACH,TELEMACH Broadband Access & Carrier Services,SI,Словения,Europe,37,4,350464
+2688,ATGS-MMD-AS,"ATGS-MMD-AS - AT&T Enterprises, LLC",US,США,United States,92,1,345344
+213155,YETTEL-HU,YETTEL-HU Yettel Hungary Ltd.,HU,Венгрия,Europe,7,1,344064
+25472,WIND-AS,WIND-AS Nova Telecommunications & Media Single Member S.A,GR,Греция,Europe,89,83,342272
+13445,WEBEX,WEBEX - Cisco Webex LLC,US,США,United States,87,148,342016
+15516,DK-DANSKKABELTV,DK-DANSKKABELTV DKTV A/S,DK,Дания,Europe,10,3,340992
+30600,AS-CMN,AS-CMN - Metronet,US,США,United States,198,49,340480
+33654,CMCS,"CMCS - Comcast Cable Communications, LLC",US,США,United States,64,22,337920
+1853,ACONET,ACONET ACOnet Backbone,AT,Австрия,Europe,31,32,334080
+44869,FIBIA-P-S,FIBIA-P-S FIBIA P/S,DK,Дания,Europe,12,1,333824
+14638,LCPRL,LCPRL - Liberty Communications of Puerto Rico LLC,US,США,United States,309,39,333312
+2857,RLP-NET,RLP-NET Johannes Gutenberg-Universitaet Mainz,DE,Германия,Europe,10,1,332800
+59,WISC-MADISON-AS,WISC-MADISON-AS - University of Wisconsin Madison,US,США,United States,33,1,331004
+91,RPI-AS,RPI-AS - Rensselaer Polytechnic Institute,US,США,United States,11,2,330496
+8803,MIGROS,MIGROS Migros-Genossenschafts-Bund,CH,Швейцария,Europe,9,0,330240
+32,STANFORD,STANFORD - Stanford University,US,США,United States,3,2,329728
+32475,SINGLEHOP-LLC,SINGLEHOP-LLC - Internap Holding LLC,US,США,United States,295,20,329728
+52,UCLA,"UCLA - University of California, Los Angeles",US,США,United States,29,102,328968
+200845,AVATEL-AS,"AVATEL-AS AVATEL TELECOM, SA",ES,Испания,Europe,390,2,328960
+210278,SKYIT-BB,SKYIT-BB Sky Italia srl,IT,Италия,Europe,3,1,328704
+68,LANL-NM,LANL-NM - Los Alamos National Laboratory,US,США,United States,8,8,328448
+6289,AHM-CORP,"AHM-CORP - American Honda Motor Company, Inc.",US,США,United States,35,0,328448
+42848,EC-AS,EC-AS European Commission,LU,Люксембург,Europe,30,24,327680
+217,UMN-SYSTEM,UMN-SYSTEM - University of Minnesota,US,США,United States,9,1,325632
+21283,A1SI-AS,"A1SI-AS A1 Slovenija telekomunikacijske storitve,d.d.",SI,Словения,Europe,24,2,325632
+3527,NIH-NET,NIH-NET - National Institutes of Health,US,США,United States,63,6,324608
+8047,GCI,"GCI - GENERAL COMMUNICATION, INC.",US,США,United States,19,1,323840
+29992,VA-TMP-CORE,VA-TMP-CORE - U.S. Department of Veterans Affairs,US,США,United States,58,3,323328
+3477,NOAA-NWAVE,NOAA-NWAVE - National Oceanic and Atmospheric Administration,US,США,United States,93,38,321280
+6922,TEXASAGENCYNET,TEXASAGENCYNET - Texas Department of Information Resources,US,США,United States,46,47,321024
+15600,QUICKLINE,QUICKLINE Quickline AG,CH,Швейцария,Europe,55,22,319488
+15108,ALLO-COMM,ALLO-COMM - Allo Communications LLC,US,США,United States,39,1,317440
+6821,MT-AS-OWN,MT-AS-OWN Makedonski Telekom AD-Skopje,MK,Северная Македония,Europe,109,1,316672
+12301,Invitech,Invitech Invitech ICT Services Kft.,HU,Венгрия,Europe,256,21,316672
+13536,TVC-AS1,"TVC-AS1 - FirstLight Fiber, Inc.",US,США,United States,115,55,315904
+27364,ACS-INTERNET,ACS-INTERNET - Armstrong,US,США,United States,15,1,315904
+3308,TELIANET-DENMARK,TELIANET-DENMARK Norlys Telco A/S,DK,Дания,Europe,21,6,314880
+5578,AS-BENESTRA,"AS-BENESTRA SWAN, a.s.",SK,Словакия,Europe,140,20,313600
+27046,DNIC-ASBLK-27032-27159,DNIC-ASBLK-27032-27159 - United States Department of Defense (DoD),US,США,United States,373,104,312320
+13041,CESCA-AC,CESCA-AC Consorci de Serveis Universitaris de Catalunya,ES,Испания,Europe,8,2,311808
+23005,SWITCH-LTD,"SWITCH-LTD - SWITCH, LTD",US,США,United States,253,65,311552
+17054,EXPEDIENT,EXPEDIENT - Expedient,US,США,United States,116,8,310528
+12350,VTX-NETWORK,VTX-NETWORK VTX Services SA,CH,Швейцария,Europe,29,2,310016
+3480,PEACHNET-AS3480,PEACHNET-AS3480 - Board of Regents of the University System of Georgia,US,США,United States,55,0,308992
+13124,A1BG_RSD,A1BG_RSD A1 Bulgaria EAD,BG,Болгария,Europe,187,60,308480
+12969,Vodafone_Iceland,Vodafone_Iceland Ljosleidarinn ehf,IS,Исландия,Europe,28,2,306688
+30103,ZOOM-VIDEO-COMM-AS,"ZOOM-VIDEO-COMM-AS - Zoom Video Communications, Inc",US,США,United States,99,25,306176
+11320,LIGHTEDGE-AS-02,LIGHTEDGE-AS-02 - LightEdge Solutions,US,США,United States,173,13,305152
+21852,DISNW1,"DISNW1 - State Of Arkansas, Division of Information Systems",US,США,United States,8,0,304640
+54253,ORCL-CHICAGO-PP,ORCL-CHICAGO-PP - Oracle Corporation,US,США,United States,237,614,304640
+7843,TWC-7843-BB,TWC-7843-BB - Charter Communications Inc,US,США,United States,165,39,300032
+18,UTEXAS,UTEXAS - University of Texas at Austin,US,США,United States,8,0,299520
+26810,HHSNET-NOC-ASN,HHSNET-NOC-ASN - U.S. Dept. of Health and Human Services,US,США,United States,63,3,298496
+683,ARGONNE-AS,ARGONNE-AS - Argonne National Laboratory,US,США,United States,18,9,297216
+198678,deloscloud,deloscloud Delos Cloud GmbH,DE,Германия,Europe,4,1,294912
+11714,NETWORK,NETWORK NEBRASKA - Network Nebraska,US,США,United States,30,2,294400
+557,UMAINE-SYS-AS,UMAINE-SYS-AS - University of Maine System,US,США,United States,16,1,292608
+18747,IFX18747,IFX18747 - IFX Corporation,US,США,United States,213,51,292096
+25180,EXPONENTIAL-E-AS,EXPONENTIAL-E-AS Exponential-E Ltd.,GB,Великобритания,Europe,38,3,291072
+12709,MELITACABLE,MELITACABLE Melita Limited,MT,Мальта,Europe,25,4,289792
+1341,ROCKWELLCOLLINS-AS,"ROCKWELLCOLLINS-AS - Rockwell Collins, Inc.",US,США,United States,49,1,289280
+5056,AUREON-5056,AUREON-5056 - Aureon Network Services,US,США,United States,540,76,289024
+7127,SCE,SCE - Southern California Edison,US,США,United States,6,0,286976
+48161,NG-AS,NG-AS Sos. Bucuresti - Ploiesti nr. 42-44,RO,Румыния,Europe,116,0,284416
+391,AFCONC-BLOCK1-AS,AFCONC-BLOCK1-AS - Air Force Systems Networking,US,США,United States,40,0,283648
+6762,SEABONE-NET,SEABONE-NET TELECOM ITALIA SPARKLE S.p.A.,IT,Италия,Europe,231,18,282624
+31034,ARUBA-ASN,ARUBA-ASN Aruba S.p.A.,IT,Италия,Europe,74,19,282624
+8069,MICROSOFT-CORP-MSN-AS-BLOCK,MICROSOFT-CORP-MSN-AS-BLOCK - Microsoft Corporation,US,США,United States,194,0,282112
+57269,DIGI-ES,DIGI-ES DIGI SPAIN TELECOM S.A,ES,Испания,Europe,8,1,281088
+32098,TRANSTELCO-INC,TRANSTELCO-INC - Transtelco Inc,US,США,United States,262,1803,280832
+226,LOS-NETTOS-AS,LOS-NETTOS-AS - Los Nettos,US,США,United States,90,46,280576
+22205,DATAPIPE-SEA,"DATAPIPE-SEA - DataPipe, Inc.",US,США,United States,55,1,280320
+19957,STATE-OF-TENNESSEE-NETTN,"STATE-OF-TENNESSEE-NETTN - AT&T Enterprises, LLC",US,США,United States,68,0,276736
+8147,ASERICY,ASERICY - Ericsson Inc.,US,США,United States,32,5,276224
+2386,INS-AS,"INS-AS - AT&T Enterprises, LLC",US,США,United States,305,1,275840
+127,JPL-AS127,JPL-AS127 - Jet Propulsion Laboratory,US,США,United States,41,2,275456
+35986,VYVE-BROADBAND,VYVE-BROADBAND - Vyve Broadband,US,США,United States,296,17,274176
+30844,LIQUID-AS,LIQUID-AS Liquid Telecommunications Ltd,GB,Великобритания,Europe,231,59,273664
+20910,BALTKOM-AS,"BALTKOM-AS SIA ""BITE Latvija""",LV,Латвия,Europe,22,3,273408
+54801,ZILLION-NETWORK,ZILLION-NETWORK - Zillion Network Inc.,US,США,United States,133,0,272384
+5180,DNIC-ASBLK-05120-05376,DNIC-ASBLK-05120-05376 - United States Department of Defense (DoD),US,США,United States,41,0,271360
+122,UPMC-AS122,UPMC-AS122 - UPMC,US,США,United States,28,1,270848
+409,AFCONC-BLOCK1-AS,AFCONC-BLOCK1-AS - Air Force Systems Networking,US,США,United States,42,0,269312
+2576,DOT-AS,DOT-AS - U. S. Department of Transportation,US,США,United States,15,15,268800
+29208,QUANTCOM-AS,"QUANTCOM-AS Quantcom, a.s.",CZ,Чехия,Europe,38,19,265984
+16236,PSA,PSA Stellantis Auto SAS,FR,Франция,Europe,75,1,265216
+47610,RWTH-AS,RWTH-AS RWTH Aachen University,DE,Германия,Europe,11,4,265216
+370,DNIC-ASBLK-00306-00371,DNIC-ASBLK-00306-00371 - United States Department of Defense (DoD),US,США,United States,84,1,264192
+11377,SENDGRID,"SENDGRID - SendGrid, Inc.",US,США,United States,41,0,263936
+18779,EGIHOSTING,EGIHOSTING - EGIHosting,US,США,United States,663,38,263936
+29580,A1BG_RSG,A1BG_RSG A1 Bulgaria EAD,BG,Болгария,Europe,282,10,263168
+19902,NET-STATE-OHIO,NET-STATE-OHIO - Department of Administrative Services,US,США,United States,17,0,262912
+27357,RACKSPACE,RACKSPACE - Rackspace Hosting,US,США,United States,41,1,262912
+9159,Credit,Credit Agricole SA,FR,Франция,Europe,21,0,262656
+299,UCINET-AS,"UCINET-AS - University of California, Irvine",US,США,United States,7,3,262404
+82,OPENTEXT,OPENTEXT - Attachmate Corp.,US,США,United States,17,15,262400
+14298,EPA-NET,EPA-NET - Environmental Protection Agency,US,США,United States,4,1,262400
+197425,SAAB-ASN,SAAB-ASN SAAB AB,SE,Швеция,Europe,5,0,262400
+291,ESNET-EAST,ESNET-EAST - ESnet,US,США,United States,1,0,262144
+292,ESNET-WEST,ESNET-WEST - ESnet,US,США,United States,1,0,262144
+26662,XEROX-WV,XEROX-WV - XEROX CORPORATION,US,США,United States,27,0,262144
+55,UPENN,UPENN - University of Pennsylvania,US,США,United States,11,16,261888
+2048,LANET-1,LANET-1 - State of Louisiana Office of Technology Services,US,США,United States,120,0,261664
+15962,OSK-DNI,OSK-DNI Orange Slovensko a.s.,SK,Словакия,Europe,21,1,261120
+4454,TNET-AS,TNET-AS - State of Tennessee,US,США,United States,21,0,260864
+8308,NASK-COMMERCIAL,NASK-COMMERCIAL NAUKOWA I AKADEMICKA SIEC KOMPUTEROWA - PANSTWOWY INSTYTUT BADAWCZY,PL,Польша,Europe,119,33,260352
+6360,UNIVHAWAII,UNIVHAWAII - University of Hawaii,US,США,United States,142,199,255234
+42863,MEO-MOVEL,MEO-MOVEL MEO - SERVICOS DE COMUNICACOES E MULTIMEDIA S.A.,PT,Португалия,Europe,9,1,254976
+12390,KINGSTON-UK-AS,KINGSTON-UK-AS KCOM Group Limited,GB,Великобритания,Europe,23,2,250880
+16347,INHERENT,INHERENT ADISTA SAS,FR,Франция,Europe,146,14,250368
+32244,LIQUIDWEB,"LIQUIDWEB - Liquid Web, L.L.C",US,США,United States,52,6,250368
+25106,MTSBY-AS,MTSBY-AS Mobile TeleSystems JLLC,BY,Беларусь,Europe,150,30,250112
+42772,A1-BY-AS,A1-BY-AS Unitary enterprise A1,BY,Беларусь,Europe,148,7,247808
+29247,COSMOTE-GR,COSMOTE-GR Ote SA (Hellenic Telecommunications Organisation),GR,Греция,Europe,11,10,247552
+33666,CMCS,"CMCS - Comcast Cable Communications, LLC",US,США,United States,89,12,247296
+2110,AS-BTIRE,AS-BTIRE Enet Communications LIMITED,IE,Ирландия,Europe,50,20,243456
+8339,KABSI-AS,KABSI-AS kabelplus GmbH,AT,Австрия,Europe,35,3,242688
+8445,SALZBURG-AG-AS,"SALZBURG-AG-AS SALZBURG AG fur Energie, Verkehr und Telekommunikation",AT,Австрия,Europe,40,2,241408
+20021,LNH-INC,"LNH-INC - Ntirety, Inc.",US,США,United States,35,2,241152
+10455,LUCENT-CIO,LUCENT-CIO - Nokia of America Corporation,US,США,United States,58,4,240384
+16504,GRANITE,GRANITE - Granite Telecommunications LLC,US,США,United States,61,18,239360
+201838,ASN-COMMUNITYFIBRE,ASN-COMMUNITYFIBRE Community Fibre Limited,GB,Великобритания,Europe,101,2,238336
+73,WASHINGTON-AS,WASHINGTON-AS - University of Washington,US,США,United States,12,8,238080
+15659,NEXTGENTEL,NEXTGENTEL NEXTGENTEL Autonomous System,NO,Норвегия,Europe,14,2,238080
