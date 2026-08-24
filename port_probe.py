@@ -36,6 +36,12 @@ DB_PATH = os.environ.get("ISP_DB_PATH", os.path.join(BASE_DIR, "isp_cidr.db"))
 TCP_PORTS = [8291, 8728, 7547, 8080, 8443, 23, 22]
 SNMP_COMMUNITIES = ["public", "private"]
 SNMP_SYSDESCR_OID = "1.3.6.1.2.1.1.1.0"
+SNMP_OIDS = {
+    "sysDescr": "1.3.6.1.2.1.1.1.0",
+    "sysName": "1.3.6.1.2.1.1.5.0",
+    "sysUpTime": "1.3.6.1.2.1.1.3.0",
+    "ifNumber": "1.3.6.1.2.1.2.1.0",
+}
 
 INIT_SQL = """
 CREATE TABLE IF NOT EXISTS device_ports (
@@ -55,6 +61,15 @@ CREATE TABLE IF NOT EXISTS snmp_results (
     sys_descr TEXT,
     checked_at TEXT NOT NULL,
     UNIQUE(ip, community)
+);
+CREATE TABLE IF NOT EXISTS snmp_data (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ip TEXT NOT NULL,
+    community TEXT,
+    oid TEXT,
+    value TEXT,
+    checked_at TEXT NOT NULL,
+    UNIQUE(ip, community, oid)
 );
 """
 
@@ -178,11 +193,11 @@ class _SNMPProto(asyncio.DatagramProtocol):
         self.queue.put_nowait(b"")
 
 
-async def snmp_get(ip, community, timeout=3.0):
-    """Raw SNMPv1 GET sysDescr. Returns (value, error)."""
+async def snmp_get(ip, community, timeout=3.0, oid=SNMP_SYSDESCR_OID):
+    """Raw SNMPv1 GET. Returns (value, error)."""
     try:
         loop = asyncio.get_event_loop()
-        pkt = snmp_build_get(community, SNMP_SYSDESCR_OID)
+        pkt = snmp_build_get(community, oid)
         transport, proto = await loop.create_datagram_endpoint(
             _SNMPProto, remote_addr=(ip, 161))
         transport.sendto(pkt)
@@ -213,8 +228,9 @@ async def probe_device(ip, tcp_only, snmp_only, timeout):
             result[str(port)] = st
     if not tcp_only:
         for comm in SNMP_COMMUNITIES:
-            val, err = await snmp_get(ip, comm, timeout)
-            result[f"snmp:{comm}"] = val if val else ("timeout" if err == "timeout" else "closed")
+            for oid_name, oid in SNMP_OIDS.items():
+                val, err = await snmp_get(ip, comm, timeout, oid)
+                result[f"snmp:{comm}:{oid_name}"] = val if val else ("timeout" if err == "timeout" else "closed")
     return ip, result
 
 
@@ -244,9 +260,15 @@ def save(conn, results):
         open_ports = []
         for k, v in res.items():
             if k.startswith("snmp:"):
+                parts = k.split(":")
+                comm = parts[1]
+                oid_name = parts[2] if len(parts) > 2 else "sysDescr"
                 if v not in ("closed", "timeout", None):
-                    cur.execute("INSERT OR REPLACE INTO snmp_results (ip, community, sys_descr, checked_at) VALUES (?,?,?,?)",
-                                (ip, k.split(":", 1)[1], v, now))
+                    if oid_name == "sysDescr":
+                        cur.execute("INSERT OR REPLACE INTO snmp_results (ip, community, sys_descr, checked_at) VALUES (?,?,?,?)",
+                                    (ip, comm, v, now))
+                    cur.execute("INSERT OR REPLACE INTO snmp_data (ip, community, oid, value, checked_at) VALUES (?,?,?,?,?)",
+                                (ip, comm, oid_name, v, now))
                 continue
             port = int(k)
             if v == "open":
