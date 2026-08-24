@@ -10,6 +10,9 @@
 
 | Задача | Агент | Хост / Окружение | Текущий шаг | Статус | Обновлено |
 | :--- | :--- | :--- | :--- | :---: | :---: |
+| **Task in progress** | `Agent-Arena-01` | `Unknown` | v1.7.0: multiport+shards+realm+GH Actions done | `IN_PROGRESS` 🔄 | 2026-08-24 |
+
+--- | :--- | :--- | :--- | :---: | :---: |
 | **Task in progress** | `Agent-Arena-01` | `Unknown` | SSH/Telnet audit done (0 creds), SNMP expanded (1 device profiled) | `IN_PROGRESS` 🔄 | 2026-08-24 |
 
 --- | :--- | :--- | :--- | :---: | :---: |
