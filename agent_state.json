@@ -1,18 +1,8 @@
 {
   "project": "ISP CIDR Multi-Agent Database",
   "version": "1.0.0",
-  "last_updated": "2026-08-24T20:11:44Z",
-  "active_agents": [
-    {
-      "agent_id": "Agent-Arena-01",
-      "machine_id": "Unknown",
-      "task_name": "Task in progress",
-      "current_step": "False positive removed, delayed-auth criterion fixed",
-      "status": "IN_PROGRESS",
-      "started_at": "2026-08-24T20:11:44Z",
-      "updated_at": "2026-08-24T20:11:44Z"
-    }
-  ],
+  "last_updated": "2026-08-24T20:20:14Z",
+  "active_agents": [],
   "tasks": {
     "TASK-01": {
       "title": "Database Construction",
