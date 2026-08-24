@@ -165,6 +165,18 @@ async def submit_login(page, user, pwd, wait_ms):
         # 1. form must be gone
         if await form_visible(page):
             return "fail"
+        # 1b. DELAYED AUTH: some devices (MikroTik WebFig) show "Loading" and
+        # only then complete auth; a failed login bounces BACK to the login
+        # form after ~15s. Wait and re-check, otherwise we record false hits.
+        await page.wait_for_timeout(15000)
+        if await form_visible(page):
+            return "fail"
+        try:
+            t_check = await page.evaluate("document.body ? document.body.innerText.slice(0, 3000) : ''")
+        except Exception:
+            t_check = ""
+        if _re.search(r"(?i)(authentication failed|invalid user|failed to log|wrong|неверн|ошибка)", t_check):
+            return "fail"
         # 2. no login error text
         try:
             text = await page.evaluate("document.body ? document.body.innerText.slice(0, 2500) : ''")
