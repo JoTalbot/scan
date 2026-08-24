@@ -13,6 +13,12 @@
 | *Нет активных задач* | - | - | Все задачи выполнены | `IDLE` 🟢 | - |
 
 --- | :--- | :--- | :--- | :---: | :---: |
+| **Port 80 Scan (one-shot 10k #2)** | `Agent-Arena-01` | `aios-server` | Сканирование следующих 10000 IP | `IN_PROGRESS` 🔄 | 2026-08-24 |
+
+--- | :--- | :--- | :--- | :---: | :---: |
+| *Нет активных задач* | - | - | Все задачи выполнены | `IDLE` 🟢 | - |
+
+--- | :--- | :--- | :--- | :---: | :---: |
 | **Router Detection & Extraction** | `Agent-Arena-01` | `aios-server` | Live scan test: routers writing to scan_routers | `IN_PROGRESS` 🔄 | 2026-08-24 |
 
 --- | :--- | :--- | :--- | :---: | :---: |
@@ -68,6 +74,11 @@
   - Добавлены: высокоскоростной async-сканер порта 80 (`port_scanner.py`), таблица `ip_ranges` с явными границами IP, менеджер хранения и автосинхронизации (`sync_manager.py`).
   - База данных сжата и оптимизирована (репозиторий < 90 МБ).
   - Запущены фоновые партии сканирования порта 80 (чанки `data/scans/scan_aios-agent-01_*.csv.gz`).
+- **2026-08-24 (v1.1.1): Партия #2 сканирования (10,000 IP)**
+  - 10,000 IP за 37.0 сек (500 потоков): 296 открытых портов, 294 новых баннера.
+  - Общий прогресс: 140,200 проверенных IP, 4,312 баннеров.
+  - Новые роутеры (live-детекция в scan_routers): MikroTik 217.70.200.0 (HttpProxy), MikroTik 78.138.19.128 (RouterOS), OpenWrt 77.81.49.112 (LuCI cgi-bin redirect).
+  - Всего в scan_routers: 39 устройств (MikroTik 14, DSL 12, Zyxel 6, SonicWALL 2, Keenetic, LANCOM, OpenWrt, TP-Link, httpd).
 - **2026-08-24 (v1.1.0): Роутер-детекция**
   - Новый движок `router_detect.py`: сигнатуры 30+ вендоров (MikroTik, TP-Link, Zyxel, Keenetic, D-Link, NETGEAR, LANCOM, SonicWALL, Huawei, OpenWrt и др.) по server_header, WWW-Authenticate realm, title и специфичным фразам баннера; извлечение моделей (напр. ZyXEL P-660HN-51, TP-Link WR741ND); уровень уверенности high/medium.
   - Отдельная таблица `scan_routers` (vendor, model, device_type, confidence, matched_on + контекст) — заполняется прямо во время сканирования (`port_scanner.py`).
