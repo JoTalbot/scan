@@ -41,7 +41,7 @@ def init_db(conn):
     cur.execute("""
     CREATE TABLE IF NOT EXISTS scan_results (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        ip TEXT NOT NULL UNIQUE,
+        ip TEXT NOT NULL,
         ip_int INTEGER,
         port INTEGER DEFAULT 80,
         status TEXT NOT NULL,
@@ -50,6 +50,7 @@ def init_db(conn):
         server_header TEXT,
         title TEXT,
         banner TEXT,
+        realm TEXT,
         response_time_ms REAL,
         asn INTEGER,
         isp_name TEXT,
@@ -58,9 +59,53 @@ def init_db(conn):
         region TEXT,
         scanned_at TEXT NOT NULL,
         agent_id TEXT,
-        machine_id TEXT
+        machine_id TEXT,
+        UNIQUE(ip, port)
     );
     """)
+    # Миграция со старой схемы (UNIQUE ip -> UNIQUE ip+port + realm)
+    cur.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='scan_results'")
+    row = cur.fetchone()
+    if row and "UNIQUE(ip, port)" not in (row[0] or ""):
+        print("🔄 Миграция scan_results: UNIQUE(ip) -> UNIQUE(ip, port) + realm...")
+        cur.execute("ALTER TABLE scan_results RENAME TO scan_results_old")
+        cur.execute("""
+        CREATE TABLE scan_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ip TEXT NOT NULL,
+            ip_int INTEGER,
+            port INTEGER DEFAULT 80,
+            status TEXT NOT NULL,
+            has_banner INTEGER DEFAULT 0,
+            http_status INTEGER,
+            server_header TEXT,
+            title TEXT,
+            banner TEXT,
+            realm TEXT,
+            response_time_ms REAL,
+            asn INTEGER,
+            isp_name TEXT,
+            country_code TEXT,
+            country_name_ru TEXT,
+            region TEXT,
+            scanned_at TEXT NOT NULL,
+            agent_id TEXT,
+            machine_id TEXT,
+            UNIQUE(ip, port)
+        )
+        """)
+        cur.execute("""
+        INSERT INTO scan_results (id, ip, ip_int, port, status, has_banner, http_status,
+            server_header, title, banner, realm, response_time_ms, asn, isp_name,
+            country_code, country_name_ru, region, scanned_at, agent_id, machine_id)
+        SELECT id, ip, ip_int, port, status, has_banner, http_status,
+            server_header, title, banner, NULL, response_time_ms, asn, isp_name,
+            country_code, country_name_ru, region, scanned_at, agent_id, machine_id
+        FROM scan_results_old
+        """)
+        cur.execute("DROP TABLE scan_results_old")
+        conn.commit()
+        print("✅ Миграция завершена")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_scan_ip ON scan_results(ip);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_scan_has_banner ON scan_results(has_banner);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_scan_asn ON scan_results(asn);")
@@ -189,16 +234,15 @@ def fetch_unscanned_ips(conn, batch_size=100000, country=None, asn=None, isp_wor
 
     return targets
 
-async def scan_single_target(t, port=80, timeout=2.0, agent="Agent-01", machine="aios"):
-    ip = t["ip"]
-    t0 = time.time()
+async def scan_one_port(ip, ip_int, port, t0, timeout, agent, machine, meta):
+    """Проверка одного порта для цели; возвращает dict результата."""
     req = f"GET / HTTP/1.1\r\nHost: {ip}\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\nConnection: close\r\n\r\n".encode()
     res = {
-        "ip": ip, "ip_int": t["ip_int"], "port": port, "status": "closed",
+        "ip": ip, "ip_int": ip_int, "port": port, "status": "closed",
         "has_banner": 0, "http_status": None, "server_header": None, "title": None,
-        "banner": None, "response_time_ms": 0.0, "asn": t["asn"],
-        "isp_name": t["isp_name"], "country_code": t["country_code"],
-        "country_name_ru": t["country_name_ru"], "region": t["region"],
+        "banner": None, "realm": None, "response_time_ms": 0.0,
+        "asn": meta["asn"], "isp_name": meta["isp_name"], "country_code": meta["country_code"],
+        "country_name_ru": meta["country_name_ru"], "region": meta["region"],
         "scanned_at": get_now(), "agent_id": agent, "machine_id": machine
     }
     try:
@@ -222,6 +266,10 @@ async def scan_single_target(t, port=80, timeout=2.0, agent="Agent-01", machine=
             if srv: res["server_header"] = srv.group(1).strip()[:100]
             tm = re.search(r"(?i)<title[^>]*>(.*?)</title>", text, re.DOTALL)
             if tm: res["title"] = re.sub(r"\s+", " ", tm.group(1)).strip()[:200]
+            # (пункт 8) WWW-Authenticate realm — структурированное хранение
+            rm = re.search(r'WWW-Authenticate:\s*Basic\s+realm="([^"]*)"', text, re.IGNORECASE)
+            if rm:
+                res["realm"] = rm.group(1).strip()[:120]
 
             # Router device detection
             det = detect_router(server_header=res["server_header"], title=res["title"], banner=text)
@@ -233,11 +281,27 @@ async def scan_single_target(t, port=80, timeout=2.0, agent="Agent-01", machine=
         res["status"] = "closed"
     return res
 
+
+async def scan_single_target(t, ports=(80,), timeout=2.0, agent="Agent-01", machine="aios"):
+    """Проверка цели на нескольких портах параллельно. Возвращает список результатов."""
+    ip = t["ip"]
+    t0 = time.time()
+    meta = {
+        "asn": t["asn"], "isp_name": t["isp_name"], "country_code": t["country_code"],
+        "country_name_ru": t["country_name_ru"], "region": t["region"],
+    }
+    results = await asyncio.gather(*[
+        scan_one_port(ip, t["ip_int"], port, t0, timeout, agent, machine, meta)
+        for port in ports
+    ])
+    return list(results)
+
 async def db_writer(queue, db_path):
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
     cur.execute("PRAGMA synchronous = NORMAL;")
     cur.execute("PRAGMA journal_mode = WAL;")
+    cur.execute("PRAGMA busy_timeout = 30000;")  # мультимашинность: ждать блокировку
     batch = []
     while True:
         item = await queue.get()
@@ -270,15 +334,15 @@ def flush(cur, conn, records):
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", router_rows)
     rows = [(
         r["ip"], r["ip_int"], r["port"], r["status"], r["has_banner"],
-        r["http_status"], r["server_header"], r["title"], r["banner"],
+        r["http_status"], r["server_header"], r["title"], r["banner"], r.get("realm"),
         r["response_time_ms"], r["asn"], r["isp_name"], r["country_code"],
         r["country_name_ru"], r["region"], r["scanned_at"],
         r["agent_id"], r["machine_id"]
     ) for r in records]
-    cur.executemany("INSERT OR REPLACE INTO scan_results (ip, ip_int, port, status, has_banner, http_status, server_header, title, banner, response_time_ms, asn, isp_name, country_code, country_name_ru, region, scanned_at, agent_id, machine_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", rows)
+    cur.executemany("INSERT OR REPLACE INTO scan_results (ip, ip_int, port, status, has_banner, http_status, server_header, title, banner, realm, response_time_ms, asn, isp_name, country_code, country_name_ru, region, scanned_at, agent_id, machine_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", rows)
     conn.commit()
 
-async def run_scan(targets, concurrency=500, port=80, timeout=2.0, agent="Agent-01", machine="aios"):
+async def run_scan(targets, concurrency=500, ports=(80,), timeout=2.0, agent="Agent-01", machine="aios"):
     """Scan with a FIXED worker pool (scales to millions of targets).
 
     Targets are consumed from a queue by `concurrency` workers; a separate
@@ -304,11 +368,12 @@ async def run_scan(targets, concurrency=500, port=80, timeout=2.0, agent="Agent-
             t = await work_q.get()
             if t is None:
                 return
-            res = await scan_single_target(t, port, timeout, agent, machine)
+            res_list = await scan_single_target(t, ports, timeout, agent, machine)
             done += 1
-            if res["status"] == "open": opens += 1
-            if res["has_banner"]: banners += 1
-            await res_q.put(res)
+            for res in res_list:
+                if res["status"] == "open": opens += 1
+                if res["has_banner"]: banners += 1
+                await res_q.put(res)
             if done % 250 == 0 or done == total:
                 dt = time.time() - t0
                 pps = int(done / dt) if dt > 0 else 0
@@ -343,6 +408,7 @@ def main():
     p_run.add_argument("--batch", type=int, default=100000)
     p_run.add_argument("--concurrency", type=int, default=500)
     p_run.add_argument("--timeout", type=float, default=2.0)
+    p_run.add_argument("--ports", default="80", help="Порты через запятую (напр. 80,8080,8443)")
     p_run.add_argument("--country")
     p_run.add_argument("--asn", type=int)
     p_run.add_argument("--shard", type=int, help="Номер машины (0-based)")
@@ -372,7 +438,8 @@ def main():
             return
         print(f"⚡ Запуск сканирования {len(targets):,} IP в {args.concurrency} потоков (Timeout {args.timeout}s)...")
         try:
-            asyncio.run(run_scan(targets, concurrency=args.concurrency, port=80, timeout=args.timeout))
+            ports = tuple(int(p) for p in args.ports.split(",") if p.strip())
+            asyncio.run(run_scan(targets, concurrency=args.concurrency, ports=ports, timeout=args.timeout))
         finally:
             show_stats()
             cleanup_temp_files()
