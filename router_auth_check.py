@@ -44,7 +44,9 @@ import sys
 import re
 import csv
 import base64
+import hashlib
 import asyncio
+import urllib.parse
 import sqlite3
 import argparse
 import datetime
@@ -323,6 +325,14 @@ async def probe_channel(ip, port, timeout):
     if text2:
         if "X-LuCI-Login-Required: yes" in text2 and "luci_username" in text2:
             return "luci", None
+    # Zyxel P-660HN-style form (login-page.cgi, MD5 password, hidden AuthPassword)
+    text4 = await raw_request(ip, port, "GET", "/", timeout=timeout)
+    if text4 and "AuthName" in text4 and "AuthPassword" in text4 and "login-page.cgi" in text4:
+        return "zyxel", None
+    # SonicWALL auth.cgi CHAP form
+    text5 = await raw_request(ip, port, "GET", "/auth1.html", timeout=timeout)
+    if text5 and "auth.cgi" in text5 and "digest" in text5 and "param1" in text5:
+        return "sonicwall", None
     return "none", None
 
 
@@ -385,6 +395,86 @@ async def check_luci(ip, port, creds, timeout):
     return None, None, None
 
 
+async def check_zyxel(ip, port, creds, timeout):
+    """Zyxel P-660HN-style form login (login-page.cgi).
+
+    The page shows a normal form; JS hashes the password with MD5 into the
+    hidden AuthPassword field. Success is strictly: a redirect to a non-login
+    page, OR a 200 response that no longer contains any login-page markers
+    (login-page.cgi / Welcome / Please enter / Web Configurator).
+    """
+    page = await raw_request(ip, port, "GET", "/", timeout=timeout)
+    if not page:
+        return None, None, None
+    m = re.search(r"<form[^>]*action=[\"']([^\"']*login-page\.cgi)[\"']", page, re.I)
+    action = m.group(1) if m else "/login/login-page.cgi"
+    if not action.startswith("/"):
+        action = "/" + action
+    for user, pwd in creds:
+        md5p = hashlib.md5(pwd.encode()).hexdigest()
+        body = urllib.parse.urlencode({"AuthName": user, "AuthPassword": md5p, "Display": "0"})
+        resp = await raw_request(ip, port, "POST", action,
+                                 {"Content-Type": "application/x-www-form-urlencoded"}, body, timeout=timeout)
+        if resp is None:
+            continue
+        head, st = parse_head(resp)
+        body_txt = resp.split("\r\n\r\n")[-1] if "\r\n\r\n" in resp else ""
+        loc = re.search(r"(?i)^Location:\s*([^\r\n]+)", head, re.M)
+        # success = redirect to a non-login *page* (a /login/ directory or
+        # home-page.cgi after auth is fine; login-page.cgi / login.cgi is not)
+        if st in (301, 302, 303, 307, 308) and loc:
+            l = loc.group(1).lower()
+            if "login-page" not in l and "login.cgi" not in l and "login.html" not in l:
+                return (user, pwd), st, "zyxel"
+        # or 200 page without any login markers
+        if st == 200:
+            low = body_txt.lower()
+            if not any(x in low for x in ["login-page", "welcome", "please enter", "web configurator"]):
+                return (user, pwd), st, "zyxel"
+    return None, None, None
+
+
+async def check_sonicwall(ip, port, creds, timeout):
+    """SonicWALL auth.cgi CHAP login.
+
+    digest = MD5(id + password + challenge) over ASCII bytes (per auth js:
+    getBytes() encodes each string to UTF-8 bytes). POST /auth.cgi with
+    id, uName, digest and empty pass. Success strictly: 3xx + SessId cookie,
+    or a 200 response without the login form.
+    """
+    page = await raw_request(ip, port, "GET", "/auth1.html", timeout=timeout)
+    if not page:
+        return None, None, None
+    idm = re.search(r'(?i)name="id"\s+value="([^"]+)"', page)
+    devid = idm.group(1) if idm else "dc"
+    pm = re.search(r'(?i)name="param1"\s+value="([^"]+)"', page)
+    chal = pm.group(1) if pm else None
+    if not chal:
+        return None, None, None  # no challenge -> cannot perform CHAP
+    for user, pwd in creds:
+        digest = hashlib.md5((devid + pwd + chal).encode()).hexdigest()
+        body = urllib.parse.urlencode({"id": devid, "uName": user, "digest": digest,
+                                       "pass": "", "Submit": "LOG IN"})
+        resp = await raw_request(ip, port, "POST", "/auth.cgi",
+                                 {"Content-Type": "application/x-www-form-urlencoded"}, body, timeout=timeout)
+        if resp is None:
+            continue
+        head, st = parse_head(resp)
+        body_txt = resp.split("\r\n\r\n")[-1] if "\r\n\r\n" in resp else ""
+        cookies = re.findall(r"(?i)Set-Cookie:\s*([^;\r\n]+)", head)
+        has_sess = any("sessid" in c.lower() for c in cookies)
+        if st in (301, 302, 303) and has_sess:
+            return (user, pwd), st, "sonicwall"
+        if st == 200:
+            # auth.cgi ALWAYS answers 200 "Page Redirecting"; the real result is
+            # embedded as `var sessIdStr = "<sid>"` — "null" means login failed.
+            sm = re.search(r"sessIdStr\s*=\s*\"([^\"]*)\"", body_txt)
+            sid = sm.group(1) if sm else None
+            if sid is not None and sid != "null" and sid != "":
+                return (user, pwd), st, "sonicwall"
+    return None, None, None
+
+
 # ---------------------------------------------------------------------------
 # Orchestration
 # ---------------------------------------------------------------------------
@@ -401,8 +491,14 @@ async def check_router(r, creds, timeout, agent, machine):
         found, st, method = await check_basic(ip, port, creds, timeout, path="/rest/ip/address")
         if found:
             method = "rest"
-    else:  # luci
+    elif channel == "luci":
         found, st, method = await check_luci(ip, port, creds, timeout)
+    elif channel == "zyxel":
+        found, st, method = await check_zyxel(ip, port, creds, timeout)
+    elif channel == "sonicwall":
+        found, st, method = await check_sonicwall(ip, port, creds, timeout)
+    else:
+        found, st, method = None, None, None
 
     if found:
         user, pwd = found

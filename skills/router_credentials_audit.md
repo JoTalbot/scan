@@ -20,9 +20,17 @@
 **Строгие каналы (fingerprint → проверка, приоритет: basic → rest → luci):**
 - **Basic (RFC 7617):** сначала GET / без авторизации — ОБЯЗАТЕЛЬНО 401 + `WWW-Authenticate: Basic`. Затем пары с Authorization header → успех только при 2xx/3xx. Если без пароля 200 — канал невалиден (`no-verifiable-channel`).
 - **REST (MikroTik RouterOS v7):** `GET /rest/ip/address` → 401 + `WWW-Authenticate: Basic`. WebFig при этом отдаёт 200 на /, поэтому GET / бесполезен для MikroTik. Успех = 2xx на /rest/ip/address с парой. Проверено: без REST-канала MikroTik необоснованно уходили в no-verifiable-channel.
+- **Zyxel (login-page.cgi, P-660HN-стиль):** форма на главной с полями `AuthName`, `AuthPassword` (hidden), `Display`; пароль хэшируется JS в MD5. Успех = POST → 302 на НЕ-login-страницу (каталог /login/ ОК, login-page.cgi/login.cgi/login.html — нет) ИЛИ 200 без маркеров (login-page/Welcome/Please enter/Web Configurator). Внимание: редирект на /login/home-page.cgi — это УСПЕХ (каталог /login/ не исключает!).
+- **SonicWALL (auth.cgi, CHAP):** форма /auth1.html (param1 = challenge, id). digest = MD5(id + пароль + challenge) по ASCII-байтам. POST /auth.cgi с id/uName/digest/pass="". ВАЖНО: auth.cgi ВСЕГДА отвечает 200 «Page Redirecting» (и при успехе, и при неудаче). Настоящий результат — в теле: `var sessIdStr = "<sid>"` — "null" = неудача, любое другое значение = УСПЕХ. Никогда не считать 200-без-формы успехом (это даёт ложные срабатывания!).
 - **LuCI/OpenWrt:** GET /cgi-bin/luci/ должен иметь `X-LuCI-Login-Required: yes` + поле `luci_username`. POST `luci_username=..&luci_password=..` (+ `token` из формы при наличии). Успех ТОЛЬКО при: (а) 3xx-редиректе на luci (стоковый OpenWrt), либо (б) 200 + Set-Cookie `sysauth` + отсутствии login-required (кастомные форки). Просто "нет заголовка login-required" — НЕ критерий успеха!
 - Всё остальное (JS-формы без API, прокси, CDN) → помечается `no-verifiable-channel`, пары НЕ записываются.
 - **Важно:** `raw_request` читает ответ до EOF/дедлайна — chunked-ответы (LuCI) могут приходить несколькими TCP-сегментами; одно чтение обрезает тело и ломает детекцию luci_username.
+
+## Уроки из реальных ложных срабатываний (обязательно учитывать)
+1. **SonicWALL «Page Redirecting»:** auth.cgi отвечает 200 с одинаковой страницей на верный И неверный пароль. Критерий «200 без формы» дал ложный admin/password! Только `sessIdStr != "null"` — валидный признак.
+2. **IP-флапы:** 91.148.140.144 менял содержимое в течение минут (Basic-роутер → Microsoft-IIS → китайская страница). Находка «admin/admin» была валидна в момент проверки, но IP переиспользован. Для динамических IP результаты нестабильны — перепроверять.
+3. **Всегда ручная верификация** каждой найденной пары: без пароля → 401/форма, с паролем → консоль/редирект. Если ответы идентичны — критерий слабый, чинить, а не записывать.
+4. Zyxel-редирект на /login/home-page.cgi содержит "login" — НЕ исключать весь путь с "login", только login-page.cgi/login.cgi/login.html.
 
 ## Как доказывается, что проверки без ошибок
 1. **Позитивный контроль:** локальный стенд (Basic-сервер, пара `admin`/(пусто)) → скрипт ОБЯЗАН найти пару. Если не находит — скрипт сломан. Прогонять при каждом изменении логики.
