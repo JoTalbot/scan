@@ -248,13 +248,31 @@ async def raw_request(ip, port, method, path, headers=None, body=None, timeout=6
         reader, writer = await asyncio.wait_for(asyncio.open_connection(ip, port), timeout=timeout)
         writer.write(req.encode())
         await writer.drain()
-        raw = await asyncio.wait_for(reader.read(32768), timeout=timeout)
+        # read until EOF (Connection: close) or deadline — chunked bodies may
+        # span multiple TCP segments, a single read() would truncate them
+        chunks = []
+        total = 0
+        deadline = time.time() + timeout
+        while True:
+            remaining = deadline - time.time()
+            if remaining <= 0:
+                break
+            try:
+                chunk = await asyncio.wait_for(reader.read(8192), timeout=min(remaining, 3.0))
+            except asyncio.TimeoutError:
+                break
+            if not chunk:
+                break
+            chunks.append(chunk)
+            total += len(chunk)
+            if total >= 65536:
+                break
         writer.close()
         try:
             await writer.wait_closed()
         except Exception:
             pass
-        return raw.decode("utf-8", errors="ignore")
+        return b"".join(chunks).decode("utf-8", errors="ignore")
     except (asyncio.TimeoutError, OSError, ConnectionError):
         return None
     except Exception:
@@ -277,7 +295,16 @@ def basic_header(user, pwd):
 # Channel fingerprinting
 # ---------------------------------------------------------------------------
 async def probe_channel(ip, port, timeout):
-    """Return ("basic", realm) | ("luci", None) | ("none", None)."""
+    """Return ("basic", realm) | ("rest", None) | ("luci", None) | ("none", None).
+
+    Channel priority:
+      1. "basic" — GET / answers 401 + `WWW-Authenticate: Basic` (RFC 7617).
+      2. "rest"  — RouterOS v7 REST API: GET /rest/ip/address answers
+                   401 + `WWW-Authenticate: Basic` (MikroTik WebFig serves
+                   the login page with 200 on /, so the REST path is the only
+                   testable Basic endpoint).
+      3. "luci"  — OpenWrt/LuCI login page with `X-LuCI-Login-Required: yes`.
+    """
     text = await raw_request(ip, port, "GET", "/", timeout=timeout)
     if text is None:
         return None, None
@@ -285,6 +312,12 @@ async def probe_channel(ip, port, timeout):
     rm = re.search(r'(?i)WWW-Authenticate:\s*Basic\s+realm="([^"]*)"', head)
     if status == 401 and rm:
         return "basic", rm.group(1)
+    # RouterOS v7 REST API (MikroTik)
+    text3 = await raw_request(ip, port, "GET", "/rest/ip/address", timeout=timeout)
+    if text3:
+        h3, s3 = parse_head(text3)
+        if s3 == 401 and re.search(r'(?i)WWW-Authenticate:\s*Basic', h3):
+            return "rest", None
     # LuCI login page?
     text2 = await raw_request(ip, port, "GET", "/cgi-bin/luci/", timeout=timeout)
     if text2:
@@ -296,17 +329,20 @@ async def probe_channel(ip, port, timeout):
 # ---------------------------------------------------------------------------
 # Strict credential checks
 # ---------------------------------------------------------------------------
-async def check_basic(ip, port, creds, timeout):
-    """Basic channel: success only if unauth GET is 401 and authed GET is 2xx/3xx."""
+async def check_basic(ip, port, creds, timeout, path="/"):
+    """Basic channel: success only if unauth GET (path) is 401 and authed GET is 2xx/3xx.
+
+    path="/" for classic devices, path="/rest/ip/address" for MikroTik RouterOS v7
+    REST API (WebFig pages return 200 without auth, so / is not testable there)."""
     # baseline: no credentials → must be denied
-    base = await raw_request(ip, port, "GET", "/", timeout=timeout)
+    base = await raw_request(ip, port, "GET", path, timeout=timeout)
     if base is None:
         return None, None, None
     head, status = parse_head(base)
     if status != 401:
         return None, None, None  # no Basic challenge → not verifiable here
     for user, pwd in creds:
-        text = await raw_request(ip, port, "GET", "/",
+        text = await raw_request(ip, port, "GET", path,
                                  headers={"Authorization": basic_header(user, pwd)}, timeout=timeout)
         if text is None:
             continue
@@ -333,8 +369,18 @@ async def check_luci(ip, port, creds, timeout):
         if resp is None:
             continue
         head, st = parse_head(resp)
-        authed = ("X-LuCI-Login-Required: yes" not in head) or (st in (301, 302, 303) and "luci" in resp.lower())
-        if authed and st in (200, 301, 302, 303, 307, 308):
+        success = False
+        if st in (301, 302, 303, 307, 308):
+            # stock LuCI redirects to the UI after a successful login
+            loc = re.search(r"(?i)^Location:\s*([^\r\n]+)", head, re.M)
+            if loc and "luci" in loc.group(1).lower():
+                success = True
+        elif st == 200:
+            # custom LuCI forks issue a session cookie and drop the login wall
+            if re.search(r"(?i)Set-Cookie:\s*[^;\r\n]*sysauth", head) \
+               and "X-LuCI-Login-Required: yes" not in head:
+                success = True
+        if success:
             return (user, pwd), st, "luci"
     return None, None, None
 
@@ -351,6 +397,10 @@ async def check_router(r, creds, timeout, agent, machine):
         return ip, {"result": "no-verifiable-channel"}, []
     if channel == "basic":
         found, st, method = await check_basic(ip, port, creds, timeout)
+    elif channel == "rest":
+        found, st, method = await check_basic(ip, port, creds, timeout, path="/rest/ip/address")
+        if found:
+            method = "rest"
     else:  # luci
         found, st, method = await check_luci(ip, port, creds, timeout)
 

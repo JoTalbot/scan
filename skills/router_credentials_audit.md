@@ -17,10 +17,18 @@
 ## КРИТИЧНО: как отличить реальный успех от ложного
 Наивный критерий «статус 2xx = успех» ДАЁТ МАССУ ЛОЖНЫХ СРАБАТЫВАНИЙ: MikroTik WebFig, Zyxel Web-Based Configurator, SonicWALL и др. отдают страницу логина с кодом 200 **без всякой авторизации**. Первая версия так нашла 25 «успехов» — все оказались фальшивыми.
 
-**Строгие каналы (fingerprint → проверка):**
+**Строгие каналы (fingerprint → проверка, приоритет: basic → rest → luci):**
 - **Basic (RFC 7617):** сначала GET / без авторизации — ОБЯЗАТЕЛЬНО 401 + `WWW-Authenticate: Basic`. Затем пары с Authorization header → успех только при 2xx/3xx. Если без пароля 200 — канал невалиден (`no-verifiable-channel`).
-- **LuCI/OpenWrt:** GET /cgi-bin/luci/ должен иметь заголовок `X-LuCI-Login-Required: yes` + поле `luci_username`. POST `luci_username=..&luci_password=..` (+ `token` из формы при наличии). Успех ТОЛЬКО когда в ответе исчез `X-LuCI-Login-Required` (открылась панель) или 3xx на luci.
+- **REST (MikroTik RouterOS v7):** `GET /rest/ip/address` → 401 + `WWW-Authenticate: Basic`. WebFig при этом отдаёт 200 на /, поэтому GET / бесполезен для MikroTik. Успех = 2xx на /rest/ip/address с парой. Проверено: без REST-канала MikroTik необоснованно уходили в no-verifiable-channel.
+- **LuCI/OpenWrt:** GET /cgi-bin/luci/ должен иметь `X-LuCI-Login-Required: yes` + поле `luci_username`. POST `luci_username=..&luci_password=..` (+ `token` из формы при наличии). Успех ТОЛЬКО при: (а) 3xx-редиректе на luci (стоковый OpenWrt), либо (б) 200 + Set-Cookie `sysauth` + отсутствии login-required (кастомные форки). Просто "нет заголовка login-required" — НЕ критерий успеха!
 - Всё остальное (JS-формы без API, прокси, CDN) → помечается `no-verifiable-channel`, пары НЕ записываются.
+- **Важно:** `raw_request` читает ответ до EOF/дедлайна — chunked-ответы (LuCI) могут приходить несколькими TCP-сегментами; одно чтение обрезает тело и ломает детекцию luci_username.
+
+## Как доказывается, что проверки без ошибок
+1. **Позитивный контроль:** локальный стенд (Basic-сервер, пара `admin`/(пусто)) → скрипт ОБЯЗАН найти пару. Если не находит — скрипт сломан. Прогонять при каждом изменении логики.
+2. **Стабильность:** 2+ последовательных `--force` прогона должны давать ИДЕНТИЧНОЕ распределение `auth_result`. Расхождение = флаки (сеть, обрезка ответов).
+3. **Отсутствие ложных срабатываний:** пара записывается только если тот же endpoint без авторизации отдаёт 401, а с парой — 2xx/3xx. Устройства с JS-логином (200-страница без auth) никогда не дают "успех".
+4. **Диагностика каналов:** при подозрении на пропуск канала — зондировать вручную (GET /, /rest/ip/address, /webfig/, /jsproxy/login, /cgi-bin/luci/) и добавлять реальные API-каналы, а не ослаблять критерии.
 
 ## Структура списка паролей
 - `VENDOR_DEFAULTS` в скрипте: заводские пары по вендору (MikroTik admin/(пусто), TP-Link admin/admin, Zyxel admin/1234, SonicWALL admin/password, OpenWrt root/(пусто), Ubiquiti ubnt/ubnt, Huawei telecomadmin/admintelecom и т.д.).
