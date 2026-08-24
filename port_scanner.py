@@ -99,7 +99,7 @@ def init_db(conn):
     cur.execute("CREATE INDEX IF NOT EXISTS idx_router_conf ON scan_routers(confidence);")
     conn.commit()
 
-def fetch_unscanned_ips(conn, batch_size=100000, country=None, asn=None):
+def fetch_unscanned_ips(conn, batch_size=100000, country=None, asn=None, isp_words=None):
     cur = conn.cursor()
     
     # 1. Load already scanned IP integers for fast in-memory filtering
@@ -116,6 +116,15 @@ def fetch_unscanned_ips(conn, batch_size=100000, country=None, asn=None):
     if asn:
         conds.append("asn = ?")
         params.append(int(asn))
+
+    # приоритизация: только провайдеры с заданными словами в названии
+    # (residential: cable/dsl/fiber/telecom и т.п.) — выше плотность роутеров
+    if isp_words:
+        like_conds = []
+        for w in isp_words:
+            like_conds.append("isp_name LIKE ?")
+            params.append(f"%{w}%")
+        conds.append("(" + " OR ".join(like_conds) + ")")
 
     where = " WHERE " + " AND ".join(conds)
 
@@ -336,6 +345,9 @@ def main():
     p_run.add_argument("--timeout", type=float, default=2.0)
     p_run.add_argument("--country")
     p_run.add_argument("--asn", type=int)
+    p_run.add_argument("--shard", type=int, help="Номер машины (0-based)")
+    p_run.add_argument("--shard-total", type=int, default=1, help="Всего машин")
+    p_run.add_argument("--isp-words", help="Фильтр провайдеров по словам (через запятую): cable,dsl,fiber")
     sub.add_parser("stats")
 
     args = parser.parse_args()
@@ -344,7 +356,16 @@ def main():
 
     if args.cmd == "run":
         print(f"\n🔍 Выборка {args.batch:,} несканированных IP из базы данных...")
-        targets = fetch_unscanned_ips(conn, batch_size=args.batch, country=args.country, asn=args.asn)
+        isp_words = [w.strip() for w in args.isp_words.split(",")] if args.isp_words else None
+        targets = fetch_unscanned_ips(conn, batch_size=args.batch, country=args.country,
+                                      asn=args.asn, isp_words=isp_words)
+        if args.shard is not None and args.shard_total > 1:
+            total = len(targets)
+            part = total // args.shard_total
+            start = args.shard * part
+            end = start + part if args.shard < args.shard_total - 1 else total
+            targets = targets[start:end]
+            print(f"⚙️ Шард {args.shard+1}/{args.shard_total}: {len(targets):,} IP (из {total:,})")
         conn.close()
         if not targets:
             print("⚠️ Нет несканированных IP под заданные критерии.")

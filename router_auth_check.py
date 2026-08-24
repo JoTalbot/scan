@@ -319,7 +319,7 @@ def basic_header(user, pwd):
 # ---------------------------------------------------------------------------
 # Channel fingerprinting
 # ---------------------------------------------------------------------------
-async def probe_channel(ip, port, timeout):
+async def probe_channel(ip, port, timeout, vendor=None):
     """Return ("basic", realm) | ("rest", None) | ("luci", None) | ("none", None).
 
     Channel priority:
@@ -348,6 +348,11 @@ async def probe_channel(ip, port, timeout):
     if text2:
         if "X-LuCI-Login-Required: yes" in text2 and "luci_username" in text2:
             return "luci", None
+    # MikroTik RouterOS API (port 8728, binary) — probe only for MikroTik vendors
+    if vendor and "mikrotik" in vendor.lower():
+        d, ret = await _api_talk(ip, 8728, ["/login", "name=zzz_probe", "password=zzz"], timeout)
+        if d is True:
+            return "mikrotik_api", None
     # Zyxel P-660HN-style form (login-page.cgi, MD5 password, hidden AuthPassword)
     text4 = await raw_request(ip, port, "GET", "/", timeout=timeout)
     if text4 and "AuthName" in text4 and "AuthPassword" in text4 and "login-page.cgi" in text4:
@@ -415,6 +420,130 @@ async def check_luci(ip, port, creds, timeout):
                 success = True
         if success:
             return (user, pwd), st, "luci"
+    return None, None, None
+
+
+# ---------------------------------------------------------------------------
+# MikroTik RouterOS API channel (binary protocol, port 8728)
+# ---------------------------------------------------------------------------
+def _api_encode_word(word):
+    b = word.encode("utf-8")
+    ln = len(b)
+    if ln < 0x80:
+        return bytes([ln]) + b
+    if ln < 0x4000:
+        return bytes([0x80 | (ln >> 8), ln & 0xFF]) + b
+    return bytes([0xC0 | (ln >> 24), (ln >> 16) & 0xFF, (ln >> 8) & 0xFF, ln & 0xFF]) + b
+
+
+def _api_encode_sentence(words):
+    return b"".join(_api_encode_word(w) for w in words) + b"\x00"
+
+
+async def _api_talk(ip, port, words, timeout):
+    """Send one API sentence, read until !done/!trap. Returns (is_done, ret_value)."""
+    try:
+        reader, writer = await asyncio.wait_for(asyncio.open_connection(ip, port), timeout=timeout)
+        writer.write(_api_encode_sentence(words))
+        await writer.drain()
+        buf = b""
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            try:
+                chunk = await asyncio.wait_for(reader.read(4096), timeout=min(3.0, deadline - time.time()))
+            except asyncio.TimeoutError:
+                break
+            if not chunk:
+                break
+            buf += chunk
+            if b"!trap" in buf or b"!done" in buf:
+                break
+        writer.close()
+        try:
+            await writer.wait_closed()
+        except Exception:
+            pass
+        txt = buf.decode("utf-8", errors="ignore")
+        if "!trap" in txt:
+            return False, None
+        if "!done" in txt:
+            m = re.search(r"ret=([^\x00\r\n]+)", txt)
+            return True, (m.group(1) if m else "")
+        return None, None
+    except (asyncio.TimeoutError, OSError, ConnectionError):
+        return None, None
+    except Exception:
+        return None, None
+
+
+async def _api_login_session(ip, port, user, pwd, timeout):
+    """Full API login in ONE connection: /login (get challenge), then
+    /login name=user response=00+md5(challenge+\x00+pwd).
+    Returns True on success (!done WITHOUT a new challenge), False otherwise.
+    """
+    import hashlib
+    try:
+        reader, writer = await asyncio.wait_for(asyncio.open_connection(ip, port), timeout=timeout)
+        # step 1: obtain challenge
+        writer.write(_api_encode_sentence(["/login", "name=zzz", "password=zzz"]))
+        await writer.drain()
+        buf = b""
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            try:
+                chunk = await asyncio.wait_for(reader.read(4096), timeout=min(2.0, deadline - time.time()))
+            except asyncio.TimeoutError:
+                break
+            if not chunk:
+                break
+            buf += chunk
+            if b"!done" in buf or b"!trap" in buf:
+                break
+        txt = buf.decode("utf-8", errors="ignore")
+        m = re.search(r"ret=([^\x00\r\n]+)", txt)
+        chal = m.group(1) if m else None
+        if not chal:
+            writer.close()
+            return False
+        # step 2: respond with digest in the SAME connection
+        resp = "00" + hashlib.md5((chal + "\x00" + pwd).encode("latin1")).hexdigest()
+        writer.write(_api_encode_sentence(["/login", f"name={user}", f"response={resp}"]))
+        await writer.drain()
+        buf2 = b""
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            try:
+                chunk = await asyncio.wait_for(reader.read(4096), timeout=min(2.0, deadline - time.time()))
+            except asyncio.TimeoutError:
+                break
+            if not chunk:
+                break
+            buf2 += chunk
+            if b"!done" in buf2 or b"!trap" in buf2:
+                break
+        writer.close()
+        try:
+            await writer.wait_closed()
+        except Exception:
+            pass
+        txt2 = buf2.decode("utf-8", errors="ignore")
+        # success = !done WITHOUT a new challenge (ret=...)
+        if "!trap" in txt2:
+            return False
+        if "!done" in txt2 and "ret=" not in txt2:
+            return True
+        return False
+    except (asyncio.TimeoutError, OSError, ConnectionError):
+        return False
+    except Exception:
+        return False
+
+
+async def check_mikrotik_api(ip, port, creds, timeout):
+    """RouterOS API login check — fresh session per pair."""
+    for user, pwd in creds:
+        if await _api_login_session(ip, port, user, pwd, timeout):
+            return (user, pwd), 200, "mikrotik_api"
     return None, None, None
 
 
@@ -503,11 +632,21 @@ async def check_sonicwall(ip, port, creds, timeout):
 # ---------------------------------------------------------------------------
 async def check_router(r, creds, timeout, agent, machine):
     ip, ip_int, port, vendor, model, dtype, banner = r
-    channel, realm = await probe_channel(ip, port, timeout)
+    channel, realm = await probe_channel(ip, port, timeout, vendor)
     if channel is None:
         return ip, {"result": "unreachable"}, []
     if channel == "none":
         return ip, {"result": "no-verifiable-channel"}, []
+    if channel == "mikrotik_api":
+        found, st, method = await check_mikrotik_api(ip, 8728, creds, timeout)
+        return ip, {"result": ("verified:%s:%s:mikrotik_api" % (found[0], found[1]) if found
+                               else "mikrotik_api-no-match"), "http_status": st, "realm": None,
+                    "method": method or "mikrotik_api"}, [{
+            "ip": ip, "ip_int": ip_int, "port": 8728, "vendor": vendor,
+            "model": model, "device_type": dtype, "username": found[0], "password": found[1],
+            "auth_method": "mikrotik_api", "http_status": st, "realm": None,
+            "checked_at": get_now(), "agent_id": agent, "machine_id": machine,
+        }] if found else []
     if channel == "basic":
         found, st, method = await check_basic(ip, port, creds, timeout)
     elif channel == "rest":

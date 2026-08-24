@@ -21,6 +21,8 @@ def get_db():
     return conn
 
 class ISPHandler(http.server.SimpleHTTPRequestHandler):
+    def get_conn(self):
+        return sqlite3.connect(DB_PATH)
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
@@ -51,10 +53,58 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
             fmt = params.get("format", ["txt"])[0]
             ip_ver = params.get("ver", [""])[0]
             self.handle_export(country, region, asn, fmt, ip_ver)
+        elif path == "/api/routers":
+            limit = int(params.get("limit", ["100"])[0])
+            self.send_json(self.get_routers(limit))
+        elif path == "/api/creds":
+            self.send_json(self.get_creds())
+        elif path == "/api/audit_stats":
+            self.send_json(self.get_audit_stats())
         elif path == "/" or path == "/index.html":
             self.serve_html()
         else:
             super().do_GET()
+
+    def get_routers(self, limit=100):
+        conn = self.get_conn()
+        cur = conn.cursor()
+        rows = cur.execute("""
+            SELECT ip, vendor, model, device_type, confidence, matched_on,
+                   auth_result, browser_result, extra_ports
+            FROM scan_routers
+            ORDER BY id DESC LIMIT ?
+        """, (limit,)).fetchall()
+        conn.close()
+        return {"count": len(rows), "routers": [dict(zip(
+            ["ip", "vendor", "model", "device_type", "confidence", "matched_on",
+             "auth_result", "browser_result", "extra_ports"], r)) for r in rows]}
+
+    def get_creds(self):
+        conn = self.get_conn()
+        cur = conn.cursor()
+        rows = cur.execute("""
+            SELECT ip, vendor, username, password, auth_method, http_status, checked_at
+            FROM router_credentials ORDER BY id DESC LIMIT 200
+        """).fetchall()
+        conn.close()
+        return {"count": len(rows), "creds": [dict(zip(
+            ["ip", "vendor", "username", "password", "auth_method", "http_status", "checked_at"], r)) for r in rows]}
+
+    def get_audit_stats(self):
+        conn = self.get_conn()
+        cur = conn.cursor()
+        stats = {}
+        for row in cur.execute("SELECT COALESCE(auth_result, 'not-checked') k, COUNT(*) c FROM scan_routers GROUP BY k ORDER BY c DESC"):
+            stats["raw:" + row[0]] = row[1]
+        for row in cur.execute("SELECT COALESCE(browser_result, 'not-checked') k, COUNT(*) c FROM scan_routers WHERE browser_checked=1 GROUP BY k ORDER BY c DESC"):
+            stats["browser:" + row[0]] = row[1]
+        try:
+            stats["total_creds"] = cur.execute("SELECT COUNT(*) FROM router_credentials").fetchone()[0]
+        except Exception:
+            stats["total_creds"] = 0
+        stats["total_routers"] = cur.execute("SELECT COUNT(*) FROM scan_routers").fetchone()[0]
+        conn.close()
+        return stats
 
     def send_json(self, data):
         content = json.dumps(data, ensure_ascii=False).encode("utf-8")
