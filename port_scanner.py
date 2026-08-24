@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import sys, os, sqlite3, ipaddress, asyncio, argparse, time, re, datetime
 
+from router_detect import detect_router
+
 DB_PATH = os.environ.get("ISP_DB_PATH", os.path.join(os.path.dirname(__file__), "isp_cidr.db"))
 
 def get_now():
@@ -35,6 +37,38 @@ def init_db(conn):
     cur.execute("CREATE INDEX IF NOT EXISTS idx_scan_has_banner ON scan_results(has_banner);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_scan_asn ON scan_results(asn);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_scan_cc ON scan_results(country_code);")
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS scan_routers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ip TEXT NOT NULL UNIQUE,
+        ip_int INTEGER,
+        port INTEGER DEFAULT 80,
+        http_status INTEGER,
+        vendor TEXT,
+        model TEXT,
+        device_type TEXT,
+        confidence TEXT,
+        matched_on TEXT,
+        server_header TEXT,
+        title TEXT,
+        banner TEXT,
+        response_time_ms REAL,
+        asn INTEGER,
+        isp_name TEXT,
+        country_code TEXT,
+        country_name_ru TEXT,
+        region TEXT,
+        scanned_at TEXT,
+        detected_at TEXT,
+        agent_id TEXT,
+        machine_id TEXT
+    );
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_router_vendor ON scan_routers(vendor);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_router_model ON scan_routers(model);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_router_asn ON scan_routers(asn);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_router_cc ON scan_routers(country_code);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_router_conf ON scan_routers(confidence);")
     conn.commit()
 
 def fetch_unscanned_ips(conn, batch_size=100000, country=None, asn=None):
@@ -151,6 +185,11 @@ async def scan_single_target(t, port=80, timeout=2.0, agent="Agent-01", machine=
             if srv: res["server_header"] = srv.group(1).strip()[:100]
             tm = re.search(r"(?i)<title[^>]*>(.*?)</title>", text, re.DOTALL)
             if tm: res["title"] = re.sub(r"\s+", " ", tm.group(1)).strip()[:200]
+
+            # Router device detection
+            det = detect_router(server_header=res["server_header"], title=res["title"], banner=text)
+            if det:
+                res["router_detected"] = det
     except asyncio.TimeoutError:
         res["status"] = "timeout"
     except Exception:
@@ -175,6 +214,23 @@ async def db_writer(queue, db_path):
     conn.close()
 
 def flush(cur, conn, records):
+    # Router records -> separate scan_routers table
+    router_rows = [(
+        r["ip"], r["ip_int"], r["port"], r["http_status"],
+        r["router_detected"].get("vendor"), r["router_detected"].get("model"),
+        r["router_detected"].get("device_type"), r["router_detected"].get("confidence"),
+        r["router_detected"].get("matched_on"),
+        r["server_header"], r["title"], r["banner"],
+        r["response_time_ms"], r["asn"], r["isp_name"], r["country_code"],
+        r["country_name_ru"], r["region"], r["scanned_at"], get_now(),
+        r["agent_id"], r["machine_id"]
+    ) for r in records if r.get("router_detected")]
+    if router_rows:
+        cur.executemany("""INSERT OR REPLACE INTO scan_routers
+            (ip, ip_int, port, http_status, vendor, model, device_type, confidence,
+             matched_on, server_header, title, banner, response_time_ms, asn, isp_name,
+             country_code, country_name_ru, region, scanned_at, detected_at, agent_id, machine_id)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", router_rows)
     rows = [(
         r["ip"], r["ip_int"], r["port"], r["status"], r["has_banner"],
         r["http_status"], r["server_header"], r["title"], r["banner"],

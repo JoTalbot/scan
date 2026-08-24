@@ -10,6 +10,12 @@
 
 | Задача | Агент | Хост / Окружение | Текущий шаг | Статус | Обновлено |
 | :--- | :--- | :--- | :--- | :---: | :---: |
+| **Router Detection & Extraction** | `Agent-Arena-01` | `aios-server` | Live scan test: routers writing to scan_routers | `IN_PROGRESS` 🔄 | 2026-08-24 |
+
+--- | :--- | :--- | :--- | :---: | :---: |
+| **Router Detection & Extraction** | `Agent-Arena-01` | `aios-server` | Building router_detect.py signatures | `IN_PROGRESS` 🔄 | 2026-08-24 |
+
+--- | :--- | :--- | :--- | :---: | :---: |
 | *Нет активных задач* | - | - | Все задачи выполнены | `IDLE` 🟢 | - |
 
 --- | :--- | :--- | :--- | :---: | :---: |
@@ -59,6 +65,13 @@
   - Добавлены: высокоскоростной async-сканер порта 80 (`port_scanner.py`), таблица `ip_ranges` с явными границами IP, менеджер хранения и автосинхронизации (`sync_manager.py`).
   - База данных сжата и оптимизирована (репозиторий < 90 МБ).
   - Запущены фоновые партии сканирования порта 80 (чанки `data/scans/scan_aios-agent-01_*.csv.gz`).
+- **2026-08-24 (v1.1.0): Роутер-детекция**
+  - Новый движок `router_detect.py`: сигнатуры 30+ вендоров (MikroTik, TP-Link, Zyxel, Keenetic, D-Link, NETGEAR, LANCOM, SonicWALL, Huawei, OpenWrt и др.) по server_header, WWW-Authenticate realm, title и специфичным фразам баннера; извлечение моделей (напр. ZyXEL P-660HN-51, TP-Link WR741ND); уровень уверенности high/medium.
+  - Отдельная таблица `scan_routers` (vendor, model, device_type, confidence, matched_on + контекст) — заполняется прямо во время сканирования (`port_scanner.py`).
+  - `extract_routers.py`: ретроспективная обработка всех уже просканированных результатов (4,004 баннера за ~1 сек).
+  - Найдено 36 устройств: MikroTik 12, DSL-роутеры 12, Zyxel 6, SonicWALL 2 (firewall), TP-Link, LANCOM, Keenetic, httpd.
+  - Отсечены ложные срабатывания: hostinger hws, Cisco Umbrella, CDN-футеры, подстроки "lucide"/"Lucida" (word-boundary матчинг).
+  - Экспорт инвентаря роутеров: `data/routers/scan_routers_*.csv.gz` (добавлен в `sync_manager.py`).
 - **2026-08-24 (v1.0.3):**
   - Одноразовое сканирование следующих 10,000 IP (порт 80, 500 потоков, `Agent-Arena-01`): 37.4 сек, 265 открытых портов, 243 новых веб-баннера.
   - Общий прогресс: 130,000 проверенных IP, 4,004 баннеров (топ: CloudFront 562, nginx 545, AkamaiGHost 479).

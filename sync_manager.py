@@ -84,6 +84,40 @@ def compress_main_db():
     gz_mb = os.path.getsize(gz_path) / (1024 * 1024)
     print(f"✅ База сжата: {gz_mb:.2f} МБ (сжатие в {raw_mb/gz_mb:.1f} раз!)")
 
+def export_routers(agent_id="aios"):
+    """Export scan_routers inventory to data/routers/scan_routers_<ts>.csv.gz."""
+    routers_dir = os.path.join(BASE_DIR, "data", "routers")
+    os.makedirs(routers_dir, exist_ok=True)
+    conn = sqlite3.connect(DB_FILE)
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT ip, port, http_status, vendor, model, device_type, confidence, matched_on,
+                   server_header, title, asn, isp_name, country_code, country_name_ru, detected_at
+            FROM scan_routers ORDER BY detected_at DESC
+        """)
+    except sqlite3.OperationalError:
+        conn.close()
+        return None
+    rows = cur.fetchall()
+    conn.close()
+    if not rows:
+        print("ℹ️ Таблица scan_routers пуста — экспорт пропущен.")
+        return None
+
+    ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d_%H%M%S")
+    chunk_path = os.path.join(routers_dir, f"scan_routers_{agent_id}_{ts}.csv.gz")
+    with gzip.open(chunk_path, "wt", encoding="utf-8") as f:
+        f.write("IP,Port,HTTP_Status,Vendor,Model,Device_Type,Confidence,Matched_On,Server_Header,Title,ASN,ISP_Name,Country_Code,Country_Name,Detected_At\n")
+        for r in rows:
+            def q(v):
+                v = "" if v is None else str(v)
+                return '"' + v.replace('"', '""') + '"' if any(c in v for c in '",\n\r') else v
+            f.write(",".join(q(x) for x in r) + "\n")
+    print(f"✅ Экспорт роутеров: {chunk_path} ({os.path.getsize(chunk_path)/1024:.1f} KB, {len(rows):,} записей)")
+    return chunk_path
+
+
 def sync_to_github(commit_msg=None):
     os.chdir(BASE_DIR)
     if not commit_msg:
@@ -110,6 +144,7 @@ def main():
     agent = sys.argv[1] if len(sys.argv) > 1 else "aios-server"
     print("=== 🔄 Запуск Storage Scaling Manager ===")
     export_and_compress_scans(agent)
+    export_routers(agent)
     compress_main_db()
     sync_to_github()
 

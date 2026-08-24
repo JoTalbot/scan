@@ -1,8 +1,18 @@
 {
   "project": "ISP CIDR Multi-Agent Database",
   "version": "1.0.0",
-  "last_updated": "2026-08-24T16:47:52Z",
-  "active_agents": [],
+  "last_updated": "2026-08-24T16:57:03Z",
+  "active_agents": [
+    {
+      "agent_id": "Agent-Arena-01",
+      "machine_id": "aios-server",
+      "task_name": "Router Detection & Extraction",
+      "current_step": "Live scan test: routers writing to scan_routers",
+      "status": "IN_PROGRESS",
+      "started_at": "2026-08-24T16:54:52Z",
+      "updated_at": "2026-08-24T16:57:03Z"
+    }
+  ],
   "tasks": {
     "TASK-01": {
       "title": "Database Construction",
