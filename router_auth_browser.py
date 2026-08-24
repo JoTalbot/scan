@@ -74,11 +74,11 @@ def init_db(conn):
 def fetch_targets(conn, only_no_channel, limit):
     cur = conn.cursor()
     if only_no_channel:
-        sql = ("SELECT ip, ip_int, port, vendor, model, device_type FROM scan_routers"
+        sql = ("SELECT ip, ip_int, port, vendor, model, device_type, admin_port FROM scan_routers"
                " WHERE browser_checked = 0 AND auth_result = 'no-verifiable-channel'"
                " ORDER BY id ASC")
     else:
-        sql = ("SELECT ip, ip_int, port, vendor, model, device_type FROM scan_routers"
+        sql = ("SELECT ip, ip_int, port, vendor, model, device_type, admin_port FROM scan_routers"
                " WHERE browser_checked = 0 ORDER BY id ASC")
     if limit:
         sql += " LIMIT ?"
@@ -197,10 +197,32 @@ async def submit_login(page, user, pwd, wait_ms):
         return "error"
 
 
-async def probe_page(browser, ip, port, timeout):
-    """Open the device, locate the login form. Returns (page, context) or None."""
+async def probe_page(browser, ip, port, timeout, admin_port=None):
+    """Open the device, locate the login form. Returns (page, context) or None.
+
+    If admin_port is set (management UI on a non-80 port, e.g. SonicWALL on
+    1240/443), HTTPS to that port is tried first — modern SonicWALL expose
+    their login ONLY via https://ip:admin_port/sonicui/."""
     context = await browser.new_context(user_agent=UA, ignore_https_errors=True)
     page = await context.new_page()
+
+    # 1) admin HTTPS port (modern SonicWALL sonicui etc.)
+    if admin_port:
+        try:
+            await page.goto(f"https://{ip}:{admin_port}/", timeout=timeout * 1000,
+                            wait_until="domcontentloaded")
+            for p in ["/sonicui/7/login/", "/"]:
+                try:
+                    await page.goto(f"https://{ip}:{admin_port}{p}", timeout=timeout * 1000,
+                                    wait_until="domcontentloaded")
+                except Exception:
+                    continue
+                if await find_password_field(page, 10000):
+                    return page, context
+        except Exception:
+            pass
+
+    # 2) plain HTTP on the scanned port
     base = f"http://{ip}:{port}"
     try:
         await page.goto(base + "/", timeout=timeout * 1000, wait_until="domcontentloaded")
@@ -216,7 +238,7 @@ async def probe_page(browser, ip, port, timeout):
             continue
         if await find_password_field(page, 8000):
             return page, context
-    # try HTTPS once
+    # 3) HTTPS on the same port
     try:
         await page.goto(f"https://{ip}:{port}/", timeout=timeout * 1000, wait_until="domcontentloaded")
         if await find_password_field(page, 10000):
@@ -231,8 +253,8 @@ async def probe_page(browser, ip, port, timeout):
 # Check one device
 # ---------------------------------------------------------------------------
 async def check_device(browser, router, pairs, timeout, wait_ms, agent, machine):
-    ip, ip_int, port, vendor, model, dtype = router
-    page, context = await probe_page(browser, ip, port, timeout)
+    ip, ip_int, port, vendor, model, dtype, admin_port = router
+    page, context = await probe_page(browser, ip, port, timeout, admin_port)
     if page is None:
         return ip, {"result": "browser-no-login-form"}, []
 
@@ -400,7 +422,7 @@ def main():
     init_db(conn)
     if args.ip:
         cur = conn.cursor()
-        targets = cur.execute("SELECT ip, ip_int, port, vendor, model, device_type FROM scan_routers WHERE ip = ?", (args.ip,)).fetchall()
+        targets = cur.execute("SELECT ip, ip_int, port, vendor, model, device_type, admin_port FROM scan_routers WHERE ip = ?", (args.ip,)).fetchall()
         if targets:
             cur.execute("UPDATE scan_routers SET browser_checked = 0, browser_result = NULL WHERE ip = ?", (args.ip,))
             conn.commit()
