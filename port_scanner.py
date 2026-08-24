@@ -8,6 +8,34 @@ DB_PATH = os.environ.get("ISP_DB_PATH", os.path.join(os.path.dirname(__file__), 
 def get_now():
     return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
+def cleanup_temp_files():
+    """Remove temporary artifacts left after scanning: SQLite WAL/SHM/journal,
+    __pycache__, .pyc and .tmp files. Keeps only meaningful deliverables."""
+    import glob
+    base = os.path.dirname(os.path.abspath(__file__))
+    removed = []
+    patterns = ["*.db-wal", "*.db-shm", "*.db-journal", "*.tmp", "*.pyc"]
+    for pat in patterns:
+        for p in glob.glob(os.path.join(base, pat)):
+            try:
+                os.remove(p)
+                removed.append(p)
+            except OSError:
+                pass
+    for p in glob.glob(os.path.join(base, "**", "__pycache__"), recursive=True):
+        try:
+            import shutil
+            shutil.rmtree(p)
+            removed.append(p)
+        except OSError:
+            pass
+    if removed:
+        print(f"🧹 Очищено временных файлов: {len(removed)}")
+        for p in removed[:10]:
+            print("   -", os.path.relpath(p, base))
+    else:
+        print("🧹 Временных файлов не найдено")
+
 def init_db(conn):
     cur = conn.cursor()
     cur.execute("""
@@ -309,8 +337,11 @@ def main():
             print("⚠️ Нет несканированных IP под заданные критерии.")
             return
         print(f"⚡ Запуск сканирования {len(targets):,} IP в {args.concurrency} потоков (Timeout {args.timeout}s)...")
-        asyncio.run(run_scan(targets, concurrency=args.concurrency, port=80, timeout=args.timeout))
-        show_stats()
+        try:
+            asyncio.run(run_scan(targets, concurrency=args.concurrency, port=80, timeout=args.timeout))
+        finally:
+            show_stats()
+            cleanup_temp_files()
     elif args.cmd == "stats":
         conn.close()
         show_stats()

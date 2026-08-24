@@ -118,6 +118,40 @@ def export_routers(agent_id="aios"):
     return chunk_path
 
 
+def export_credentials(agent_id="aios"):
+    """Export found default credentials to data/creds/router_credentials_<ts>.csv.gz."""
+    creds_dir = os.path.join(BASE_DIR, "data", "creds")
+    os.makedirs(creds_dir, exist_ok=True)
+    conn = sqlite3.connect(DB_FILE)
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT ip, port, vendor, model, device_type, username, password,
+                   auth_method, http_status, realm, checked_at
+            FROM router_credentials ORDER BY checked_at DESC
+        """)
+    except sqlite3.OperationalError:
+        conn.close()
+        return None
+    rows = cur.fetchall()
+    conn.close()
+    if not rows:
+        print("ℹ️ Таблица router_credentials пуста — экспорт пропущен.")
+        return None
+
+    ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d_%H%M%S")
+    chunk_path = os.path.join(creds_dir, f"router_credentials_{agent_id}_{ts}.csv.gz")
+    with gzip.open(chunk_path, "wt", encoding="utf-8") as f:
+        f.write("IP,Port,Vendor,Model,Device_Type,Username,Password,Auth_Method,HTTP_Status,Realm,Checked_At\n")
+        for r in rows:
+            def q(v):
+                v = "" if v is None else str(v)
+                return '"' + v.replace('"', '""') + '"' if any(c in v for c in '",\n\r') else v
+            f.write(",".join(q(x) for x in r) + "\n")
+    print(f"✅ Экспорт найденных пар: {chunk_path} ({os.path.getsize(chunk_path)/1024:.1f} KB, {len(rows):,} записей)")
+    return chunk_path
+
+
 def sync_to_github(commit_msg=None):
     os.chdir(BASE_DIR)
     if not commit_msg:
@@ -145,6 +179,7 @@ def main():
     print("=== 🔄 Запуск Storage Scaling Manager ===")
     export_and_compress_scans(agent)
     export_routers(agent)
+    export_credentials(agent)
     compress_main_db()
     sync_to_github()
 
