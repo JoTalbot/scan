@@ -1,8 +1,8 @@
 # 🌐 InternetDB Enrichment Report
 
-**Сформирован:** 2026-08-25T10:28:43Z
+**Сформирован:** 2026-08-25T10:38:43Z
 
-**IP с данными:** 523 из 575
+**IP с данными:** 545 из 601
 
 ## 🛡️ CVE по данным InternetDB
 
@@ -96,9 +96,9 @@
 | 93.115.8.192 | Zyxel | [CVE-2016-10735](https://nvd.nist.gov/vuln/detail/CVE-2016-10735) | 22,80,443 |
 | 82.97.237.0 | Zyxel | [CVE-2016-10735](https://nvd.nist.gov/vuln/detail/CVE-2016-10735) | 80 |
 | 185.135.179.64 | Zyxel | [CVE-2016-10735](https://nvd.nist.gov/vuln/detail/CVE-2016-10735) | 22,80 |
-| 213.146.179.192 | Zyxel | [CVE-2016-10735](https://nvd.nist.gov/vuln/detail/CVE-2016-10735) | 80 |
 | 92.119.254.48 | Zyxel | [CVE-2016-10735](https://nvd.nist.gov/vuln/detail/CVE-2016-10735) | 80,7547 |
 | 69.49.70.16 | Zyxel | [CVE-2016-10735](https://nvd.nist.gov/vuln/detail/CVE-2016-10735) | 7547,8080 |
+| 213.146.179.192 | Zyxel | [CVE-2016-10735](https://nvd.nist.gov/vuln/detail/CVE-2016-10735) | 80 |
 | 199.189.241.32 | SonicWALL | [CVE-2016-20012](https://nvd.nist.gov/vuln/detail/CVE-2016-20012) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2016-20012](https://nvd.nist.gov/vuln/detail/CVE-2016-20012) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2016-20012](https://nvd.nist.gov/vuln/detail/CVE-2016-20012) | 22,443 |
@@ -121,23 +121,23 @@
 | 93.115.8.192 | Zyxel | [CVE-2018-14040](https://nvd.nist.gov/vuln/detail/CVE-2018-14040) | 22,80,443 |
 | 82.97.237.0 | Zyxel | [CVE-2018-14040](https://nvd.nist.gov/vuln/detail/CVE-2018-14040) | 80 |
 | 185.135.179.64 | Zyxel | [CVE-2018-14040](https://nvd.nist.gov/vuln/detail/CVE-2018-14040) | 22,80 |
-| 213.146.179.192 | Zyxel | [CVE-2018-14040](https://nvd.nist.gov/vuln/detail/CVE-2018-14040) | 80 |
 | 92.119.254.48 | Zyxel | [CVE-2018-14040](https://nvd.nist.gov/vuln/detail/CVE-2018-14040) | 80,7547 |
 | 69.49.70.16 | Zyxel | [CVE-2018-14040](https://nvd.nist.gov/vuln/detail/CVE-2018-14040) | 7547,8080 |
+| 213.146.179.192 | Zyxel | [CVE-2018-14040](https://nvd.nist.gov/vuln/detail/CVE-2018-14040) | 80 |
 | 153.75.215.128 | Zyxel | [CVE-2018-14041](https://nvd.nist.gov/vuln/detail/CVE-2018-14041) | 22,80,161,443,7547 |
 | 93.115.8.192 | Zyxel | [CVE-2018-14041](https://nvd.nist.gov/vuln/detail/CVE-2018-14041) | 22,80,443 |
 | 82.97.237.0 | Zyxel | [CVE-2018-14041](https://nvd.nist.gov/vuln/detail/CVE-2018-14041) | 80 |
 | 185.135.179.64 | Zyxel | [CVE-2018-14041](https://nvd.nist.gov/vuln/detail/CVE-2018-14041) | 22,80 |
-| 213.146.179.192 | Zyxel | [CVE-2018-14041](https://nvd.nist.gov/vuln/detail/CVE-2018-14041) | 80 |
 | 92.119.254.48 | Zyxel | [CVE-2018-14041](https://nvd.nist.gov/vuln/detail/CVE-2018-14041) | 80,7547 |
 | 69.49.70.16 | Zyxel | [CVE-2018-14041](https://nvd.nist.gov/vuln/detail/CVE-2018-14041) | 7547,8080 |
+| 213.146.179.192 | Zyxel | [CVE-2018-14041](https://nvd.nist.gov/vuln/detail/CVE-2018-14041) | 80 |
 | 153.75.215.128 | Zyxel | [CVE-2018-14042](https://nvd.nist.gov/vuln/detail/CVE-2018-14042) | 22,80,161,443,7547 |
 | 93.115.8.192 | Zyxel | [CVE-2018-14042](https://nvd.nist.gov/vuln/detail/CVE-2018-14042) | 22,80,443 |
 | 82.97.237.0 | Zyxel | [CVE-2018-14042](https://nvd.nist.gov/vuln/detail/CVE-2018-14042) | 80 |
 | 185.135.179.64 | Zyxel | [CVE-2018-14042](https://nvd.nist.gov/vuln/detail/CVE-2018-14042) | 22,80 |
-| 213.146.179.192 | Zyxel | [CVE-2018-14042](https://nvd.nist.gov/vuln/detail/CVE-2018-14042) | 80 |
 | 92.119.254.48 | Zyxel | [CVE-2018-14042](https://nvd.nist.gov/vuln/detail/CVE-2018-14042) | 80,7547 |
 | 69.49.70.16 | Zyxel | [CVE-2018-14042](https://nvd.nist.gov/vuln/detail/CVE-2018-14042) | 7547,8080 |
+| 213.146.179.192 | Zyxel | [CVE-2018-14042](https://nvd.nist.gov/vuln/detail/CVE-2018-14042) | 80 |
 | 212.32.43.160 | MikroTik | [CVE-2018-14847](https://nvd.nist.gov/vuln/detail/CVE-2018-14847) | 23,80,2000,8291,8728 |
 | 199.189.241.32 | SonicWALL | [CVE-2018-15473](https://nvd.nist.gov/vuln/detail/CVE-2018-15473) | 22,443 |
 | 66.231.29.224 | SonicWALL | [CVE-2018-15473](https://nvd.nist.gov/vuln/detail/CVE-2018-15473) | 22,443 |
@@ -860,19 +860,19 @@
 
 | Порт | Устройств |
 |---|---|
-| 80 | 410 |
-| 22 | 140 |
-| 2000 | 119 |
-| 8291 | 114 |
-| 443 | 101 |
+| 80 | 419 |
+| 22 | 142 |
+| 2000 | 120 |
+| 8291 | 116 |
+| 443 | 105 |
+| 8080 | 90 |
 | 8728 | 81 |
-| 8080 | 79 |
-| 21 | 77 |
-| 53 | 59 |
-| 161 | 37 |
-| 23 | 37 |
-| 7547 | 27 |
-| 1701 | 24 |
+| 21 | 78 |
+| 53 | 60 |
+| 161 | 39 |
+| 23 | 38 |
+| 7547 | 28 |
+| 1701 | 25 |
 | 1723 | 19 |
 | 554 | 15 |
 
