@@ -199,8 +199,20 @@ def run_circleci(job, params, logfile, token):
 def run_e2b(script_cmd, logfile, shard):
     """Запуск в E2B песочнице через e2b_audit.py."""
     log = open(logfile, "w")
-    p = subprocess.Popen([sys.executable, "e2b_audit.py", "--script", script_cmd.split()[0],
-                          "--args", " ".join(script_cmd.split()[1:])],
+    parts = script_cmd.split()
+    # имя скрипта — после "python3" (первый токен, оканчивающийся на .py)
+    script = None
+    for tok in parts:
+        if tok.endswith(".py"):
+            script = tok
+            break
+    if not script:
+        log.write(f"не найден .py в команде: {script_cmd}\n")
+        log.close()
+        return subprocess.Popen(["true"])
+    args = " ".join(parts[parts.index(script) + 1:])
+    p = subprocess.Popen([sys.executable, "e2b_audit.py", "--script", script,
+                          "--args", args],
                          stdout=log, stderr=subprocess.STDOUT)
     return p
 
@@ -246,11 +258,11 @@ def dispatch(task, shards, batch, ports, parallel, force_ssh):
                     procs.append((f"codespaces:{name}", p, "codespaces"))
                     print(f"  ➡️  {name}: codespaces")
             elif wtype == "circleci":
-                num = run_circleci("scan_shard",
-                                   {"SHARD": shard, "SHARD_TOTAL": shards,
+                num = run_circleci("worker",
+                                   {"JOB": "scan", "SHARD": shard, "SHARD_TOTAL": shards,
                                     "BATCH": batch, "PORTS": ports},
                                    logfile, token)
-                procs.append((f"circleci:{name}", _CircleProc(num), "circleci"))
+                procs.append((f"circleci:{name}", _CircleProc(num, token=token), "circleci"))
                 print(f"  ➡️  {name}: circleci (pipeline #{num})")
             elif wtype == "e2b":
                 p = run_e2b(cmd, logfile, shard)
@@ -273,10 +285,9 @@ def dispatch(task, shards, batch, ports, parallel, force_ssh):
                 if p:
                     procs.append((f"codespaces:{name}", p, "codespaces"))
             elif w["type"] == "circleci":
-                job = {"audit_raw": "audit_raw", "audit_browser": "audit_raw",
-                       "internetdb": "internetdb", "probe": "audit_raw"}.get(task, "audit_raw")
-                num = run_circleci(job, {}, logfile, os.environ.get("CIRCLE_CI_TOKEN", ""))
-                procs.append((f"circleci:{name}", _CircleProc(num), "circleci"))
+                num = run_circleci("worker", {"JOB": task}, logfile,
+                                   os.environ.get("CIRCLE_CI_TOKEN", ""))
+                procs.append((f"circleci:{name}", _CircleProc(num, token=os.environ.get("CIRCLE_CI_TOKEN", "")), "circleci"))
             elif w["type"] == "e2b":
                 p = run_e2b(cmd, logfile, i)
                 procs.append((f"e2b:{name}", p, "e2b"))
@@ -312,24 +323,64 @@ def dispatch(task, shards, batch, ports, parallel, force_ssh):
 
 
 class _CircleProc:
-    """Заглушка процесса для CircleCI pipeline (опрос API вместо wait())."""
-    def __init__(self, pipeline_num):
+    """Процесс-обёртка над CircleCI pipeline: опрашивает API до завершения."""
+    def __init__(self, pipeline_num, token=""):
         self.pipeline_num = pipeline_num
+        self.token = token
         self._done = pipeline_num is None
+        self._status = "success" if self._done else "pending"
+
+    def _workflow_status(self):
+        if not self.pipeline_num:
+            return None
+        try:
+            import urllib.request
+            import json as _json
+            req = urllib.request.Request(
+                f"{CIRCLE_API}/pipeline/{self.pipeline_num}/workflow",
+                headers={"Circle-Token": self.token})
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                d = _json.loads(resp.read().decode())
+            items = d.get("items", [])
+            if items:
+                return items[0].get("status")
+        except Exception:
+            pass
+        return None
 
     def poll(self):
-        return 0 if self._done else None
+        if self._done:
+            return 0
+        st = self._workflow_status()
+        if st in ("success",):
+            self._done = True
+            self._status = "success"
+            return 0
+        if st in ("failed", "canceled", "error", "not_run"):
+            self._done = True
+            self._status = st
+            return 1
+        return None
 
     def wait(self, timeout=None):
-        if not self._done:
-            print(f"  ⏳ pipeline #{self.pipeline_num} выполняется на CircleCI "
-                  f"(статус: https://app.circleci.com/pipelines/github/JoTalbot/scan)")
-            self._done = True
-        return 0
+        import time as _t
+        t0 = _t.time()
+        print(f"  ⏳ pipeline #{self.pipeline_num} на CircleCI...", flush=True)
+        while not self._done:
+            if timeout and _t.time() - t0 > timeout:
+                print("  ⏰ таймаут ожидания CircleCI")
+                break
+            rc = self.poll()
+            if rc is not None:
+                break
+            _t.sleep(20)
+        st = self._status
+        print(f"  ✅ pipeline #{self.pipeline_num}: {st}")
+        return 0 if st == "success" else 1
 
     @property
     def returncode(self):
-        return 0
+        return 0 if self._status == "success" else 1
 
 
 def main():

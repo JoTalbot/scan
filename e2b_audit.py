@@ -26,7 +26,8 @@ import argparse
 REPO = "https://github.com/JoTalbot/scan.git"
 SCRIPTS = ["router_auth_check.py", "router_auth_browser.py", "port_probe.py",
            "cve_check.py", "bgp_looking_glass.py", "internetdb_enrich.py",
-           "verify_findings.py", "extract_routers.py"]
+           "verify_findings.py", "extract_routers.py", "port_scanner.py",
+           "router_ssh_telnet_audit.py", "sync_manager.py"]
 
 SETUP_CMDS = [
     "git clone --depth 1 {repo} ~/scan && cd ~/scan",
