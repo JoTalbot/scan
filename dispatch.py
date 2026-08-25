@@ -250,6 +250,12 @@ def dispatch(task, shards, batch, ports, parallel, force_ssh, task_text=""):
         print(f"[{get_now()}] ✅ Агент завершился (rc={p.returncode}). Лог: {logfile}")
         return
     workers = available_workers(force_ssh)
+    if task == "scan":
+        # E2B не может сканировать (OOM на больших батчах) — только circleci/local/codespaces
+        workers = [w for w in workers if w["type"] != "e2b"]
+        if not workers:
+            print("Нет исполнителей для скана (нужен circleci или local)")
+            return
     if task == "e2b_probe":
         import sqlite3
         conn = sqlite3.connect("/root/scan/isp_cidr.db")
