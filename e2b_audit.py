@@ -88,8 +88,8 @@ def main():
                 f = f.strip()
                 if os.path.exists(f):
                     with open(f, "rb") as fh:
-                        sandbox.files.write(f"/home/user/{os.path.basename(f)}", fh.read())
-                    print(f"  📤 Загружено: {f}")
+                        sandbox.files.write(f"/tmp/{os.path.basename(f)}", fh.read())
+                    print(f"  📤 Загружено: {f} -> /tmp/")
 
         # 1. клонирование и подготовка
         for cmd in SETUP_CMDS:
