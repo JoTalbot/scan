@@ -29,12 +29,11 @@ SCRIPTS = ["router_auth_check.py", "router_auth_browser.py", "port_probe.py",
            "verify_findings.py", "extract_routers.py"]
 
 SETUP_CMDS = [
-    "git clone --depth 1 {repo} /scan && cd /scan",
+    "git clone --depth 1 {repo} ~/scan && cd ~/scan",
     "apt-get update -qq && apt-get install -y -qq git-lfs 2>/dev/null || true",
-    "git lfs install && git lfs pull 2>/dev/null || true",   # скачивание реальной БД из LFS
     "pip install --quiet paramiko playwright==1.62.0 pytest 2>/dev/null || true",
     "python -m playwright install chromium 2>/dev/null || true",
-    "gunzip -kf isp_cidr.db.gz 2>/dev/null || true",
+    "cd ~/scan && gunzip -kf isp_cidr.db.gz 2>/dev/null || true",
 ]
 
 
@@ -86,7 +85,7 @@ def main():
                 print(f"  ⚠️ exit={proc.exit_code}: {proc.stderr[-300:] if proc.stderr else ''}")
 
         # 2. запуск целевого скрипта
-        full = f"cd /scan && python3 {args.script} {args.args}"
+        full = f"cd ~/scan && python3 {args.script} {args.args}"
         print(f"🚀 Запуск: {full}")
         proc = sandbox.commands.run(full, timeout=args.timeout - 60)
         out = (proc.stdout or "")[-4000:]
@@ -105,7 +104,7 @@ def main():
         for f in ["isp_cidr.db", "data/routers", "data/creds", "REPORT.md",
                   "CVE_REPORT.md", "internetdb_report.md", "router_credentials.csv"]:
             try:
-                sandbox.files.download(f"/scan/{f}", f"downloads/{os.path.basename(f)}")
+                sandbox.files.download(f"~/scan/{f}", f"downloads/{os.path.basename(f)}")
                 print(f"  📥 Скачано: {f}")
             except Exception:
                 pass  # файла может не быть
