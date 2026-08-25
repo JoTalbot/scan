@@ -1,8 +1,8 @@
 # 🌐 InternetDB Enrichment Report
 
-**Сформирован:** 2026-08-25T15:15:17Z
+**Сформирован:** 2026-08-25T15:31:42Z
 
-**IP с данными:** 867 из 963
+**IP с данными:** 891 из 989
 
 ## 🛡️ CVE по данным InternetDB
 
@@ -415,6 +415,7 @@
 | 185.69.69.64 | MikroTik | [CVE-2018-5951](https://nvd.nist.gov/vuln/detail/CVE-2018-5951) | 21,22,23,80,1723 |
 | 195.225.116.16 | MikroTik | [CVE-2018-5951](https://nvd.nist.gov/vuln/detail/CVE-2018-5951) | 80,179,443,1723,2000 |
 | 178.255.173.128 | MikroTik | [CVE-2018-5951](https://nvd.nist.gov/vuln/detail/CVE-2018-5951) | 80,2000,8291 |
+| 37.221.247.64 | MikroTik | [CVE-2018-5951](https://nvd.nist.gov/vuln/detail/CVE-2018-5951) | 21,80,2000,8291 |
 | 46.216.192.48 | OpenWrt | [CVE-2018-7170](https://nvd.nist.gov/vuln/detail/CVE-2018-7170) | 53,123,500,1701,2000 |
 | 46.216.192.48 | OpenWrt | [CVE-2018-7182](https://nvd.nist.gov/vuln/detail/CVE-2018-7182) | 53,123,500,1701,2000 |
 | 46.216.192.48 | OpenWrt | [CVE-2018-7183](https://nvd.nist.gov/vuln/detail/CVE-2018-7183) | 53,123,500,1701,2000 |
@@ -827,6 +828,7 @@
 | 185.69.69.64 | MikroTik | [CVE-2021-3014](https://nvd.nist.gov/vuln/detail/CVE-2021-3014) | 21,22,23,80,1723 |
 | 195.225.116.16 | MikroTik | [CVE-2021-3014](https://nvd.nist.gov/vuln/detail/CVE-2021-3014) | 80,179,443,1723,2000 |
 | 178.255.173.128 | MikroTik | [CVE-2021-3014](https://nvd.nist.gov/vuln/detail/CVE-2021-3014) | 80,2000,8291 |
+| 37.221.247.64 | MikroTik | [CVE-2021-3014](https://nvd.nist.gov/vuln/detail/CVE-2021-3014) | 21,80,2000,8291 |
 | 93.123.57.247 | MikroTik | [CVE-2021-30641](https://nvd.nist.gov/vuln/detail/CVE-2021-30641) | 53,80,81,82,1080 |
 | 93.123.57.247 | MikroTik | [CVE-2021-32785](https://nvd.nist.gov/vuln/detail/CVE-2021-32785) | 53,80,81,82,1080 |
 | 91.149.165.16 | D-Link | [CVE-2021-32785](https://nvd.nist.gov/vuln/detail/CVE-2021-32785) | 21,80,8080 |
@@ -971,6 +973,7 @@
 | 185.69.69.64 | MikroTik | [CVE-2022-45313](https://nvd.nist.gov/vuln/detail/CVE-2022-45313) | 21,22,23,80,1723 |
 | 195.225.116.16 | MikroTik | [CVE-2022-45313](https://nvd.nist.gov/vuln/detail/CVE-2022-45313) | 80,179,443,1723,2000 |
 | 178.255.173.128 | MikroTik | [CVE-2022-45313](https://nvd.nist.gov/vuln/detail/CVE-2022-45313) | 80,2000,8291 |
+| 37.221.247.64 | MikroTik | [CVE-2022-45313](https://nvd.nist.gov/vuln/detail/CVE-2022-45313) | 21,80,2000,8291 |
 | 84.38.251.80 | MikroTik | [CVE-2022-45315](https://nvd.nist.gov/vuln/detail/CVE-2022-45315) | 21,22,80,8291,8728 |
 | 108.60.101.64 | MikroTik | [CVE-2022-45315](https://nvd.nist.gov/vuln/detail/CVE-2022-45315) | 22,80,2000,8008,8015 |
 | 78.142.55.128 | MikroTik | [CVE-2022-45315](https://nvd.nist.gov/vuln/detail/CVE-2022-45315) | 21,22,2000,8081,8291 |
@@ -993,6 +996,7 @@
 | 185.69.69.64 | MikroTik | [CVE-2022-45315](https://nvd.nist.gov/vuln/detail/CVE-2022-45315) | 21,22,23,80,1723 |
 | 195.225.116.16 | MikroTik | [CVE-2022-45315](https://nvd.nist.gov/vuln/detail/CVE-2022-45315) | 80,179,443,1723,2000 |
 | 178.255.173.128 | MikroTik | [CVE-2022-45315](https://nvd.nist.gov/vuln/detail/CVE-2022-45315) | 80,2000,8291 |
+| 37.221.247.64 | MikroTik | [CVE-2022-45315](https://nvd.nist.gov/vuln/detail/CVE-2022-45315) | 21,80,2000,8291 |
 | 91.149.165.16 | D-Link | [CVE-2022-4900](https://nvd.nist.gov/vuln/detail/CVE-2022-4900) | 21,80,8080 |
 | 93.123.57.247 | MikroTik | [CVE-2023-25690](https://nvd.nist.gov/vuln/detail/CVE-2023-25690) | 53,80,81,82,1080 |
 | 91.149.165.16 | D-Link | [CVE-2023-25690](https://nvd.nist.gov/vuln/detail/CVE-2023-25690) | 21,80,8080 |
@@ -1204,6 +1208,7 @@
 | 185.170.224.144 | MikroTik | [CVE-2025-6443](https://nvd.nist.gov/vuln/detail/CVE-2025-6443) | 80,1194,1723,2000,8291 |
 | 82.160.138.224 | MikroTik | [CVE-2025-6443](https://nvd.nist.gov/vuln/detail/CVE-2025-6443) | 22,23,80,4440,4443 |
 | 185.69.69.64 | MikroTik | [CVE-2025-6443](https://nvd.nist.gov/vuln/detail/CVE-2025-6443) | 21,22,23,80,1723 |
+| 37.221.247.64 | MikroTik | [CVE-2025-6443](https://nvd.nist.gov/vuln/detail/CVE-2025-6443) | 21,80,2000,8291 |
 | 93.123.57.247 | MikroTik | [CVE-2025-65082](https://nvd.nist.gov/vuln/detail/CVE-2025-65082) | 53,80,81,82,1080 |
 | 5.161.88.0 | Fortinet | [CVE-2025-65082](https://nvd.nist.gov/vuln/detail/CVE-2025-65082) | 80,443 |
 | 91.149.165.16 | D-Link | [CVE-2025-65082](https://nvd.nist.gov/vuln/detail/CVE-2025-65082) | 21,80,8080 |
@@ -1358,20 +1363,20 @@
 
 | Порт | Устройств |
 |---|---|
-| 80 | 604 |
-| 2000 | 196 |
-| 8080 | 196 |
-| 22 | 188 |
-| 8291 | 170 |
-| 443 | 160 |
-| 21 | 111 |
-| 8728 | 109 |
+| 80 | 610 |
+| 8080 | 213 |
+| 2000 | 202 |
+| 22 | 190 |
+| 8291 | 175 |
+| 443 | 161 |
+| 21 | 115 |
+| 8728 | 111 |
 | 53 | 90 |
 | 161 | 74 |
 | 7547 | 58 |
 | 23 | 56 |
-| 1701 | 44 |
-| 1723 | 38 |
+| 1701 | 46 |
+| 1723 | 41 |
 | 554 | 21 |
 
 ---
