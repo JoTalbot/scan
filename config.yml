@@ -77,9 +77,18 @@ jobs:
                 ;;
             esac
       - run:
-          name: Синхронизация с GitHub
+          name: Экспорт чанка и синхронизация (без пуша БД)
           command: |
-            python3 sync_manager.py "circleci-<< pipeline.parameters.JOB >>-<< pipeline.parameters.SHARD >>" || echo "sync пропущен"
+            python3 export_chunk.py --agent "circleci-shard-<< pipeline.parameters.SHARD >>" --since 90 || true
+            if [ -n "$GITHUB_TOKEN" ]; then
+              git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/JoTalbot/scan.git"
+              git config user.email "circleci@users.noreply.github.com"
+              git config user.name "circleci-worker"
+            fi
+            git add data/ 2>/dev/null || true
+            git commit -m "chore(dispatch): chunk from circleci-shard-<< pipeline.parameters.SHARD >>" || echo "нет изменений"
+            git pull --rebase origin main 2>/dev/null || true
+            git push origin main || echo "push пропущен"
       - store_artifacts:
           path: data/scans
           destination: scans
