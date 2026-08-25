@@ -185,6 +185,22 @@
 
 ## 📜 Журнал завершенных этапов (Milestone Changelog)
 
+- **2026-08-25 (v1.10.0): OpenHands агент — ПОЛНЫЙ ЦИКЛ РАБОТАЕТ**
+  - Ключ sk-oh-... в .env (OPENHANDS_API_KEY), API app.all-hands.dev/api/v1/app-conversations.
+  - `openhands_agent.py`: создание разговора → поллинг search (execution_status) → события агента → git diff.
+  - `dispatch.py`: новая задача **dev** — отправка текстовой задачи агенту.
+  - **Верифицировано end-to-end**: агент получил задачу, изучил репо, создал docs/AGENT_REPORT.md (обзор на русском), **сам закоммитил и запушил** (коммит 1fbd2ae).
+  - Пул исполнителей: **circleci + e2b + local + openhands(dev)**.
+- **2026-08-24 (v1.9.3): CircleCI РАБОТАЕТ — полный цикл dispatch → pipeline → sync**
+  - Deploy key для checkout приватного репо; pipeline #4 (скан шарда) success за 66 сек.
+  - dispatch.py: JOB-параметры + реальный опрос статуса; sync_manager: pull --rebase.
+- **2026-08-25 (v1.9.2): CircleCI + E2B подключены (ключи в .env)**
+  - E2B: Sandbox.create() (SDK v2), LFS pull, cve_check в песочнице выполнен.
+  - CircleCI: токен валиден, но нужен был All-scope → заменён (v1.9.3).
+- **2026-08-25 (v1.9.1): Dispatcher — раздача задач по машинам**
+  - dispatch.py: ssh → codespaces → e2b → local, мониторинг, автосинк. Демо 4 шарда.
+- **2026-08-25 (v1.9.0): Codespaces + InternetDB + E2B (векторы из исследования)**
+  - .devcontainer для Codespaces; internetdb_enrich.py (307 IP обогащено); e2b_audit.py.
 - **2026-08-24 (v1.0.0):**
   - Загружены официальные реестры RIPE NCC и ARIN.
   - Сформирована SQLite БД `isp_cidr.db` (82 МБ) с 508,879 CIDR блоков (Украина, США, 49 стран Европы).
