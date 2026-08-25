@@ -1,0 +1,8 @@
+{
+  "supervisor": "active",
+  "mode": "continuous",
+  "last_check": null,
+  "agents": [],
+  "alerts": [],
+  "recovery_tasks": []
+}
