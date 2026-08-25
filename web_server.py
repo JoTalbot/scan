@@ -25,6 +25,12 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
     def get_conn(self):
         return sqlite3.connect(DB_PATH)
     def do_GET(self):
+        # CORS: разрешаем GitHub Pages обращаться к API
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        if self.path.startswith("/api/control") or self.path.startswith("/api/status"):
+            self.send_header("Cache-Control", "no-store")
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         params = urllib.parse.parse_qs(parsed.query)
@@ -169,6 +175,14 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
         stats["total_routers"] = cur.execute("SELECT COUNT(*) FROM scan_routers").fetchone()[0]
         conn.close()
         return stats
+
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
 
     def send_json(self, data):
         content = json.dumps(data, ensure_ascii=False).encode("utf-8")
