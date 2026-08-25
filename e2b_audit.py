@@ -27,7 +27,7 @@ REPO = "https://github.com/JoTalbot/scan.git"
 SCRIPTS = ["router_auth_check.py", "router_auth_browser.py", "port_probe.py",
            "cve_check.py", "bgp_looking_glass.py", "internetdb_enrich.py",
            "verify_findings.py", "extract_routers.py", "port_scanner.py",
-           "router_ssh_telnet_audit.py", "sync_manager.py"]
+           "router_ssh_telnet_audit.py", "sync_manager.py", "e2b_targets_audit.py"]
 
 SETUP_CMDS = [
     "git clone --depth 1 {repo} ~/scan && cd ~/scan",
@@ -50,6 +50,7 @@ def main():
     parser.add_argument("--timeout", type=int, default=60 * 55, help="Таймаут сессии (сек)")
     parser.add_argument("--template", default="base", help="Шаблон песочницы E2B")
     parser.add_argument("--keep", action="store_true", help="Не удалять песочницу после")
+    parser.add_argument("--upload", help="Локальные файлы для загрузки в песочницу (через запятую)")
     args = parser.parse_args()
 
     if args.list:
@@ -81,6 +82,15 @@ def main():
     print(f"🚀 Создаю E2B-песочницу...")
     sandbox = Sandbox.create()
     try:
+        # 0. загрузка файлов (targets.txt и т.п.)
+        if args.upload:
+            for f in args.upload.split(","):
+                f = f.strip()
+                if os.path.exists(f):
+                    with open(f, "rb") as fh:
+                        sandbox.files.write(f"/home/user/{os.path.basename(f)}", fh.read())
+                    print(f"  📤 Загружено: {f}")
+
         # 1. клонирование и подготовка
         for cmd in SETUP_CMDS:
             cmd = cmd.format(repo=REPO)
