@@ -1,18 +1,8 @@
 {
   "project": "ISP CIDR Multi-Agent Database",
   "version": "1.0.0",
-  "last_updated": "2026-08-25T12:00:03Z",
-  "active_agents": [
-    {
-      "agent_id": "Agent-Arena-01",
-      "machine_id": "aios-server",
-      "task_name": "Auto pipeline scan",
-      "current_step": "Scanning 100000 IP",
-      "status": "IN_PROGRESS",
-      "started_at": "2026-08-25T12:00:03Z",
-      "updated_at": "2026-08-25T12:00:03Z"
-    }
-  ],
+  "last_updated": "2026-08-25T12:03:49Z",
+  "active_agents": [],
   "tasks": {
     "TASK-01": {
       "title": "Database Construction",

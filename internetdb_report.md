@@ -1,8 +1,8 @@
 # 🌐 InternetDB Enrichment Report
 
-**Сформирован:** 2026-08-25T11:56:26Z
+**Сформирован:** 2026-08-25T12:10:17Z
 
-**IP с данными:** 640 из 707
+**IP с данными:** 662 из 736
 
 ## 🛡️ CVE по данным InternetDB
 
@@ -10,6 +10,7 @@
 |---|---|---|---|
 | 93.123.57.247 | MikroTik | [CVE-2006-20001](https://nvd.nist.gov/vuln/detail/CVE-2006-20001) | 53,80,81,82,1080 |
 | 91.149.165.16 | D-Link | [CVE-2006-20001](https://nvd.nist.gov/vuln/detail/CVE-2006-20001) | 21,80,8080 |
+| 31.57.141.144 | Hikvision | [CVE-2007-2627](https://nvd.nist.gov/vuln/detail/CVE-2007-2627) | 11,13,15,17,19 |
 | 213.136.53.171 | OPNsense | [CVE-2007-2768](https://nvd.nist.gov/vuln/detail/CVE-2007-2768) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2007-2768](https://nvd.nist.gov/vuln/detail/CVE-2007-2768) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2007-2768](https://nvd.nist.gov/vuln/detail/CVE-2007-2768) | 22,53,80,554,5985 |
@@ -19,26 +20,114 @@
 | 93.123.57.247 | MikroTik | [CVE-2007-4723](https://nvd.nist.gov/vuln/detail/CVE-2007-4723) | 53,80,81,82,1080 |
 | 5.161.88.0 | Fortinet | [CVE-2007-4723](https://nvd.nist.gov/vuln/detail/CVE-2007-4723) | 80,443 |
 | 91.149.165.16 | D-Link | [CVE-2007-4723](https://nvd.nist.gov/vuln/detail/CVE-2007-4723) | 21,80,8080 |
+| 31.57.141.144 | Hikvision | [CVE-2007-5800](https://nvd.nist.gov/vuln/detail/CVE-2007-5800) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2008-1982](https://nvd.nist.gov/vuln/detail/CVE-2008-1982) | 11,13,15,17,19 |
 | 213.136.53.171 | OPNsense | [CVE-2008-3844](https://nvd.nist.gov/vuln/detail/CVE-2008-3844) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2008-3844](https://nvd.nist.gov/vuln/detail/CVE-2008-3844) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2008-3844](https://nvd.nist.gov/vuln/detail/CVE-2008-3844) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2008-3844](https://nvd.nist.gov/vuln/detail/CVE-2008-3844) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2008-3844](https://nvd.nist.gov/vuln/detail/CVE-2008-3844) | 22,80,161,443 |
+| 31.57.141.144 | Hikvision | [CVE-2008-4625](https://nvd.nist.gov/vuln/detail/CVE-2008-4625) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2008-4732](https://nvd.nist.gov/vuln/detail/CVE-2008-4732) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2008-4733](https://nvd.nist.gov/vuln/detail/CVE-2008-4733) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2008-4734](https://nvd.nist.gov/vuln/detail/CVE-2008-4734) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2008-5752](https://nvd.nist.gov/vuln/detail/CVE-2008-5752) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2008-6811](https://nvd.nist.gov/vuln/detail/CVE-2008-6811) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2008-7040](https://nvd.nist.gov/vuln/detail/CVE-2008-7040) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2008-7175](https://nvd.nist.gov/vuln/detail/CVE-2008-7175) | 11,13,15,17,19 |
 | 93.123.57.247 | MikroTik | [CVE-2009-0796](https://nvd.nist.gov/vuln/detail/CVE-2009-0796) | 53,80,81,82,1080 |
 | 5.161.88.0 | Fortinet | [CVE-2009-0796](https://nvd.nist.gov/vuln/detail/CVE-2009-0796) | 80,443 |
 | 91.149.165.16 | D-Link | [CVE-2009-0796](https://nvd.nist.gov/vuln/detail/CVE-2009-0796) | 21,80,8080 |
+| 31.57.141.144 | Hikvision | [CVE-2009-0968](https://nvd.nist.gov/vuln/detail/CVE-2009-0968) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2009-2122](https://nvd.nist.gov/vuln/detail/CVE-2009-2122) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2009-2143](https://nvd.nist.gov/vuln/detail/CVE-2009-2143) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2009-2144](https://nvd.nist.gov/vuln/detail/CVE-2009-2144) | 11,13,15,17,19 |
 | 93.123.57.247 | MikroTik | [CVE-2009-2299](https://nvd.nist.gov/vuln/detail/CVE-2009-2299) | 53,80,81,82,1080 |
 | 5.161.88.0 | Fortinet | [CVE-2009-2299](https://nvd.nist.gov/vuln/detail/CVE-2009-2299) | 80,443 |
 | 91.149.165.16 | D-Link | [CVE-2009-2299](https://nvd.nist.gov/vuln/detail/CVE-2009-2299) | 21,80,8080 |
+| 31.57.141.144 | Hikvision | [CVE-2009-2383](https://nvd.nist.gov/vuln/detail/CVE-2009-2383) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2009-2396](https://nvd.nist.gov/vuln/detail/CVE-2009-2396) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2009-2852](https://nvd.nist.gov/vuln/detail/CVE-2009-2852) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2009-3703](https://nvd.nist.gov/vuln/detail/CVE-2009-3703) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2009-4168](https://nvd.nist.gov/vuln/detail/CVE-2009-4168) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2009-4169](https://nvd.nist.gov/vuln/detail/CVE-2009-4169) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2009-4170](https://nvd.nist.gov/vuln/detail/CVE-2009-4170) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2009-4424](https://nvd.nist.gov/vuln/detail/CVE-2009-4424) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2009-4672](https://nvd.nist.gov/vuln/detail/CVE-2009-4672) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2009-4748](https://nvd.nist.gov/vuln/detail/CVE-2009-4748) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2010-0673](https://nvd.nist.gov/vuln/detail/CVE-2010-0673) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2010-1186](https://nvd.nist.gov/vuln/detail/CVE-2010-1186) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2010-2924](https://nvd.nist.gov/vuln/detail/CVE-2010-2924) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2010-3977](https://nvd.nist.gov/vuln/detail/CVE-2010-3977) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2010-4277](https://nvd.nist.gov/vuln/detail/CVE-2010-4277) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2010-4402](https://nvd.nist.gov/vuln/detail/CVE-2010-4402) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2010-4403](https://nvd.nist.gov/vuln/detail/CVE-2010-4403) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2010-4518](https://nvd.nist.gov/vuln/detail/CVE-2010-4518) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2010-4630](https://nvd.nist.gov/vuln/detail/CVE-2010-4630) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2010-4637](https://nvd.nist.gov/vuln/detail/CVE-2010-4637) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2010-4747](https://nvd.nist.gov/vuln/detail/CVE-2010-4747) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2010-4779](https://nvd.nist.gov/vuln/detail/CVE-2010-4779) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2010-4825](https://nvd.nist.gov/vuln/detail/CVE-2010-4825) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2010-4839](https://nvd.nist.gov/vuln/detail/CVE-2010-4839) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2010-4875](https://nvd.nist.gov/vuln/detail/CVE-2010-4875) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-0641](https://nvd.nist.gov/vuln/detail/CVE-2011-0641) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-0740](https://nvd.nist.gov/vuln/detail/CVE-2011-0740) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-0759](https://nvd.nist.gov/vuln/detail/CVE-2011-0759) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-0760](https://nvd.nist.gov/vuln/detail/CVE-2011-0760) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-1047](https://nvd.nist.gov/vuln/detail/CVE-2011-1047) | 11,13,15,17,19 |
 | 93.123.57.247 | MikroTik | [CVE-2011-1176](https://nvd.nist.gov/vuln/detail/CVE-2011-1176) | 53,80,81,82,1080 |
 | 5.161.88.0 | Fortinet | [CVE-2011-1176](https://nvd.nist.gov/vuln/detail/CVE-2011-1176) | 80,443 |
 | 91.149.165.16 | D-Link | [CVE-2011-1176](https://nvd.nist.gov/vuln/detail/CVE-2011-1176) | 21,80,8080 |
+| 31.57.141.144 | Hikvision | [CVE-2011-1669](https://nvd.nist.gov/vuln/detail/CVE-2011-1669) | 11,13,15,17,19 |
 | 93.123.57.247 | MikroTik | [CVE-2011-2688](https://nvd.nist.gov/vuln/detail/CVE-2011-2688) | 53,80,81,82,1080 |
 | 5.161.88.0 | Fortinet | [CVE-2011-2688](https://nvd.nist.gov/vuln/detail/CVE-2011-2688) | 80,443 |
 | 91.149.165.16 | D-Link | [CVE-2011-2688](https://nvd.nist.gov/vuln/detail/CVE-2011-2688) | 21,80,8080 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3850](https://nvd.nist.gov/vuln/detail/CVE-2011-3850) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3851](https://nvd.nist.gov/vuln/detail/CVE-2011-3851) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3852](https://nvd.nist.gov/vuln/detail/CVE-2011-3852) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3853](https://nvd.nist.gov/vuln/detail/CVE-2011-3853) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3854](https://nvd.nist.gov/vuln/detail/CVE-2011-3854) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3855](https://nvd.nist.gov/vuln/detail/CVE-2011-3855) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3856](https://nvd.nist.gov/vuln/detail/CVE-2011-3856) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3857](https://nvd.nist.gov/vuln/detail/CVE-2011-3857) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3858](https://nvd.nist.gov/vuln/detail/CVE-2011-3858) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3859](https://nvd.nist.gov/vuln/detail/CVE-2011-3859) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3860](https://nvd.nist.gov/vuln/detail/CVE-2011-3860) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3861](https://nvd.nist.gov/vuln/detail/CVE-2011-3861) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3862](https://nvd.nist.gov/vuln/detail/CVE-2011-3862) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3863](https://nvd.nist.gov/vuln/detail/CVE-2011-3863) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3864](https://nvd.nist.gov/vuln/detail/CVE-2011-3864) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3865](https://nvd.nist.gov/vuln/detail/CVE-2011-3865) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-3981](https://nvd.nist.gov/vuln/detail/CVE-2011-3981) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-4562](https://nvd.nist.gov/vuln/detail/CVE-2011-4562) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-4568](https://nvd.nist.gov/vuln/detail/CVE-2011-4568) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-4646](https://nvd.nist.gov/vuln/detail/CVE-2011-4646) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-4669](https://nvd.nist.gov/vuln/detail/CVE-2011-4669) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-4671](https://nvd.nist.gov/vuln/detail/CVE-2011-4671) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-4673](https://nvd.nist.gov/vuln/detail/CVE-2011-4673) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-4803](https://nvd.nist.gov/vuln/detail/CVE-2011-4803) | 11,13,15,17,19 |
 | 136.239.109.176 | Zyxel | [CVE-2011-4969](https://nvd.nist.gov/vuln/detail/CVE-2011-4969) | 80 |
 | 213.91.190.176 | Huawei | [CVE-2011-4969](https://nvd.nist.gov/vuln/detail/CVE-2011-4969) | 8080 |
 | 68.208.50.128 | Zyxel | [CVE-2011-4969](https://nvd.nist.gov/vuln/detail/CVE-2011-4969) | 80 |
+| 31.57.141.144 | Hikvision | [CVE-2011-5051](https://nvd.nist.gov/vuln/detail/CVE-2011-5051) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2011-5082](https://nvd.nist.gov/vuln/detail/CVE-2011-5082) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-0895](https://nvd.nist.gov/vuln/detail/CVE-2012-0895) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-0896](https://nvd.nist.gov/vuln/detail/CVE-2012-0896) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-0898](https://nvd.nist.gov/vuln/detail/CVE-2012-0898) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-0934](https://nvd.nist.gov/vuln/detail/CVE-2012-0934) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-1010](https://nvd.nist.gov/vuln/detail/CVE-2012-1010) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-1011](https://nvd.nist.gov/vuln/detail/CVE-2012-1011) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-1067](https://nvd.nist.gov/vuln/detail/CVE-2012-1067) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-1068](https://nvd.nist.gov/vuln/detail/CVE-2012-1068) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-1205](https://nvd.nist.gov/vuln/detail/CVE-2012-1205) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-1785](https://nvd.nist.gov/vuln/detail/CVE-2012-1785) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-1786](https://nvd.nist.gov/vuln/detail/CVE-2012-1786) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-2759](https://nvd.nist.gov/vuln/detail/CVE-2012-2759) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-2912](https://nvd.nist.gov/vuln/detail/CVE-2012-2912) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-2913](https://nvd.nist.gov/vuln/detail/CVE-2012-2913) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-2916](https://nvd.nist.gov/vuln/detail/CVE-2012-2916) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-2917](https://nvd.nist.gov/vuln/detail/CVE-2012-2917) | 11,13,15,17,19 |
+| 31.57.141.144 | Hikvision | [CVE-2012-2920](https://nvd.nist.gov/vuln/detail/CVE-2012-2920) | 11,13,15,17,19 |
 | 93.123.57.247 | MikroTik | [CVE-2012-3526](https://nvd.nist.gov/vuln/detail/CVE-2012-3526) | 53,80,81,82,1080 |
 | 5.161.88.0 | Fortinet | [CVE-2012-3526](https://nvd.nist.gov/vuln/detail/CVE-2012-3526) | 80,443 |
 | 91.149.165.16 | D-Link | [CVE-2012-3526](https://nvd.nist.gov/vuln/detail/CVE-2012-3526) | 21,80,8080 |
@@ -58,6 +147,7 @@
 | 95.47.59.160 | TP-Link | [CVE-2012-6708](https://nvd.nist.gov/vuln/detail/CVE-2012-6708) | 80,7547 |
 | 68.208.50.128 | Zyxel | [CVE-2012-6708](https://nvd.nist.gov/vuln/detail/CVE-2012-6708) | 80 |
 | 188.117.249.128 | TP-Link | [CVE-2012-6708](https://nvd.nist.gov/vuln/detail/CVE-2012-6708) | 80,443 |
+| 45.88.71.64 | TP-Link | [CVE-2012-6708](https://nvd.nist.gov/vuln/detail/CVE-2012-6708) | 2000,8080 |
 | 93.123.57.247 | MikroTik | [CVE-2013-0941](https://nvd.nist.gov/vuln/detail/CVE-2013-0941) | 53,80,81,82,1080 |
 | 5.161.88.0 | Fortinet | [CVE-2013-0941](https://nvd.nist.gov/vuln/detail/CVE-2013-0941) | 80,443 |
 | 91.149.165.16 | D-Link | [CVE-2013-0941](https://nvd.nist.gov/vuln/detail/CVE-2013-0941) | 21,80,8080 |
@@ -74,6 +164,7 @@
 | 185.28.250.224 | TP-Link | [CVE-2013-4508](https://nvd.nist.gov/vuln/detail/CVE-2013-4508) | 81,82,1194,2021,8000 |
 | 185.28.250.224 | TP-Link | [CVE-2013-4559](https://nvd.nist.gov/vuln/detail/CVE-2013-4559) | 81,82,1194,2021,8000 |
 | 185.28.250.224 | TP-Link | [CVE-2013-4560](https://nvd.nist.gov/vuln/detail/CVE-2013-4560) | 81,82,1194,2021,8000 |
+| 31.57.141.144 | Hikvision | [CVE-2013-5918](https://nvd.nist.gov/vuln/detail/CVE-2013-5918) | 11,13,15,17,19 |
 | 185.28.250.224 | TP-Link | [CVE-2014-2323](https://nvd.nist.gov/vuln/detail/CVE-2014-2323) | 81,82,1194,2021,8000 |
 | 185.28.250.224 | TP-Link | [CVE-2014-2324](https://nvd.nist.gov/vuln/detail/CVE-2014-2324) | 81,82,1194,2021,8000 |
 | 38.108.31.160 | Ubiquiti | [CVE-2015-3200](https://nvd.nist.gov/vuln/detail/CVE-2015-3200) | 22,80,443,554,10001 |
@@ -90,6 +181,7 @@
 | 95.47.59.160 | TP-Link | [CVE-2015-9251](https://nvd.nist.gov/vuln/detail/CVE-2015-9251) | 80,7547 |
 | 68.208.50.128 | Zyxel | [CVE-2015-9251](https://nvd.nist.gov/vuln/detail/CVE-2015-9251) | 80 |
 | 188.117.249.128 | TP-Link | [CVE-2015-9251](https://nvd.nist.gov/vuln/detail/CVE-2015-9251) | 80,443 |
+| 45.88.71.64 | TP-Link | [CVE-2015-9251](https://nvd.nist.gov/vuln/detail/CVE-2015-9251) | 2000,8080 |
 | 199.189.241.32 | SonicWALL | [CVE-2016-10009](https://nvd.nist.gov/vuln/detail/CVE-2016-10009) | 22,443 |
 | 66.231.29.224 | SonicWALL | [CVE-2016-10009](https://nvd.nist.gov/vuln/detail/CVE-2016-10009) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2016-10009](https://nvd.nist.gov/vuln/detail/CVE-2016-10009) | 22,80,161,443 |
@@ -271,6 +363,7 @@
 | 95.47.59.160 | TP-Link | [CVE-2019-11358](https://nvd.nist.gov/vuln/detail/CVE-2019-11358) | 80,7547 |
 | 68.208.50.128 | Zyxel | [CVE-2019-11358](https://nvd.nist.gov/vuln/detail/CVE-2019-11358) | 80 |
 | 188.117.249.128 | TP-Link | [CVE-2019-11358](https://nvd.nist.gov/vuln/detail/CVE-2019-11358) | 80,443 |
+| 45.88.71.64 | TP-Link | [CVE-2019-11358](https://nvd.nist.gov/vuln/detail/CVE-2019-11358) | 2000,8080 |
 | 82.160.138.224 | MikroTik | [CVE-2019-13074](https://nvd.nist.gov/vuln/detail/CVE-2019-13074) | 22,23,80,4440,4443 |
 | 212.32.43.160 | MikroTik | [CVE-2019-13074](https://nvd.nist.gov/vuln/detail/CVE-2019-13074) | 23,80,2000,8291,8728 |
 | 91.149.165.16 | D-Link | [CVE-2019-13224](https://nvd.nist.gov/vuln/detail/CVE-2019-13224) | 21,80,8080 |
@@ -347,6 +440,7 @@
 | 95.47.59.160 | TP-Link | [CVE-2020-11022](https://nvd.nist.gov/vuln/detail/CVE-2020-11022) | 80,7547 |
 | 68.208.50.128 | Zyxel | [CVE-2020-11022](https://nvd.nist.gov/vuln/detail/CVE-2020-11022) | 80 |
 | 188.117.249.128 | TP-Link | [CVE-2020-11022](https://nvd.nist.gov/vuln/detail/CVE-2020-11022) | 80,443 |
+| 45.88.71.64 | TP-Link | [CVE-2020-11022](https://nvd.nist.gov/vuln/detail/CVE-2020-11022) | 2000,8080 |
 | 136.239.109.176 | Zyxel | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 80 |
 | 153.75.215.128 | Zyxel | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 22,80,161,443,7547 |
 | 93.115.8.192 | Zyxel | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 22,80,443 |
@@ -360,6 +454,7 @@
 | 95.47.59.160 | TP-Link | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 80,7547 |
 | 68.208.50.128 | Zyxel | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 80 |
 | 188.117.249.128 | TP-Link | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 80,443 |
+| 45.88.71.64 | TP-Link | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 2000,8080 |
 | 91.149.165.16 | D-Link | [CVE-2020-11579](https://nvd.nist.gov/vuln/detail/CVE-2020-11579) | 21,80,8080 |
 | 82.160.138.224 | MikroTik | [CVE-2020-11881](https://nvd.nist.gov/vuln/detail/CVE-2020-11881) | 22,23,80,4440,4443 |
 | 85.187.232.16 | MikroTik | [CVE-2020-11881](https://nvd.nist.gov/vuln/detail/CVE-2020-11881) | 21,22,53,80,161 |
@@ -508,6 +603,7 @@
 | 95.47.59.160 | TP-Link | [CVE-2020-7656](https://nvd.nist.gov/vuln/detail/CVE-2020-7656) | 80,7547 |
 | 68.208.50.128 | Zyxel | [CVE-2020-7656](https://nvd.nist.gov/vuln/detail/CVE-2020-7656) | 80 |
 | 188.117.249.128 | TP-Link | [CVE-2020-7656](https://nvd.nist.gov/vuln/detail/CVE-2020-7656) | 80,443 |
+| 45.88.71.64 | TP-Link | [CVE-2020-7656](https://nvd.nist.gov/vuln/detail/CVE-2020-7656) | 2000,8080 |
 | 93.123.57.247 | MikroTik | [CVE-2020-9490](https://nvd.nist.gov/vuln/detail/CVE-2020-9490) | 53,80,81,82,1080 |
 | 91.149.165.16 | D-Link | [CVE-2020-9490](https://nvd.nist.gov/vuln/detail/CVE-2020-9490) | 21,80,8080 |
 | 188.172.240.233 | OPNsense | [CVE-2021-23017](https://nvd.nist.gov/vuln/detail/CVE-2021-23017) | 80,443 |
@@ -520,6 +616,7 @@
 | 195.226.144.192 | OpenWrt | [CVE-2021-23017](https://nvd.nist.gov/vuln/detail/CVE-2021-23017) | 80 |
 | 94.236.146.160 | OpenWrt | [CVE-2021-23017](https://nvd.nist.gov/vuln/detail/CVE-2021-23017) | 80,81,8080,10554 |
 | 62.220.235.0 | OpenWrt | [CVE-2021-23017](https://nvd.nist.gov/vuln/detail/CVE-2021-23017) | 22,80 |
+| 38.47.119.128 | Ubiquiti | [CVE-2021-23017](https://nvd.nist.gov/vuln/detail/CVE-2021-23017) | 80,443 |
 | 93.123.57.247 | MikroTik | [CVE-2021-26690](https://nvd.nist.gov/vuln/detail/CVE-2021-26690) | 53,80,81,82,1080 |
 | 91.149.165.16 | D-Link | [CVE-2021-26690](https://nvd.nist.gov/vuln/detail/CVE-2021-26690) | 21,80,8080 |
 | 93.123.57.247 | MikroTik | [CVE-2021-26691](https://nvd.nist.gov/vuln/detail/CVE-2021-26691) | 53,80,81,82,1080 |
@@ -566,6 +663,7 @@
 | 195.226.144.192 | OpenWrt | [CVE-2021-3618](https://nvd.nist.gov/vuln/detail/CVE-2021-3618) | 80 |
 | 94.236.146.160 | OpenWrt | [CVE-2021-3618](https://nvd.nist.gov/vuln/detail/CVE-2021-3618) | 80,81,8080,10554 |
 | 62.220.235.0 | OpenWrt | [CVE-2021-3618](https://nvd.nist.gov/vuln/detail/CVE-2021-3618) | 22,80 |
+| 38.47.119.128 | Ubiquiti | [CVE-2021-3618](https://nvd.nist.gov/vuln/detail/CVE-2021-3618) | 80,443 |
 | 213.136.53.171 | OPNsense | [CVE-2021-36368](https://nvd.nist.gov/vuln/detail/CVE-2021-36368) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2021-36368](https://nvd.nist.gov/vuln/detail/CVE-2021-36368) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2021-36368](https://nvd.nist.gov/vuln/detail/CVE-2021-36368) | 22,53,80,554,5985 |
@@ -730,6 +828,7 @@
 | 194.60.87.80 | Ubiquiti | [CVE-2023-44487](https://nvd.nist.gov/vuln/detail/CVE-2023-44487) | 22,80,443 |
 | 94.236.146.160 | OpenWrt | [CVE-2023-44487](https://nvd.nist.gov/vuln/detail/CVE-2023-44487) | 80,81,8080,10554 |
 | 62.220.235.0 | OpenWrt | [CVE-2023-44487](https://nvd.nist.gov/vuln/detail/CVE-2023-44487) | 22,80 |
+| 38.47.119.128 | Ubiquiti | [CVE-2023-44487](https://nvd.nist.gov/vuln/detail/CVE-2023-44487) | 80,443 |
 | 93.123.57.247 | MikroTik | [CVE-2023-45802](https://nvd.nist.gov/vuln/detail/CVE-2023-45802) | 53,80,81,82,1080 |
 | 91.149.165.16 | D-Link | [CVE-2023-45802](https://nvd.nist.gov/vuln/detail/CVE-2023-45802) | 21,80,8080 |
 | 213.136.53.171 | OPNsense | [CVE-2023-48795](https://nvd.nist.gov/vuln/detail/CVE-2023-48795) | 22,53,80,443 |
@@ -817,6 +916,7 @@
 | 194.60.87.80 | Ubiquiti | [CVE-2025-23419](https://nvd.nist.gov/vuln/detail/CVE-2025-23419) | 22,80,443 |
 | 94.236.146.160 | OpenWrt | [CVE-2025-23419](https://nvd.nist.gov/vuln/detail/CVE-2025-23419) | 80,81,8080,10554 |
 | 62.220.235.0 | OpenWrt | [CVE-2025-23419](https://nvd.nist.gov/vuln/detail/CVE-2025-23419) | 22,80 |
+| 38.47.119.128 | Ubiquiti | [CVE-2025-23419](https://nvd.nist.gov/vuln/detail/CVE-2025-23419) | 80,443 |
 | 213.136.53.171 | OPNsense | [CVE-2025-26465](https://nvd.nist.gov/vuln/detail/CVE-2025-26465) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2025-26465](https://nvd.nist.gov/vuln/detail/CVE-2025-26465) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2025-26465](https://nvd.nist.gov/vuln/detail/CVE-2025-26465) | 22,53,80,554,5985 |
@@ -994,21 +1094,21 @@
 
 | Порт | Устройств |
 |---|---|
-| 80 | 486 |
-| 22 | 160 |
-| 2000 | 144 |
-| 8291 | 132 |
-| 443 | 122 |
-| 8080 | 108 |
-| 8728 | 93 |
-| 21 | 89 |
-| 53 | 69 |
-| 161 | 47 |
-| 23 | 42 |
-| 7547 | 38 |
-| 1701 | 30 |
-| 1723 | 25 |
-| 554 | 19 |
+| 80 | 498 |
+| 22 | 165 |
+| 2000 | 147 |
+| 8291 | 137 |
+| 443 | 127 |
+| 8080 | 117 |
+| 8728 | 95 |
+| 21 | 93 |
+| 53 | 70 |
+| 161 | 48 |
+| 23 | 43 |
+| 7547 | 40 |
+| 1701 | 32 |
+| 1723 | 28 |
+| 554 | 20 |
 
 ---
 *Данные Shodan InternetDB (обновление еженедельно).*
