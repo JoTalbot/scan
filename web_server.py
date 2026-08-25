@@ -12,7 +12,7 @@ import urllib.parse
 import os
 import ipaddress
 
-PORT = 8000
+PORT = 8899
 DB_PATH = os.path.join(os.path.dirname(__file__), "isp_cidr.db")
 
 def get_db():
@@ -379,9 +379,6 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(content)
 
     def serve_html(self):
-        with open("/home/user/web_server.py", "r", encoding="utf-8") as f:
-            full_code = f.read()
-        
         html_code = """<!DOCTYPE html>
 <html lang="ru">
 <head>
