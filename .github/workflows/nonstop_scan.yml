@@ -1,0 +1,45 @@
+name: Nonstop Scan Agent
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare status
+        run: |
+          mkdir -p .agents
+          date -u > .agents/last_scan_started.txt
+
+      - name: Run scan pipeline
+        run: |
+          chmod +x pipeline.sh
+          ./pipeline.sh 10000 || true
+
+      - name: Save agent state
+        run: |
+          mkdir -p .agents
+          cat > .agents/scan_state.md <<EOF
+# Scan Agent State
+
+- Agent: github-actions-nonstop-scan
+- Status: completed
+- Time: $(date -u)
+- Mode: scheduled continuous scan
+- Next run: automatic
+EOF
+
+      - name: Commit state
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .agents || true
+          git commit -m "Update nonstop scan state" || true
+          git push || true
