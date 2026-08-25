@@ -22,3 +22,6 @@ Thumbs.db
 logs/
 backups/
 node_modules/
+*.db-wal
+*.db-shm
+*.db-journal
