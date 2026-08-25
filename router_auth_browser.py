@@ -345,9 +345,20 @@ async def run(browser, routers, pairs_map, timeout, wait_ms, concurrency, agent,
     async def worker(r):
         nonlocal done
         async with sem:
-            ip, meta, found = await check_device(
-                browser, r, pairs_map.get(r[3], pairs_map.get("Generic DSL Router", [])),
-                timeout, wait_ms, agent, machine)
+            ip = r[0]
+            # Per-device hard timeout: one hung target must not stall the whole run.
+            # 90s covers MikroTik delayed checks (~15s) plus several pair attempts.
+            per_device = max(60, (timeout or 7) * 12)
+            try:
+                ip, meta, found = await asyncio.wait_for(
+                    check_device(
+                        browser, r, pairs_map.get(r[3], pairs_map.get("Generic DSL Router", [])),
+                        timeout, wait_ms, agent, machine),
+                    timeout=per_device)
+            except asyncio.TimeoutError:
+                meta, found = {"result": "browser-timeout"}, []
+            except Exception:
+                meta, found = {"result": "browser-error"}, []
             results.append((ip, meta, found))
             done += 1
             v = sum(1 for _, m, _ in results if m["result"] == "browser-verified")

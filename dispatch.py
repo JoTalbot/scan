@@ -375,8 +375,11 @@ def dispatch(task, shards, batch, ports, parallel, force_ssh, task_text=""):
     # мониторинг
     print(f"\n[{get_now()}] Запущено: {len(procs)} исполнителей")
     if parallel:
-        # ждём все
+        # ждём все, но не бесконечно: потолок ожидания исполнителя (по умолчанию 45 мин)
+        max_wait = int(os.environ.get("DISPATCH_MAX_WAIT", "2700"))
+        t_start = time.time()
         while procs:
+            now = time.time()
             done = []
             for name, p, wtype in procs:
                 if p.poll() is not None:
@@ -385,7 +388,24 @@ def dispatch(task, shards, batch, ports, parallel, force_ssh, task_text=""):
                     done.append((name, p, wtype))
             for d in done:
                 procs.remove(d)
-            if procs:
+            if procs and now - t_start > max_wait:
+                hung = [n for n, _, _ in procs]
+                print(f"[{get_now()}] ⏰ ТАЙМАУТ {max_wait}s — принудительно завершаю зависших: {hung}")
+                for name, p, wtype in procs:
+                    try:
+                        p.terminate()
+                    except Exception:
+                        pass
+                time.sleep(5)
+                for name, p, wtype in procs:
+                    try:
+                        if p.poll() is None:
+                            p.kill()
+                    except Exception:
+                        pass
+                    print(f"[{get_now()}] ❌ {name} убит по таймауту (rc={p.returncode})")
+                procs = []
+            elif procs:
                 time.sleep(15)
     else:
         # последовательно: ждём по одному
