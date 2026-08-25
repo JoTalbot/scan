@@ -1,0 +1,95 @@
+# CircleCI config for RouterScan workers
+# Free tier: 30,000 credits/mo (~3000 min Linux). OSS: 400k credits.
+# Запуск через CircleCI API (dispatch.py): POST /api/v2/project/gh/JoTalbot/scan/pipeline
+version: 2.1
+
+parameters:
+  SHARD:
+    type: integer
+    default: 0
+  SHARD_TOTAL:
+    type: integer
+    default: 1
+  BATCH:
+    type: integer
+    default: 100000
+  PORTS:
+    type: string
+    default: "80,8080,8443"
+  JOB:
+    type: string
+    default: "scan"
+
+executors:
+  python:
+    docker:
+      - image: cimg/python:3.11
+
+commands:
+  setup_scan:
+    steps:
+      - checkout
+      - run:
+          name: Подготовка (БД + зависимости)
+          command: |
+            sudo apt-get update -qq && sudo apt-get install -y -qq sqlite3 curl git-lfs >/dev/null 2>&1 || true
+            git lfs install && git lfs pull 2>/dev/null || true
+            pip install --quiet paramiko pytest 2>/dev/null || true
+            gunzip -kf isp_cidr.db.gz || true
+            ls -la isp_cidr.db 2>/dev/null || echo "БД нет — пропускаю"
+
+jobs:
+  worker:
+    executor: python
+    resource_class: medium   # 2 vCPU / 4 GB
+    steps:
+      - setup_scan
+      - run:
+          name: "Выполнение задачи: << pipeline.parameters.JOB >>"
+          command: |
+            ulimit -n 65535 2>/dev/null || true
+            case "<< pipeline.parameters.JOB >>" in
+              scan)
+                python3 port_scanner.py run \
+                  --batch "<< pipeline.parameters.BATCH >>" \
+                  --shard "<< pipeline.parameters.SHARD >>" \
+                  --shard-total "<< pipeline.parameters.SHARD_TOTAL >>" \
+                  --concurrency 1000 --timeout 1.0 \
+                  --ports "<< pipeline.parameters.PORTS >>"
+                ;;
+              audit_raw)
+                python3 router_auth_check.py --fast --concurrency 30 --timeout 4 || true
+                ;;
+              audit_browser)
+                pip install --quiet playwright==1.62.0 2>/dev/null || true
+                python -m playwright install chromium 2>/dev/null || true
+                python3 router_auth_browser.py --only-no-channel --pairs 8 \
+                  --concurrency 4 --timeout 7 --wait 2.5 || true
+                ;;
+              internetdb)
+                python3 internetdb_enrich.py --delay 0.2 || true
+                ;;
+              probe)
+                python3 port_probe.py --concurrency 50 --timeout 2 || true
+                ;;
+              *)
+                echo "Неизвестная задача: << pipeline.parameters.JOB >>"
+                ;;
+            esac
+      - run:
+          name: Синхронизация с GitHub
+          command: |
+            python3 sync_manager.py "circleci-<< pipeline.parameters.JOB >>-<< pipeline.parameters.SHARD >>" || echo "sync пропущен"
+      - store_artifacts:
+          path: data/scans
+          destination: scans
+      - store_artifacts:
+          path: data/routers
+          destination: routers
+
+workflows:
+  version: 2
+  # Запускается только через API (dispatch.py) — автотриггеров нет
+  on_demand:
+    jobs:
+      - worker
