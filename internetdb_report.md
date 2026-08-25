@@ -1,8 +1,8 @@
 # 🌐 InternetDB Enrichment Report
 
-**Сформирован:** 2026-08-25T13:15:35Z
+**Сформирован:** 2026-08-25T13:32:00Z
 
-**IP с данными:** 747 из 830
+**IP с данными:** 767 из 850
 
 ## 🛡️ CVE по данным InternetDB
 
@@ -16,6 +16,7 @@
 | 128.1.33.16 | MikroTik | [CVE-2007-2768](https://nvd.nist.gov/vuln/detail/CVE-2007-2768) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2007-2768](https://nvd.nist.gov/vuln/detail/CVE-2007-2768) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2007-2768](https://nvd.nist.gov/vuln/detail/CVE-2007-2768) | 22,80,161,443 |
+| 217.60.194.16 | MikroTik | [CVE-2007-2768](https://nvd.nist.gov/vuln/detail/CVE-2007-2768) | 22,80,443,993,995 |
 | 91.149.165.16 | D-Link | [CVE-2007-3205](https://nvd.nist.gov/vuln/detail/CVE-2007-3205) | 21,80,8080 |
 | 93.123.57.247 | MikroTik | [CVE-2007-4723](https://nvd.nist.gov/vuln/detail/CVE-2007-4723) | 53,80,81,82,1080 |
 | 5.161.88.0 | Fortinet | [CVE-2007-4723](https://nvd.nist.gov/vuln/detail/CVE-2007-4723) | 80,443 |
@@ -27,6 +28,7 @@
 | 128.1.33.16 | MikroTik | [CVE-2008-3844](https://nvd.nist.gov/vuln/detail/CVE-2008-3844) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2008-3844](https://nvd.nist.gov/vuln/detail/CVE-2008-3844) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2008-3844](https://nvd.nist.gov/vuln/detail/CVE-2008-3844) | 22,80,161,443 |
+| 217.60.194.16 | MikroTik | [CVE-2008-3844](https://nvd.nist.gov/vuln/detail/CVE-2008-3844) | 22,80,443,993,995 |
 | 31.57.141.144 | Hikvision | [CVE-2008-4625](https://nvd.nist.gov/vuln/detail/CVE-2008-4625) | 11,13,15,17,19 |
 | 31.57.141.144 | Hikvision | [CVE-2008-4732](https://nvd.nist.gov/vuln/detail/CVE-2008-4732) | 11,13,15,17,19 |
 | 31.57.141.144 | Hikvision | [CVE-2008-4733](https://nvd.nist.gov/vuln/detail/CVE-2008-4733) | 11,13,15,17,19 |
@@ -148,6 +150,7 @@
 | 68.208.50.128 | Zyxel | [CVE-2012-6708](https://nvd.nist.gov/vuln/detail/CVE-2012-6708) | 80 |
 | 188.117.249.128 | TP-Link | [CVE-2012-6708](https://nvd.nist.gov/vuln/detail/CVE-2012-6708) | 80,443 |
 | 45.88.71.64 | TP-Link | [CVE-2012-6708](https://nvd.nist.gov/vuln/detail/CVE-2012-6708) | 2000,8080 |
+| 88.83.127.240 | TP-Link | [CVE-2012-6708](https://nvd.nist.gov/vuln/detail/CVE-2012-6708) | 80 |
 | 93.123.57.247 | MikroTik | [CVE-2013-0941](https://nvd.nist.gov/vuln/detail/CVE-2013-0941) | 53,80,81,82,1080 |
 | 5.161.88.0 | Fortinet | [CVE-2013-0941](https://nvd.nist.gov/vuln/detail/CVE-2013-0941) | 80,443 |
 | 91.149.165.16 | D-Link | [CVE-2013-0941](https://nvd.nist.gov/vuln/detail/CVE-2013-0941) | 21,80,8080 |
@@ -167,8 +170,40 @@
 | 31.57.141.144 | Hikvision | [CVE-2013-5918](https://nvd.nist.gov/vuln/detail/CVE-2013-5918) | 11,13,15,17,19 |
 | 185.28.250.224 | TP-Link | [CVE-2014-2323](https://nvd.nist.gov/vuln/detail/CVE-2014-2323) | 81,82,1194,2021,8000 |
 | 185.28.250.224 | TP-Link | [CVE-2014-2324](https://nvd.nist.gov/vuln/detail/CVE-2014-2324) | 81,82,1194,2021,8000 |
+| 46.216.192.48 | OpenWrt | [CVE-2014-9750](https://nvd.nist.gov/vuln/detail/CVE-2014-9750) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2014-9751](https://nvd.nist.gov/vuln/detail/CVE-2014-9751) | 53,123,500,1701,2000 |
 | 38.108.31.160 | Ubiquiti | [CVE-2015-3200](https://nvd.nist.gov/vuln/detail/CVE-2015-3200) | 22,80,443,554,10001 |
 | 185.28.250.224 | TP-Link | [CVE-2015-3200](https://nvd.nist.gov/vuln/detail/CVE-2015-3200) | 81,82,1194,2021,8000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-3405](https://nvd.nist.gov/vuln/detail/CVE-2015-3405) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-5146](https://nvd.nist.gov/vuln/detail/CVE-2015-5146) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-5300](https://nvd.nist.gov/vuln/detail/CVE-2015-5300) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7691](https://nvd.nist.gov/vuln/detail/CVE-2015-7691) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7692](https://nvd.nist.gov/vuln/detail/CVE-2015-7692) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7701](https://nvd.nist.gov/vuln/detail/CVE-2015-7701) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7702](https://nvd.nist.gov/vuln/detail/CVE-2015-7702) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7703](https://nvd.nist.gov/vuln/detail/CVE-2015-7703) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7704](https://nvd.nist.gov/vuln/detail/CVE-2015-7704) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7705](https://nvd.nist.gov/vuln/detail/CVE-2015-7705) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7848](https://nvd.nist.gov/vuln/detail/CVE-2015-7848) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7849](https://nvd.nist.gov/vuln/detail/CVE-2015-7849) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7850](https://nvd.nist.gov/vuln/detail/CVE-2015-7850) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7851](https://nvd.nist.gov/vuln/detail/CVE-2015-7851) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7852](https://nvd.nist.gov/vuln/detail/CVE-2015-7852) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7853](https://nvd.nist.gov/vuln/detail/CVE-2015-7853) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7854](https://nvd.nist.gov/vuln/detail/CVE-2015-7854) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7855](https://nvd.nist.gov/vuln/detail/CVE-2015-7855) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7871](https://nvd.nist.gov/vuln/detail/CVE-2015-7871) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7973](https://nvd.nist.gov/vuln/detail/CVE-2015-7973) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7974](https://nvd.nist.gov/vuln/detail/CVE-2015-7974) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7975](https://nvd.nist.gov/vuln/detail/CVE-2015-7975) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7976](https://nvd.nist.gov/vuln/detail/CVE-2015-7976) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7977](https://nvd.nist.gov/vuln/detail/CVE-2015-7977) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7978](https://nvd.nist.gov/vuln/detail/CVE-2015-7978) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-7979](https://nvd.nist.gov/vuln/detail/CVE-2015-7979) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-8138](https://nvd.nist.gov/vuln/detail/CVE-2015-8138) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-8139](https://nvd.nist.gov/vuln/detail/CVE-2015-8139) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-8140](https://nvd.nist.gov/vuln/detail/CVE-2015-8140) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2015-8158](https://nvd.nist.gov/vuln/detail/CVE-2015-8158) | 53,123,500,1701,2000 |
 | 199.189.241.32 | SonicWALL | [CVE-2015-8325](https://nvd.nist.gov/vuln/detail/CVE-2015-8325) | 22,443 |
 | 66.231.29.224 | SonicWALL | [CVE-2015-8325](https://nvd.nist.gov/vuln/detail/CVE-2015-8325) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2015-8325](https://nvd.nist.gov/vuln/detail/CVE-2015-8325) | 22,80,161,443 |
@@ -183,6 +218,7 @@
 | 188.117.249.128 | TP-Link | [CVE-2015-9251](https://nvd.nist.gov/vuln/detail/CVE-2015-9251) | 80,443 |
 | 45.88.71.64 | TP-Link | [CVE-2015-9251](https://nvd.nist.gov/vuln/detail/CVE-2015-9251) | 2000,8080 |
 | 194.44.105.128 | OpenWrt | [CVE-2015-9251](https://nvd.nist.gov/vuln/detail/CVE-2015-9251) | 8080,8291 |
+| 88.83.127.240 | TP-Link | [CVE-2015-9251](https://nvd.nist.gov/vuln/detail/CVE-2015-9251) | 80 |
 | 199.189.241.32 | SonicWALL | [CVE-2016-10009](https://nvd.nist.gov/vuln/detail/CVE-2016-10009) | 22,443 |
 | 66.231.29.224 | SonicWALL | [CVE-2016-10009](https://nvd.nist.gov/vuln/detail/CVE-2016-10009) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2016-10009](https://nvd.nist.gov/vuln/detail/CVE-2016-10009) | 22,80,161,443 |
@@ -210,30 +246,66 @@
 | 23.139.4.240 | Zyxel | [CVE-2016-10735](https://nvd.nist.gov/vuln/detail/CVE-2016-10735) | 80,443 |
 | 69.49.93.192 | Zyxel | [CVE-2016-10735](https://nvd.nist.gov/vuln/detail/CVE-2016-10735) | 7547,8080 |
 | 185.247.248.64 | Zyxel | [CVE-2016-10735](https://nvd.nist.gov/vuln/detail/CVE-2016-10735) | 21,22,23,80,443 |
+| 151.2.152.0 | Zyxel | [CVE-2016-10735](https://nvd.nist.gov/vuln/detail/CVE-2016-10735) | 80,7547 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-1547](https://nvd.nist.gov/vuln/detail/CVE-2016-1547) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-1548](https://nvd.nist.gov/vuln/detail/CVE-2016-1548) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-1549](https://nvd.nist.gov/vuln/detail/CVE-2016-1549) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-1550](https://nvd.nist.gov/vuln/detail/CVE-2016-1550) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-1551](https://nvd.nist.gov/vuln/detail/CVE-2016-1551) | 53,123,500,1701,2000 |
 | 199.189.241.32 | SonicWALL | [CVE-2016-20012](https://nvd.nist.gov/vuln/detail/CVE-2016-20012) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2016-20012](https://nvd.nist.gov/vuln/detail/CVE-2016-20012) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2016-20012](https://nvd.nist.gov/vuln/detail/CVE-2016-20012) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2016-20012](https://nvd.nist.gov/vuln/detail/CVE-2016-20012) | 22,80,161,443 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-2516](https://nvd.nist.gov/vuln/detail/CVE-2016-2516) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-2517](https://nvd.nist.gov/vuln/detail/CVE-2016-2517) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-2518](https://nvd.nist.gov/vuln/detail/CVE-2016-2518) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-2519](https://nvd.nist.gov/vuln/detail/CVE-2016-2519) | 53,123,500,1701,2000 |
 | 199.189.241.32 | SonicWALL | [CVE-2016-3115](https://nvd.nist.gov/vuln/detail/CVE-2016-3115) | 22,443 |
 | 66.231.29.224 | SonicWALL | [CVE-2016-3115](https://nvd.nist.gov/vuln/detail/CVE-2016-3115) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2016-3115](https://nvd.nist.gov/vuln/detail/CVE-2016-3115) | 22,80,161,443 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-4953](https://nvd.nist.gov/vuln/detail/CVE-2016-4953) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-4954](https://nvd.nist.gov/vuln/detail/CVE-2016-4954) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-4955](https://nvd.nist.gov/vuln/detail/CVE-2016-4955) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-4956](https://nvd.nist.gov/vuln/detail/CVE-2016-4956) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-4957](https://nvd.nist.gov/vuln/detail/CVE-2016-4957) | 53,123,500,1701,2000 |
 | 199.189.241.32 | SonicWALL | [CVE-2016-6210](https://nvd.nist.gov/vuln/detail/CVE-2016-6210) | 22,443 |
 | 66.231.29.224 | SonicWALL | [CVE-2016-6210](https://nvd.nist.gov/vuln/detail/CVE-2016-6210) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2016-6210](https://nvd.nist.gov/vuln/detail/CVE-2016-6210) | 22,80,161,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2016-6515](https://nvd.nist.gov/vuln/detail/CVE-2016-6515) | 22,443 |
 | 66.231.29.224 | SonicWALL | [CVE-2016-6515](https://nvd.nist.gov/vuln/detail/CVE-2016-6515) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2016-6515](https://nvd.nist.gov/vuln/detail/CVE-2016-6515) | 22,80,161,443 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-7426](https://nvd.nist.gov/vuln/detail/CVE-2016-7426) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-7427](https://nvd.nist.gov/vuln/detail/CVE-2016-7427) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-7428](https://nvd.nist.gov/vuln/detail/CVE-2016-7428) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-7429](https://nvd.nist.gov/vuln/detail/CVE-2016-7429) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-7431](https://nvd.nist.gov/vuln/detail/CVE-2016-7431) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-7433](https://nvd.nist.gov/vuln/detail/CVE-2016-7433) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-7434](https://nvd.nist.gov/vuln/detail/CVE-2016-7434) | 53,123,500,1701,2000 |
 | 199.189.241.32 | SonicWALL | [CVE-2016-8858](https://nvd.nist.gov/vuln/detail/CVE-2016-8858) | 22,443 |
 | 66.231.29.224 | SonicWALL | [CVE-2016-8858](https://nvd.nist.gov/vuln/detail/CVE-2016-8858) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2016-8858](https://nvd.nist.gov/vuln/detail/CVE-2016-8858) | 22,80,161,443 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-9042](https://nvd.nist.gov/vuln/detail/CVE-2016-9042) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-9310](https://nvd.nist.gov/vuln/detail/CVE-2016-9310) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-9311](https://nvd.nist.gov/vuln/detail/CVE-2016-9311) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2016-9312](https://nvd.nist.gov/vuln/detail/CVE-2016-9312) | 53,123,500,1701,2000 |
 | 199.189.241.32 | SonicWALL | [CVE-2017-15906](https://nvd.nist.gov/vuln/detail/CVE-2017-15906) | 22,443 |
 | 66.231.29.224 | SonicWALL | [CVE-2017-15906](https://nvd.nist.gov/vuln/detail/CVE-2017-15906) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2017-15906](https://nvd.nist.gov/vuln/detail/CVE-2017-15906) | 22,80,161,443 |
+| 46.216.192.48 | OpenWrt | [CVE-2017-6451](https://nvd.nist.gov/vuln/detail/CVE-2017-6451) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2017-6452](https://nvd.nist.gov/vuln/detail/CVE-2017-6452) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2017-6455](https://nvd.nist.gov/vuln/detail/CVE-2017-6455) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2017-6458](https://nvd.nist.gov/vuln/detail/CVE-2017-6458) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2017-6459](https://nvd.nist.gov/vuln/detail/CVE-2017-6459) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2017-6460](https://nvd.nist.gov/vuln/detail/CVE-2017-6460) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2017-6462](https://nvd.nist.gov/vuln/detail/CVE-2017-6462) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2017-6463](https://nvd.nist.gov/vuln/detail/CVE-2017-6463) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2017-6464](https://nvd.nist.gov/vuln/detail/CVE-2017-6464) | 53,123,500,1701,2000 |
 | 91.149.165.16 | D-Link | [CVE-2017-8923](https://nvd.nist.gov/vuln/detail/CVE-2017-8923) | 21,80,8080 |
 | 212.32.43.160 | MikroTik | [CVE-2018-1156](https://nvd.nist.gov/vuln/detail/CVE-2018-1156) | 23,80,2000,8291,8728 |
 | 212.32.43.160 | MikroTik | [CVE-2018-1157](https://nvd.nist.gov/vuln/detail/CVE-2018-1157) | 23,80,2000,8291,8728 |
 | 212.32.43.160 | MikroTik | [CVE-2018-1158](https://nvd.nist.gov/vuln/detail/CVE-2018-1158) | 23,80,2000,8291,8728 |
 | 212.32.43.160 | MikroTik | [CVE-2018-1159](https://nvd.nist.gov/vuln/detail/CVE-2018-1159) | 23,80,2000,8291,8728 |
+| 46.216.192.48 | OpenWrt | [CVE-2018-12327](https://nvd.nist.gov/vuln/detail/CVE-2018-12327) | 53,123,500,1701,2000 |
 | 153.75.215.128 | Zyxel | [CVE-2018-14040](https://nvd.nist.gov/vuln/detail/CVE-2018-14040) | 22,80,161,443,7547 |
 | 93.115.8.192 | Zyxel | [CVE-2018-14040](https://nvd.nist.gov/vuln/detail/CVE-2018-14040) | 22,80,443 |
 | 82.97.237.0 | Zyxel | [CVE-2018-14040](https://nvd.nist.gov/vuln/detail/CVE-2018-14040) | 80 |
@@ -246,6 +318,7 @@
 | 23.139.4.240 | Zyxel | [CVE-2018-14040](https://nvd.nist.gov/vuln/detail/CVE-2018-14040) | 80,443 |
 | 69.49.93.192 | Zyxel | [CVE-2018-14040](https://nvd.nist.gov/vuln/detail/CVE-2018-14040) | 7547,8080 |
 | 185.247.248.64 | Zyxel | [CVE-2018-14040](https://nvd.nist.gov/vuln/detail/CVE-2018-14040) | 21,22,23,80,443 |
+| 151.2.152.0 | Zyxel | [CVE-2018-14040](https://nvd.nist.gov/vuln/detail/CVE-2018-14040) | 80,7547 |
 | 153.75.215.128 | Zyxel | [CVE-2018-14041](https://nvd.nist.gov/vuln/detail/CVE-2018-14041) | 22,80,161,443,7547 |
 | 93.115.8.192 | Zyxel | [CVE-2018-14041](https://nvd.nist.gov/vuln/detail/CVE-2018-14041) | 22,80,443 |
 | 82.97.237.0 | Zyxel | [CVE-2018-14041](https://nvd.nist.gov/vuln/detail/CVE-2018-14041) | 80 |
@@ -258,6 +331,7 @@
 | 23.139.4.240 | Zyxel | [CVE-2018-14041](https://nvd.nist.gov/vuln/detail/CVE-2018-14041) | 80,443 |
 | 69.49.93.192 | Zyxel | [CVE-2018-14041](https://nvd.nist.gov/vuln/detail/CVE-2018-14041) | 7547,8080 |
 | 185.247.248.64 | Zyxel | [CVE-2018-14041](https://nvd.nist.gov/vuln/detail/CVE-2018-14041) | 21,22,23,80,443 |
+| 151.2.152.0 | Zyxel | [CVE-2018-14041](https://nvd.nist.gov/vuln/detail/CVE-2018-14041) | 80,7547 |
 | 153.75.215.128 | Zyxel | [CVE-2018-14042](https://nvd.nist.gov/vuln/detail/CVE-2018-14042) | 22,80,161,443,7547 |
 | 93.115.8.192 | Zyxel | [CVE-2018-14042](https://nvd.nist.gov/vuln/detail/CVE-2018-14042) | 22,80,443 |
 | 82.97.237.0 | Zyxel | [CVE-2018-14042](https://nvd.nist.gov/vuln/detail/CVE-2018-14042) | 80 |
@@ -270,6 +344,7 @@
 | 23.139.4.240 | Zyxel | [CVE-2018-14042](https://nvd.nist.gov/vuln/detail/CVE-2018-14042) | 80,443 |
 | 69.49.93.192 | Zyxel | [CVE-2018-14042](https://nvd.nist.gov/vuln/detail/CVE-2018-14042) | 7547,8080 |
 | 185.247.248.64 | Zyxel | [CVE-2018-14042](https://nvd.nist.gov/vuln/detail/CVE-2018-14042) | 21,22,23,80,443 |
+| 151.2.152.0 | Zyxel | [CVE-2018-14042](https://nvd.nist.gov/vuln/detail/CVE-2018-14042) | 80,7547 |
 | 212.32.43.160 | MikroTik | [CVE-2018-14847](https://nvd.nist.gov/vuln/detail/CVE-2018-14847) | 23,80,2000,8291,8728 |
 | 199.189.241.32 | SonicWALL | [CVE-2018-15473](https://nvd.nist.gov/vuln/detail/CVE-2018-15473) | 22,443 |
 | 66.231.29.224 | SonicWALL | [CVE-2018-15473](https://nvd.nist.gov/vuln/detail/CVE-2018-15473) | 22,443 |
@@ -324,7 +399,13 @@
 | 87.236.160.240 | MikroTik | [CVE-2018-5951](https://nvd.nist.gov/vuln/detail/CVE-2018-5951) | 80,2000,8291,8728 |
 | 194.49.71.48 | MikroTik | [CVE-2018-5951](https://nvd.nist.gov/vuln/detail/CVE-2018-5951) | 21,80,2000,8291,8728 |
 | 213.5.196.16 | MikroTik | [CVE-2018-5951](https://nvd.nist.gov/vuln/detail/CVE-2018-5951) | 21,80,2000,8291,8728 |
+| 46.216.192.48 | OpenWrt | [CVE-2018-7170](https://nvd.nist.gov/vuln/detail/CVE-2018-7170) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2018-7182](https://nvd.nist.gov/vuln/detail/CVE-2018-7182) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2018-7183](https://nvd.nist.gov/vuln/detail/CVE-2018-7183) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2018-7184](https://nvd.nist.gov/vuln/detail/CVE-2018-7184) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2018-7185](https://nvd.nist.gov/vuln/detail/CVE-2018-7185) | 53,123,500,1701,2000 |
 | 212.32.43.160 | MikroTik | [CVE-2018-7445](https://nvd.nist.gov/vuln/detail/CVE-2018-7445) | 23,80,2000,8291,8728 |
+| 46.216.192.48 | OpenWrt | [CVE-2018-8956](https://nvd.nist.gov/vuln/detail/CVE-2018-8956) | 53,123,500,1701,2000 |
 | 91.149.165.16 | D-Link | [CVE-2019-0190](https://nvd.nist.gov/vuln/detail/CVE-2019-0190) | 21,80,8080 |
 | 91.149.165.16 | D-Link | [CVE-2019-0196](https://nvd.nist.gov/vuln/detail/CVE-2019-0196) | 21,80,8080 |
 | 91.149.165.16 | D-Link | [CVE-2019-0197](https://nvd.nist.gov/vuln/detail/CVE-2019-0197) | 21,80,8080 |
@@ -383,6 +464,8 @@
 | 45.88.71.64 | TP-Link | [CVE-2019-11358](https://nvd.nist.gov/vuln/detail/CVE-2019-11358) | 2000,8080 |
 | 194.44.105.128 | OpenWrt | [CVE-2019-11358](https://nvd.nist.gov/vuln/detail/CVE-2019-11358) | 8080,8291 |
 | 185.247.248.64 | Zyxel | [CVE-2019-11358](https://nvd.nist.gov/vuln/detail/CVE-2019-11358) | 21,22,23,80,443 |
+| 151.2.152.0 | Zyxel | [CVE-2019-11358](https://nvd.nist.gov/vuln/detail/CVE-2019-11358) | 80,7547 |
+| 88.83.127.240 | TP-Link | [CVE-2019-11358](https://nvd.nist.gov/vuln/detail/CVE-2019-11358) | 80 |
 | 82.160.138.224 | MikroTik | [CVE-2019-13074](https://nvd.nist.gov/vuln/detail/CVE-2019-13074) | 22,23,80,4440,4443 |
 | 212.32.43.160 | MikroTik | [CVE-2019-13074](https://nvd.nist.gov/vuln/detail/CVE-2019-13074) | 23,80,2000,8291,8728 |
 | 91.149.165.16 | D-Link | [CVE-2019-13224](https://nvd.nist.gov/vuln/detail/CVE-2019-13224) | 21,80,8080 |
@@ -430,6 +513,7 @@
 | 66.231.29.224 | SonicWALL | [CVE-2019-6111](https://nvd.nist.gov/vuln/detail/CVE-2019-6111) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2019-6111](https://nvd.nist.gov/vuln/detail/CVE-2019-6111) | 22,80,161,443 |
 | 91.149.165.16 | D-Link | [CVE-2019-6977](https://nvd.nist.gov/vuln/detail/CVE-2019-6977) | 21,80,8080 |
+| 46.216.192.48 | OpenWrt | [CVE-2019-8936](https://nvd.nist.gov/vuln/detail/CVE-2019-8936) | 53,123,500,1701,2000 |
 | 91.149.165.16 | D-Link | [CVE-2019-9020](https://nvd.nist.gov/vuln/detail/CVE-2019-9020) | 21,80,8080 |
 | 91.149.165.16 | D-Link | [CVE-2019-9021](https://nvd.nist.gov/vuln/detail/CVE-2019-9021) | 21,80,8080 |
 | 91.149.165.16 | D-Link | [CVE-2019-9022](https://nvd.nist.gov/vuln/detail/CVE-2019-9022) | 21,80,8080 |
@@ -462,6 +546,8 @@
 | 45.88.71.64 | TP-Link | [CVE-2020-11022](https://nvd.nist.gov/vuln/detail/CVE-2020-11022) | 2000,8080 |
 | 194.44.105.128 | OpenWrt | [CVE-2020-11022](https://nvd.nist.gov/vuln/detail/CVE-2020-11022) | 8080,8291 |
 | 185.247.248.64 | Zyxel | [CVE-2020-11022](https://nvd.nist.gov/vuln/detail/CVE-2020-11022) | 21,22,23,80,443 |
+| 151.2.152.0 | Zyxel | [CVE-2020-11022](https://nvd.nist.gov/vuln/detail/CVE-2020-11022) | 80,7547 |
+| 88.83.127.240 | TP-Link | [CVE-2020-11022](https://nvd.nist.gov/vuln/detail/CVE-2020-11022) | 80 |
 | 136.239.109.176 | Zyxel | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 80 |
 | 153.75.215.128 | Zyxel | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 22,80,161,443,7547 |
 | 93.115.8.192 | Zyxel | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 22,80,443 |
@@ -478,7 +564,10 @@
 | 45.88.71.64 | TP-Link | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 2000,8080 |
 | 194.44.105.128 | OpenWrt | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 8080,8291 |
 | 185.247.248.64 | Zyxel | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 21,22,23,80,443 |
+| 151.2.152.0 | Zyxel | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 80,7547 |
+| 88.83.127.240 | TP-Link | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 80 |
 | 91.149.165.16 | D-Link | [CVE-2020-11579](https://nvd.nist.gov/vuln/detail/CVE-2020-11579) | 21,80,8080 |
+| 46.216.192.48 | OpenWrt | [CVE-2020-11868](https://nvd.nist.gov/vuln/detail/CVE-2020-11868) | 53,123,500,1701,2000 |
 | 82.160.138.224 | MikroTik | [CVE-2020-11881](https://nvd.nist.gov/vuln/detail/CVE-2020-11881) | 22,23,80,4440,4443 |
 | 85.187.232.16 | MikroTik | [CVE-2020-11881](https://nvd.nist.gov/vuln/detail/CVE-2020-11881) | 21,22,53,80,161 |
 | 66.252.51.128 | MikroTik | [CVE-2020-11881](https://nvd.nist.gov/vuln/detail/CVE-2020-11881) | 21,22,23,80,8291 |
@@ -488,6 +577,7 @@
 | 91.149.165.16 | D-Link | [CVE-2020-11984](https://nvd.nist.gov/vuln/detail/CVE-2020-11984) | 21,80,8080 |
 | 93.123.57.247 | MikroTik | [CVE-2020-11993](https://nvd.nist.gov/vuln/detail/CVE-2020-11993) | 53,80,81,82,1080 |
 | 91.149.165.16 | D-Link | [CVE-2020-11993](https://nvd.nist.gov/vuln/detail/CVE-2020-11993) | 21,80,8080 |
+| 46.216.192.48 | OpenWrt | [CVE-2020-13817](https://nvd.nist.gov/vuln/detail/CVE-2020-13817) | 53,123,500,1701,2000 |
 | 93.123.57.247 | MikroTik | [CVE-2020-13938](https://nvd.nist.gov/vuln/detail/CVE-2020-13938) | 53,80,81,82,1080 |
 | 91.149.165.16 | D-Link | [CVE-2020-13938](https://nvd.nist.gov/vuln/detail/CVE-2020-13938) | 21,80,8080 |
 | 93.123.57.247 | MikroTik | [CVE-2020-13950](https://nvd.nist.gov/vuln/detail/CVE-2020-13950) | 53,80,81,82,1080 |
@@ -495,6 +585,7 @@
 | 128.1.33.16 | MikroTik | [CVE-2020-14145](https://nvd.nist.gov/vuln/detail/CVE-2020-14145) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2020-14145](https://nvd.nist.gov/vuln/detail/CVE-2020-14145) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2020-14145](https://nvd.nist.gov/vuln/detail/CVE-2020-14145) | 22,80,161,443 |
+| 46.216.192.48 | OpenWrt | [CVE-2020-15025](https://nvd.nist.gov/vuln/detail/CVE-2020-15025) | 53,123,500,1701,2000 |
 | 199.189.241.32 | SonicWALL | [CVE-2020-15778](https://nvd.nist.gov/vuln/detail/CVE-2020-15778) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2020-15778](https://nvd.nist.gov/vuln/detail/CVE-2020-15778) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2020-15778](https://nvd.nist.gov/vuln/detail/CVE-2020-15778) | 22,443 |
@@ -628,6 +719,7 @@
 | 68.208.50.128 | Zyxel | [CVE-2020-7656](https://nvd.nist.gov/vuln/detail/CVE-2020-7656) | 80 |
 | 188.117.249.128 | TP-Link | [CVE-2020-7656](https://nvd.nist.gov/vuln/detail/CVE-2020-7656) | 80,443 |
 | 45.88.71.64 | TP-Link | [CVE-2020-7656](https://nvd.nist.gov/vuln/detail/CVE-2020-7656) | 2000,8080 |
+| 88.83.127.240 | TP-Link | [CVE-2020-7656](https://nvd.nist.gov/vuln/detail/CVE-2020-7656) | 80 |
 | 93.123.57.247 | MikroTik | [CVE-2020-9490](https://nvd.nist.gov/vuln/detail/CVE-2020-9490) | 53,80,81,82,1080 |
 | 91.149.165.16 | D-Link | [CVE-2020-9490](https://nvd.nist.gov/vuln/detail/CVE-2020-9490) | 21,80,8080 |
 | 188.172.240.233 | OPNsense | [CVE-2021-23017](https://nvd.nist.gov/vuln/detail/CVE-2021-23017) | 80,443 |
@@ -820,6 +912,11 @@
 | 91.149.165.16 | D-Link | [CVE-2022-4900](https://nvd.nist.gov/vuln/detail/CVE-2022-4900) | 21,80,8080 |
 | 93.123.57.247 | MikroTik | [CVE-2023-25690](https://nvd.nist.gov/vuln/detail/CVE-2023-25690) | 53,80,81,82,1080 |
 | 91.149.165.16 | D-Link | [CVE-2023-25690](https://nvd.nist.gov/vuln/detail/CVE-2023-25690) | 21,80,8080 |
+| 46.216.192.48 | OpenWrt | [CVE-2023-26551](https://nvd.nist.gov/vuln/detail/CVE-2023-26551) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2023-26552](https://nvd.nist.gov/vuln/detail/CVE-2023-26552) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2023-26553](https://nvd.nist.gov/vuln/detail/CVE-2023-26553) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2023-26554](https://nvd.nist.gov/vuln/detail/CVE-2023-26554) | 53,123,500,1701,2000 |
+| 46.216.192.48 | OpenWrt | [CVE-2023-26555](https://nvd.nist.gov/vuln/detail/CVE-2023-26555) | 53,123,500,1701,2000 |
 | 93.123.57.247 | MikroTik | [CVE-2023-27522](https://nvd.nist.gov/vuln/detail/CVE-2023-27522) | 53,80,81,82,1080 |
 | 91.149.165.16 | D-Link | [CVE-2023-27522](https://nvd.nist.gov/vuln/detail/CVE-2023-27522) | 21,80,8080 |
 | 82.160.138.224 | MikroTik | [CVE-2023-30799](https://nvd.nist.gov/vuln/detail/CVE-2023-30799) | 22,23,80,4440,4443 |
@@ -883,6 +980,28 @@
 | 128.1.33.16 | MikroTik | [CVE-2023-51767](https://nvd.nist.gov/vuln/detail/CVE-2023-51767) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2023-51767](https://nvd.nist.gov/vuln/detail/CVE-2023-51767) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2023-51767](https://nvd.nist.gov/vuln/detail/CVE-2023-51767) | 22,80,161,443 |
+| 217.60.194.16 | MikroTik | [CVE-2023-51767](https://nvd.nist.gov/vuln/detail/CVE-2023-51767) | 22,80,443,993,995 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-20961](https://nvd.nist.gov/vuln/detail/CVE-2024-20961) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-20963](https://nvd.nist.gov/vuln/detail/CVE-2024-20963) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-20965](https://nvd.nist.gov/vuln/detail/CVE-2024-20965) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-20967](https://nvd.nist.gov/vuln/detail/CVE-2024-20967) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-20969](https://nvd.nist.gov/vuln/detail/CVE-2024-20969) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-20971](https://nvd.nist.gov/vuln/detail/CVE-2024-20971) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-20973](https://nvd.nist.gov/vuln/detail/CVE-2024-20973) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-20975](https://nvd.nist.gov/vuln/detail/CVE-2024-20975) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-20977](https://nvd.nist.gov/vuln/detail/CVE-2024-20977) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-20981](https://nvd.nist.gov/vuln/detail/CVE-2024-20981) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-20985](https://nvd.nist.gov/vuln/detail/CVE-2024-20985) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-21047](https://nvd.nist.gov/vuln/detail/CVE-2024-21047) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-21061](https://nvd.nist.gov/vuln/detail/CVE-2024-21061) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-21062](https://nvd.nist.gov/vuln/detail/CVE-2024-21062) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-21069](https://nvd.nist.gov/vuln/detail/CVE-2024-21069) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-21087](https://nvd.nist.gov/vuln/detail/CVE-2024-21087) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-21096](https://nvd.nist.gov/vuln/detail/CVE-2024-21096) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-21101](https://nvd.nist.gov/vuln/detail/CVE-2024-21101) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-21102](https://nvd.nist.gov/vuln/detail/CVE-2024-21102) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-21137](https://nvd.nist.gov/vuln/detail/CVE-2024-21137) | 80,443,3306,8080,8123 |
+| 104.238.220.192 | Ubiquiti | [CVE-2024-21171](https://nvd.nist.gov/vuln/detail/CVE-2024-21171) | 80,443,3306,8080,8123 |
 | 93.123.57.247 | MikroTik | [CVE-2024-24795](https://nvd.nist.gov/vuln/detail/CVE-2024-24795) | 53,80,81,82,1080 |
 | 5.161.88.0 | Fortinet | [CVE-2024-24795](https://nvd.nist.gov/vuln/detail/CVE-2024-24795) | 80,443 |
 | 91.149.165.16 | D-Link | [CVE-2024-24795](https://nvd.nist.gov/vuln/detail/CVE-2024-24795) | 21,80,8080 |
@@ -960,8 +1079,11 @@
 | 128.1.33.16 | MikroTik | [CVE-2025-26465](https://nvd.nist.gov/vuln/detail/CVE-2025-26465) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2025-26465](https://nvd.nist.gov/vuln/detail/CVE-2025-26465) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2025-26465](https://nvd.nist.gov/vuln/detail/CVE-2025-26465) | 22,80,161,443 |
+| 217.60.194.16 | MikroTik | [CVE-2025-26465](https://nvd.nist.gov/vuln/detail/CVE-2025-26465) | 22,80,443,993,995 |
+| 217.60.194.16 | MikroTik | [CVE-2025-26466](https://nvd.nist.gov/vuln/detail/CVE-2025-26466) | 22,80,443,993,995 |
 | 213.136.53.171 | OPNsense | [CVE-2025-32728](https://nvd.nist.gov/vuln/detail/CVE-2025-32728) | 22,53,80,443 |
 | 128.1.33.16 | MikroTik | [CVE-2025-32728](https://nvd.nist.gov/vuln/detail/CVE-2025-32728) | 22,53,80,554,5985 |
+| 217.60.194.16 | MikroTik | [CVE-2025-32728](https://nvd.nist.gov/vuln/detail/CVE-2025-32728) | 22,80,443,993,995 |
 | 93.123.57.247 | MikroTik | [CVE-2025-49630](https://nvd.nist.gov/vuln/detail/CVE-2025-49630) | 53,80,81,82,1080 |
 | 5.161.88.0 | Fortinet | [CVE-2025-49630](https://nvd.nist.gov/vuln/detail/CVE-2025-49630) | 80,443 |
 | 91.149.165.16 | D-Link | [CVE-2025-49630](https://nvd.nist.gov/vuln/detail/CVE-2025-49630) | 21,80,8080 |
@@ -1047,21 +1169,25 @@
 | 128.1.33.16 | MikroTik | [CVE-2026-35385](https://nvd.nist.gov/vuln/detail/CVE-2026-35385) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2026-35385](https://nvd.nist.gov/vuln/detail/CVE-2026-35385) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2026-35385](https://nvd.nist.gov/vuln/detail/CVE-2026-35385) | 22,80,161,443 |
+| 217.60.194.16 | MikroTik | [CVE-2026-35385](https://nvd.nist.gov/vuln/detail/CVE-2026-35385) | 22,80,443,993,995 |
 | 213.136.53.171 | OPNsense | [CVE-2026-35387](https://nvd.nist.gov/vuln/detail/CVE-2026-35387) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2026-35387](https://nvd.nist.gov/vuln/detail/CVE-2026-35387) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2026-35387](https://nvd.nist.gov/vuln/detail/CVE-2026-35387) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2026-35387](https://nvd.nist.gov/vuln/detail/CVE-2026-35387) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2026-35387](https://nvd.nist.gov/vuln/detail/CVE-2026-35387) | 22,80,161,443 |
+| 217.60.194.16 | MikroTik | [CVE-2026-35387](https://nvd.nist.gov/vuln/detail/CVE-2026-35387) | 22,80,443,993,995 |
 | 213.136.53.171 | OPNsense | [CVE-2026-35388](https://nvd.nist.gov/vuln/detail/CVE-2026-35388) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2026-35388](https://nvd.nist.gov/vuln/detail/CVE-2026-35388) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2026-35388](https://nvd.nist.gov/vuln/detail/CVE-2026-35388) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2026-35388](https://nvd.nist.gov/vuln/detail/CVE-2026-35388) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2026-35388](https://nvd.nist.gov/vuln/detail/CVE-2026-35388) | 22,80,161,443 |
+| 217.60.194.16 | MikroTik | [CVE-2026-35388](https://nvd.nist.gov/vuln/detail/CVE-2026-35388) | 22,80,443,993,995 |
 | 213.136.53.171 | OPNsense | [CVE-2026-35414](https://nvd.nist.gov/vuln/detail/CVE-2026-35414) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2026-35414](https://nvd.nist.gov/vuln/detail/CVE-2026-35414) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2026-35414](https://nvd.nist.gov/vuln/detail/CVE-2026-35414) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2026-35414](https://nvd.nist.gov/vuln/detail/CVE-2026-35414) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2026-35414](https://nvd.nist.gov/vuln/detail/CVE-2026-35414) | 22,80,161,443 |
+| 217.60.194.16 | MikroTik | [CVE-2026-35414](https://nvd.nist.gov/vuln/detail/CVE-2026-35414) | 22,80,443,993,995 |
 | 93.123.57.247 | MikroTik | [CVE-2026-42535](https://nvd.nist.gov/vuln/detail/CVE-2026-42535) | 53,80,81,82,1080 |
 | 5.161.88.0 | Fortinet | [CVE-2026-42535](https://nvd.nist.gov/vuln/detail/CVE-2026-42535) | 80,443 |
 | 91.149.165.16 | D-Link | [CVE-2026-42535](https://nvd.nist.gov/vuln/detail/CVE-2026-42535) | 21,80,8080 |
@@ -1092,59 +1218,67 @@
 | 128.1.33.16 | MikroTik | [CVE-2026-59995](https://nvd.nist.gov/vuln/detail/CVE-2026-59995) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2026-59995](https://nvd.nist.gov/vuln/detail/CVE-2026-59995) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2026-59995](https://nvd.nist.gov/vuln/detail/CVE-2026-59995) | 22,80,161,443 |
+| 217.60.194.16 | MikroTik | [CVE-2026-59995](https://nvd.nist.gov/vuln/detail/CVE-2026-59995) | 22,80,443,993,995 |
 | 213.136.53.171 | OPNsense | [CVE-2026-59996](https://nvd.nist.gov/vuln/detail/CVE-2026-59996) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2026-59996](https://nvd.nist.gov/vuln/detail/CVE-2026-59996) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2026-59996](https://nvd.nist.gov/vuln/detail/CVE-2026-59996) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2026-59996](https://nvd.nist.gov/vuln/detail/CVE-2026-59996) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2026-59996](https://nvd.nist.gov/vuln/detail/CVE-2026-59996) | 22,80,161,443 |
+| 217.60.194.16 | MikroTik | [CVE-2026-59996](https://nvd.nist.gov/vuln/detail/CVE-2026-59996) | 22,80,443,993,995 |
 | 213.136.53.171 | OPNsense | [CVE-2026-59997](https://nvd.nist.gov/vuln/detail/CVE-2026-59997) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2026-59997](https://nvd.nist.gov/vuln/detail/CVE-2026-59997) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2026-59997](https://nvd.nist.gov/vuln/detail/CVE-2026-59997) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2026-59997](https://nvd.nist.gov/vuln/detail/CVE-2026-59997) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2026-59997](https://nvd.nist.gov/vuln/detail/CVE-2026-59997) | 22,80,161,443 |
+| 217.60.194.16 | MikroTik | [CVE-2026-59997](https://nvd.nist.gov/vuln/detail/CVE-2026-59997) | 22,80,443,993,995 |
 | 213.136.53.171 | OPNsense | [CVE-2026-59998](https://nvd.nist.gov/vuln/detail/CVE-2026-59998) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2026-59998](https://nvd.nist.gov/vuln/detail/CVE-2026-59998) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2026-59998](https://nvd.nist.gov/vuln/detail/CVE-2026-59998) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2026-59998](https://nvd.nist.gov/vuln/detail/CVE-2026-59998) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2026-59998](https://nvd.nist.gov/vuln/detail/CVE-2026-59998) | 22,80,161,443 |
+| 217.60.194.16 | MikroTik | [CVE-2026-59998](https://nvd.nist.gov/vuln/detail/CVE-2026-59998) | 22,80,443,993,995 |
 | 213.136.53.171 | OPNsense | [CVE-2026-59999](https://nvd.nist.gov/vuln/detail/CVE-2026-59999) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2026-59999](https://nvd.nist.gov/vuln/detail/CVE-2026-59999) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2026-59999](https://nvd.nist.gov/vuln/detail/CVE-2026-59999) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2026-59999](https://nvd.nist.gov/vuln/detail/CVE-2026-59999) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2026-59999](https://nvd.nist.gov/vuln/detail/CVE-2026-59999) | 22,80,161,443 |
+| 217.60.194.16 | MikroTik | [CVE-2026-59999](https://nvd.nist.gov/vuln/detail/CVE-2026-59999) | 22,80,443,993,995 |
 | 213.136.53.171 | OPNsense | [CVE-2026-60000](https://nvd.nist.gov/vuln/detail/CVE-2026-60000) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2026-60000](https://nvd.nist.gov/vuln/detail/CVE-2026-60000) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2026-60000](https://nvd.nist.gov/vuln/detail/CVE-2026-60000) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2026-60000](https://nvd.nist.gov/vuln/detail/CVE-2026-60000) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2026-60000](https://nvd.nist.gov/vuln/detail/CVE-2026-60000) | 22,80,161,443 |
+| 217.60.194.16 | MikroTik | [CVE-2026-60000](https://nvd.nist.gov/vuln/detail/CVE-2026-60000) | 22,80,443,993,995 |
 | 213.136.53.171 | OPNsense | [CVE-2026-60001](https://nvd.nist.gov/vuln/detail/CVE-2026-60001) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2026-60001](https://nvd.nist.gov/vuln/detail/CVE-2026-60001) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2026-60001](https://nvd.nist.gov/vuln/detail/CVE-2026-60001) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2026-60001](https://nvd.nist.gov/vuln/detail/CVE-2026-60001) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2026-60001](https://nvd.nist.gov/vuln/detail/CVE-2026-60001) | 22,80,161,443 |
+| 217.60.194.16 | MikroTik | [CVE-2026-60001](https://nvd.nist.gov/vuln/detail/CVE-2026-60001) | 22,80,443,993,995 |
 | 213.136.53.171 | OPNsense | [CVE-2026-60002](https://nvd.nist.gov/vuln/detail/CVE-2026-60002) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2026-60002](https://nvd.nist.gov/vuln/detail/CVE-2026-60002) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2026-60002](https://nvd.nist.gov/vuln/detail/CVE-2026-60002) | 22,53,80,554,5985 |
 | 66.231.29.224 | SonicWALL | [CVE-2026-60002](https://nvd.nist.gov/vuln/detail/CVE-2026-60002) | 22,443 |
 | 192.106.234.80 | SonicWALL | [CVE-2026-60002](https://nvd.nist.gov/vuln/detail/CVE-2026-60002) | 22,80,161,443 |
+| 217.60.194.16 | MikroTik | [CVE-2026-60002](https://nvd.nist.gov/vuln/detail/CVE-2026-60002) | 22,80,443,993,995 |
 
 ## 🔌 Топ портов (по InternetDB)
 
 | Порт | Устройств |
 |---|---|
-| 80 | 535 |
-| 2000 | 171 |
-| 22 | 171 |
-| 8080 | 153 |
-| 8291 | 152 |
-| 443 | 137 |
-| 21 | 102 |
-| 8728 | 99 |
-| 53 | 76 |
-| 161 | 62 |
-| 7547 | 47 |
-| 23 | 46 |
-| 1701 | 36 |
+| 80 | 547 |
+| 2000 | 175 |
+| 22 | 173 |
+| 8080 | 159 |
+| 8291 | 153 |
+| 443 | 145 |
+| 21 | 103 |
+| 8728 | 100 |
+| 53 | 79 |
+| 161 | 63 |
+| 7547 | 49 |
+| 23 | 48 |
+| 1701 | 37 |
 | 1723 | 32 |
 | 554 | 21 |
 
