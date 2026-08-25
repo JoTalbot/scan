@@ -20,8 +20,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Generate report
+      - name: LFS pull + Generate report
         run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq git-lfs >/dev/null 2>&1 || true
+          git lfs install && git lfs pull 2>/dev/null || true
           gunzip -kf isp_cidr.db.gz || true
           python3 scripts/generate_report.py
 
