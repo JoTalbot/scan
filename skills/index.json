@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "description": "Shared skill registry for AI agents",
+  "skills": [],
+  "rules": {
+    "read_before_task": true,
+    "extract_after_task": true,
+    "avoid_duplicates": true
+  }
+}
