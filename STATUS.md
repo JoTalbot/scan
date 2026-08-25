@@ -194,6 +194,12 @@
 
 ## 📜 Журнал завершенных этапов (Milestone Changelog)
 
+- **2026-08-25 (v1.13.1): Кнопки Старт/Стоп + статус на GitHub Pages**
+  - **Cloudflare Tunnel** к серверу: `https://wires-yields-members-generator.trycloudflare.com` (systemd-сервис cloudflared-tunnel, автозапуск после ребута, Restart=always).
+  - **CORS** в web_server.py (end_headers override) — GitHub Pages может вызывать API.
+  - **site_control/index.html** — публичная панель на https://jotalbot.github.io/scan/: кнопки ▶️ Старт / ⏹ Стоп, живой статус (badge, шаг, циклы, статистика), polling 5с, всё через туннель.
+  - **update_tunnel_url.py** — авто-обновление URL туннеля на странице (cron каждые 10 мин; читает journald systemd-сервиса).
+  - Проверено снаружи: СТАРТ (pid создан) → СТАТУС (RUNNING/scan) → СТОП (STOPPING) — всё через туннель.
 - **2026-08-25 (v1.13.0): Оркестратор + веб-управление (Старт/Стоп/Статус)**
   - **orchestrator.py**: фоновый процесс — бесконечный цикл: скан батча 100k IP (3 порта) → raw-аудит → browser-аудит (Playwright) → csb/e2b probe → InternetDB → sync (всегда). Пауза 60с между циклами.
   - **Веб-панель** (web_server.py, порт 8899): секция "Управление сканированием" — кнопки ▶️ Старт / ⏹ Стоп, живой статус (badge RUNNING/STOPPING/STOPPED, текущий шаг, число циклов, последний скан, ошибки), polling каждые 5 сек.
