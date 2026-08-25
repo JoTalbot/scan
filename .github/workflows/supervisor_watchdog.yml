@@ -1,0 +1,22 @@
+name: Supervisor Watchdog
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  supervisor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run supervisor
+        run: |
+          python3 supervisor/supervisor.py
+      - name: Save state
+        run: |
+          git add supervisor .agents || true
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git commit -m "Update supervisor state" || true
+          git push || true
