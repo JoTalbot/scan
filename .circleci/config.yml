@@ -1,0 +1,84 @@
+# CircleCI config for RouterScan workers
+# Free tier: 30,000 credits/mo (~3000 min Linux). OSS: 400k credits.
+# Запуск шардов скана/аудита через CircleCI API (см. dispatch.py).
+version: 2.1
+
+executors:
+  python:
+    docker:
+      - image: cimg/python:3.11
+
+commands:
+  setup_scan:
+    steps:
+      - checkout
+      - run:
+          name: Распаковка БД и установка зависимостей
+          command: |
+            sudo apt-get update -qq && sudo apt-get install -y -qq sqlite3 curl >/dev/null 2>&1 || true
+            pip install --quiet paramiko pytest 2>/dev/null || true
+            gunzip -kf isp_cidr.db.gz || true
+            ls -la isp_cidr.db 2>/dev/null || echo "БД нет — создам пустую? нет, пропускаю"
+
+jobs:
+  # Скан шарда: SHARD/SHARD_TOTAL/BATCH передаются через environment (API)
+  scan_shard:
+    executor: python
+    resource_class: medium   # 2 vCPU / 4 GB
+    environment:
+      BATCH: "100000"
+      SHARD: "0"
+      SHARD_TOTAL: "1"
+      PORTS: "80,8080,8443"
+    steps:
+      - setup_scan
+      - run:
+          name: Скан шарда
+          command: |
+            ulimit -n 65535 2>/dev/null || true
+            python3 port_scanner.py run --batch "$BATCH" --shard "$SHARD" \
+              --shard-total "$SHARD_TOTAL" --concurrency 1000 --timeout 1.0 \
+              --ports "$PORTS"
+      - run:
+          name: Синхронизация
+          command: |
+            python3 sync_manager.py "circleci-shard-$SHARD" || echo "sync пропущен (нет изменений?)"
+      - store_artifacts:
+          path: data/scans
+          destination: scans
+
+  # Быстрый raw-аудит
+  audit_raw:
+    executor: python
+    resource_class: medium
+    steps:
+      - setup_scan
+      - run:
+          name: Raw аудит
+          command: |
+            python3 router_auth_check.py --fast --concurrency 30 --timeout 4 || true
+      - run:
+          name: Синхронизация
+          command: python3 sync_manager.py "circleci-audit" || true
+
+  # InternetDB enrichment
+  internetdb:
+    executor: python
+    resource_class: small
+    steps:
+      - setup_scan
+      - run:
+          name: InternetDB enrichment
+          command: |
+            python3 internetdb_enrich.py --delay 0.2 || true
+      - run:
+          name: Синхронизация
+          command: python3 sync_manager.py "circleci-internetdb" || true
+
+workflows:
+  version: 2
+  # По умолчанию — ничего не запускается автоматически (только по API dispatch).
+  # Это сделано намеренно: шарды триггерятся из dispatch.py.
+  on_demand:
+    jobs:
+      - scan_shard
