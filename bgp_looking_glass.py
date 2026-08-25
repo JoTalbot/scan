@@ -99,12 +99,61 @@ def check_asn(conn, asn, verbose=True):
             "new": len(missing_in_db), "stale": len(stale_in_db)}
 
 
+def update_db(conn, asn, dry_run=False):
+    """№4: добавить недостающие префиксы ASN из BGP в cidr_blocks + ip_ranges."""
+    import ipaddress
+    live = set(get_announced_prefixes(asn))
+    if not live:
+        print(f"AS{asn}: нет анонсов (или ошибка API)")
+        return 0
+    db_set = set(db_prefixes_for_asn(conn, asn))
+    missing = sorted(live - db_set)
+    if not missing:
+        print(f"AS{asn}: БД актуальна ({len(db_set)} префиксов)")
+        return 0
+    # страна ASN из providers
+    cur = conn.cursor()
+    row = cur.execute("SELECT country_code FROM providers WHERE asn = ?", (int(asn),)).fetchone()
+    cc = row[0] if row else "ZZ"
+    if dry_run:
+        print(f"AS{asn}: будет добавлено {len(missing)} префиксов (страна {cc}):")
+        for p in missing[:10]:
+            print(f"  + {p}")
+        return len(missing)
+    added = 0
+    for cidr in missing:
+        try:
+            net = ipaddress.ip_network(cidr, strict=False)
+        except Exception:
+            continue
+        ver = net.version
+        total = net.num_addresses if ver == 4 else 0
+        cur.execute("INSERT OR IGNORE INTO cidr_blocks (cidr, ip_version, asn, country_code, total_ips) VALUES (?,?,?,?,?)",
+                    (cidr, ver, int(asn), cc, total))
+        if cur.rowcount == 0:
+            continue
+        cidr_id = cur.lastrowid
+        if ver == 4:
+            cur.execute("""INSERT OR IGNORE INTO ip_ranges
+                (cidr_id, start_ip, end_ip, start_ip_int, end_ip_int, netmask, wildcard_mask)
+                VALUES (?,?,?,?,?,?,?)""",
+                (cidr_id, str(net.network_address), str(net.broadcast_address),
+                 int(net.network_address), int(net.broadcast_address),
+                 str(net.netmask), str(net.hostmask)))
+        added += 1
+    conn.commit()
+    print(f"AS{asn}: добавлено {added} префиксов (из {len(missing)} отсутствующих)")
+    return added
+
+
 def main():
     parser = argparse.ArgumentParser(description="BGP Looking Glass (RIPE Stat)")
     parser.add_argument("--asn", type=int, help="Проверить конкретный ASN")
     parser.add_argument("--ip", help="Определить origin-AS по IP")
     parser.add_argument("--check-db", action="store_true", help="Сравнить с БД")
     parser.add_argument("--top-differs", type=int, help="ТОП-N ASN из БД по расхождению с BGP")
+    parser.add_argument("--update-db", action="store_true", help="Добавить недостающие префиксы ASN в БД")
+    parser.add_argument("--dry-run", action="store_true", help="Показать без записи")
     parser.add_argument("--limit", type=int, default=20, help="Сколько ASN проверить для top-differs")
     args = parser.parse_args()
 
@@ -124,7 +173,9 @@ def main():
     cur = conn.cursor()
 
     if args.asn:
-        if args.check_db:
+        if args.update_db:
+            update_db(conn, args.asn, dry_run=args.dry_run)
+        elif args.check_db:
             check_asn(conn, args.asn)
         else:
             prefixes = get_announced_prefixes(args.asn)

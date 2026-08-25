@@ -62,12 +62,35 @@ def export_and_compress_scans(agent_id="aios"):
     print(f"✅ Чанк сохранен: {chunk_path} ({size_kb:.1f} KB)")
     return chunk_path
 
+def check_db_integrity():
+    """№1: проверка целостности БД + checkpoint WAL перед синком."""
+    if not os.path.exists(DB_FILE):
+        return False
+    try:
+        conn = sqlite3.connect(DB_FILE, timeout=60)
+        conn.execute("PRAGMA busy_timeout = 30000;")
+        # коммитим WAL в основную БД
+        conn.execute("PRAGMA wal_checkpoint(TRUNCATE);")
+        res = conn.execute("PRAGMA integrity_check").fetchone()
+        conn.close()
+        ok = res and res[0] == "ok"
+        print(f"🧪 Целостность БД: {'OK' if ok else 'ПОВРЕЖДЕНА: ' + str(res)}")
+        return ok
+    except Exception as e:
+        print(f"⚠️ Ошибка проверки БД: {e}")
+        return False
+
+
 def compress_main_db():
     if not os.path.exists(DB_FILE):
         return
     
+    # 0. integrity + checkpoint (защита от повреждения WAL)
+    check_db_integrity()
+    
     # 1. Vacuum SQLite
-    conn = sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect(DB_FILE, timeout=60)
+    conn.execute("PRAGMA busy_timeout = 30000;")
     conn.execute("PRAGMA page_size = 4096;")
     conn.execute("VACUUM;")
     conn.close()

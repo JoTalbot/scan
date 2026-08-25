@@ -14,6 +14,29 @@ log() { echo "[$(date -u +%H:%M:%S)] $1" | tee -a "$LOG"; }
 
 log "=== PIPELINE START ($TS, batch=$BATCH) ==="
 
+# №2: мониторинг диска — если < 3 ГБ, чистим старые чанки/логи
+FREE_GB=$(df -BG / | awk 'NR==2 {gsub("G","",$4); print $4}')
+log "Свободно на диске: ${FREE_GB}G"
+if [ "${FREE_GB%.*}" -lt 3 ]; then
+  log "⚠️ МАЛО МЕСТА! Автоочистка..."
+  find data/scans -name "*.csv.gz" -mtime +3 -delete 2>/dev/null || true
+  find logs -name "*.log*" -mtime +7 -delete 2>/dev/null || true
+  find /root/scan -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+  apt-get clean 2>/dev/null || true
+  FREE_GB=$(df -BG / | awk 'NR==2 {gsub("G","",$4); print $4}')
+  log "После очистки: ${FREE_GB}G"
+fi
+
+# №3: ежедневный бэкап БД (ротация 7)
+BK_DIR="/root/scan/backups"
+mkdir -p "$BK_DIR"
+BK_FILE="$BK_DIR/isp_cidr_$(date -u +%Y%m%d).db.gz"
+if [ ! -f "$BK_FILE" ]; then
+  log "Бэкап БД -> $BK_FILE"
+  gzip -c isp_cidr.db > "$BK_FILE" 2>/dev/null || true
+  find "$BK_DIR" -name "*.db.gz" -mtime +7 -delete 2>/dev/null || true
+fi
+
 # 1. sync
 git pull --rebase origin main 2>&1 | tail -1 >> "$LOG" || true
 

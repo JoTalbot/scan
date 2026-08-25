@@ -144,12 +144,15 @@ def init_db(conn):
     cur.execute("CREATE INDEX IF NOT EXISTS idx_router_conf ON scan_routers(confidence);")
     conn.commit()
 
-def fetch_unscanned_ips(conn, batch_size=100000, country=None, asn=None, isp_words=None):
+def fetch_unscanned_ips(conn, batch_size=100000, country=None, asn=None, isp_words=None, ports=None):
     cur = conn.cursor()
     
-    # 1. Load already scanned IP integers for fast in-memory filtering
-    cur.execute("SELECT ip_int FROM scan_results WHERE ip_int IS NOT NULL")
-    scanned = set(row[0] for row in cur.fetchall())
+    # 1. Load already scanned (ip_int, port) pairs for fast in-memory filtering
+    cur.execute("SELECT ip_int, port FROM scan_results WHERE ip_int IS NOT NULL")
+    scanned_ports = {}
+    for ip_i, p in cur.fetchall():
+        scanned_ports.setdefault(ip_i, set()).add(p)
+    scanned = set(scanned_ports.keys())
     print(f"ℹ️ Уже в базе просканировано: {len(scanned):,} IP")
 
     # 2. Universal query across v_ip_ranges / ip_ranges
@@ -197,7 +200,12 @@ def fetch_unscanned_ips(conn, batch_size=100000, country=None, asn=None, isp_wor
         step = max(1, total // 16) if total > 32 else 1
         for cur_int in range(s_int, e_int + 1, step):
             if cur_int in scanned:
-                continue
+                if ports:
+                    have = scanned_ports.get(cur_int, set())
+                    if all(p in have for p in ports):
+                        continue
+                else:
+                    continue
             scanned.add(cur_int)
             targets.append({
                 "ip": str(ipaddress.IPv4Address(cur_int)),
@@ -218,7 +226,12 @@ def fetch_unscanned_ips(conn, batch_size=100000, country=None, asn=None, isp_wor
             if not s_int or not e_int: continue
             for cur_int in range(s_int, e_int + 1):
                 if cur_int in scanned:
-                    continue
+                    if ports:
+                        have = scanned_ports.get(cur_int, set())
+                        if all(p in have for p in ports):
+                            continue
+                    else:
+                        continue
                 scanned.add(cur_int)
                 targets.append({
                     "ip": str(ipaddress.IPv4Address(cur_int)),
@@ -423,8 +436,9 @@ def main():
     if args.cmd == "run":
         print(f"\n🔍 Выборка {args.batch:,} несканированных IP из базы данных...")
         isp_words = [w.strip() for w in args.isp_words.split(",")] if args.isp_words else None
+        ports = tuple(int(p) for p in args.ports.split(",") if p.strip())
         targets = fetch_unscanned_ips(conn, batch_size=args.batch, country=args.country,
-                                      asn=args.asn, isp_words=isp_words)
+                                      asn=args.asn, isp_words=isp_words, ports=ports)
         if args.shard is not None and args.shard_total > 1:
             total = len(targets)
             part = total // args.shard_total
@@ -438,7 +452,6 @@ def main():
             return
         print(f"⚡ Запуск сканирования {len(targets):,} IP в {args.concurrency} потоков (Timeout {args.timeout}s)...")
         try:
-            ports = tuple(int(p) for p in args.ports.split(",") if p.strip())
             asyncio.run(run_scan(targets, concurrency=args.concurrency, ports=ports, timeout=args.timeout))
         finally:
             show_stats()

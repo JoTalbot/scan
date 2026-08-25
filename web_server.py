@@ -12,7 +12,7 @@ import urllib.parse
 import os
 import ipaddress
 
-PORT = 8899
+PORT = 8000
 DB_PATH = os.path.join(os.path.dirname(__file__), "isp_cidr.db")
 
 def get_db():
@@ -60,6 +60,8 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json(self.get_creds())
         elif path == "/api/audit_stats":
             self.send_json(self.get_audit_stats())
+        elif path == "/api/routers_geo":
+            self.send_json(self.get_routers_geo())
         elif path == "/" or path == "/index.html":
             self.serve_html()
         else:
@@ -89,6 +91,29 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
         conn.close()
         return {"count": len(rows), "creds": [dict(zip(
             ["ip", "vendor", "username", "password", "auth_method", "http_status", "checked_at"], r)) for r in rows]}
+
+    def get_routers_geo(self):
+        """№7: роутеры с координатами стран (центроиды) для карты."""
+        conn = self.get_conn()
+        cur = conn.cursor()
+        rows = cur.execute("SELECT ip, vendor, country_code FROM scan_routers").fetchall()
+        conn.close()
+        # центроиды стран (приблизительные)
+        coords = {
+            "UA": (49.0, 31.0), "DE": (51.2, 10.4), "US": (39.8, -98.6), "GB": (54.0, -2.0),
+            "FR": (46.6, 2.4), "NL": (52.2, 5.5), "PL": (52.1, 19.4), "IT": (42.8, 12.6),
+            "ES": (40.2, -3.7), "RO": (45.9, 25.0), "BG": (42.7, 25.5), "CZ": (49.8, 15.5),
+            "SE": (60.1, 18.6), "FI": (61.9, 25.7), "NO": (60.5, 8.5), "DK": (56.1, 9.5),
+            "BE": (50.5, 4.5), "CH": (46.8, 8.2), "AT": (47.5, 14.5), "GR": (39.0, 22.0),
+            "PT": (39.6, -8.0), "IE": (53.2, -8.2), "RU": (55.8, 37.6), "TR": (39.0, 35.0),
+            "IN": (20.6, 79.0), "BR": (-14.2, -51.9), "CA": (56.1, -106.3), "AU": (-25.3, 133.8),
+            "JP": (36.2, 138.2), "KR": (36.5, 127.9), "CN": (35.9, 104.2), "IL": (31.0, 34.8),
+        }
+        out = []
+        for ip, vendor, cc in rows:
+            if cc in coords:
+                out.append({"ip": ip, "vendor": vendor, "lat": coords[cc][0], "lon": coords[cc][1], "cc": cc})
+        return {"count": len(out), "points": out}
 
     def get_audit_stats(self):
         conn = self.get_conn()
@@ -354,6 +379,9 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(content)
 
     def serve_html(self):
+        with open("/home/user/web_server.py", "r", encoding="utf-8") as f:
+            full_code = f.read()
+        
         html_code = """<!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -837,6 +865,7 @@ async function init() {
   loadTopCountries();
   loadRouters();
   loadAuditStats();
+  loadGeo();
 }
 
 async function loadStats() {
@@ -1118,8 +1147,46 @@ async function loadAuditStats() {
   } catch (e) { console.log('audit err', e); }
 }
 
+async function loadGeo() {
+  try {
+    const res = await fetch('/api/routers_geo');
+    const d = await res.json();
+    const svg = document.getElementById('geoMap');
+    if (!svg) return;
+    document.getElementById('geoCount').textContent = d.count + ' устройств';
+    // проекция: lon -> x, lat -> y (грубая equirectangular для мира)
+    svg.innerHTML = '<rect x="0" y="0" width="1000" height="500" fill="#0d1117"/>' +
+      '<g stroke="#21262d" stroke-width="0.5">' +
+      '<line x1="0" y1="100" x2="1000" y2="100"/><line x1="0" y1="200" x2="1000" y2="200"/>' +
+      '<line x1="0" y1="300" x2="1000" y2="300"/><line x1="0" y1="400" x2="1000" y2="400"/>' +
+      '<line x1="250" y1="0" x2="250" y2="500"/><line x1="500" y1="0" x2="500" y2="500"/>' +
+      '<line x1="750" y1="0" x2="750" y2="500"/></g>';
+    const colors = {MikroTik:'#58a6ff',Zyxel:'#3fb950',SonicWALL:'#f85149',Cisco:'#d29922',OpenWrt:'#a371f7'};
+    d.points.forEach(p => {
+      const x = (p.lon + 180) / 360 * 1000;
+      const y = (90 - p.lat) / 180 * 500;
+      const c = colors[p.vendor] || '#8b949e';
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', x); circle.setAttribute('cy', y);
+      circle.setAttribute('r', '4'); circle.setAttribute('fill', c);
+      circle.setAttribute('opacity', '0.8');
+      circle.appendChild(document.createTextNode(''));
+      svg.appendChild(circle);
+    });
+  } catch (e) { console.log('geo err', e); }
+}
+
 window.onload = init;
 </script>
+
+  <!-- Geo Map Section -->
+  <div class="section" style="margin-top:24px;">
+    <h2>🗺️ География роутеров <span id="geoCount" style="font-size:14px;color:#8b949e;"></span></h2>
+    <svg id="geoMap" viewBox="0 0 1000 500" style="width:100%;background:#0d1117;border-radius:8px;font-size:10px;">
+      <rect x="0" y="0" width="1000" height="500" fill="#0d1117"/>
+      <text x="500" y="250" fill="#8b949e" text-anchor="middle">Загрузка карты...</text>
+    </svg>
+  </div>
 
   <!-- Router Audit Section -->
   <div class="section" style="margin-top:24px;">
