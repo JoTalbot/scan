@@ -1,8 +1,8 @@
 # 🌐 InternetDB Enrichment Report
 
-**Сформирован:** 2026-08-25T11:27:24Z
+**Сформирован:** 2026-08-25T11:39:09Z
 
-**IP с данными:** 612 из 677
+**IP с данными:** 623 из 688
 
 ## 🛡️ CVE по данным InternetDB
 
@@ -519,6 +519,7 @@
 | 213.136.52.219 | OpenWrt | [CVE-2021-23017](https://nvd.nist.gov/vuln/detail/CVE-2021-23017) | 22,80 |
 | 195.226.144.192 | OpenWrt | [CVE-2021-23017](https://nvd.nist.gov/vuln/detail/CVE-2021-23017) | 80 |
 | 94.236.146.160 | OpenWrt | [CVE-2021-23017](https://nvd.nist.gov/vuln/detail/CVE-2021-23017) | 80,81,8080,10554 |
+| 62.220.235.0 | OpenWrt | [CVE-2021-23017](https://nvd.nist.gov/vuln/detail/CVE-2021-23017) | 22,80 |
 | 93.123.57.247 | MikroTik | [CVE-2021-26690](https://nvd.nist.gov/vuln/detail/CVE-2021-26690) | 53,80,81,82,1080 |
 | 91.149.165.16 | D-Link | [CVE-2021-26690](https://nvd.nist.gov/vuln/detail/CVE-2021-26690) | 21,80,8080 |
 | 93.123.57.247 | MikroTik | [CVE-2021-26691](https://nvd.nist.gov/vuln/detail/CVE-2021-26691) | 53,80,81,82,1080 |
@@ -564,6 +565,7 @@
 | 213.136.52.219 | OpenWrt | [CVE-2021-3618](https://nvd.nist.gov/vuln/detail/CVE-2021-3618) | 22,80 |
 | 195.226.144.192 | OpenWrt | [CVE-2021-3618](https://nvd.nist.gov/vuln/detail/CVE-2021-3618) | 80 |
 | 94.236.146.160 | OpenWrt | [CVE-2021-3618](https://nvd.nist.gov/vuln/detail/CVE-2021-3618) | 80,81,8080,10554 |
+| 62.220.235.0 | OpenWrt | [CVE-2021-3618](https://nvd.nist.gov/vuln/detail/CVE-2021-3618) | 22,80 |
 | 213.136.53.171 | OPNsense | [CVE-2021-36368](https://nvd.nist.gov/vuln/detail/CVE-2021-36368) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2021-36368](https://nvd.nist.gov/vuln/detail/CVE-2021-36368) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2021-36368](https://nvd.nist.gov/vuln/detail/CVE-2021-36368) | 22,53,80,554,5985 |
@@ -727,6 +729,7 @@
 | 195.226.144.192 | OpenWrt | [CVE-2023-44487](https://nvd.nist.gov/vuln/detail/CVE-2023-44487) | 80 |
 | 194.60.87.80 | Ubiquiti | [CVE-2023-44487](https://nvd.nist.gov/vuln/detail/CVE-2023-44487) | 22,80,443 |
 | 94.236.146.160 | OpenWrt | [CVE-2023-44487](https://nvd.nist.gov/vuln/detail/CVE-2023-44487) | 80,81,8080,10554 |
+| 62.220.235.0 | OpenWrt | [CVE-2023-44487](https://nvd.nist.gov/vuln/detail/CVE-2023-44487) | 22,80 |
 | 93.123.57.247 | MikroTik | [CVE-2023-45802](https://nvd.nist.gov/vuln/detail/CVE-2023-45802) | 53,80,81,82,1080 |
 | 91.149.165.16 | D-Link | [CVE-2023-45802](https://nvd.nist.gov/vuln/detail/CVE-2023-45802) | 21,80,8080 |
 | 213.136.53.171 | OPNsense | [CVE-2023-48795](https://nvd.nist.gov/vuln/detail/CVE-2023-48795) | 22,53,80,443 |
@@ -813,6 +816,7 @@
 | 195.226.144.192 | OpenWrt | [CVE-2025-23419](https://nvd.nist.gov/vuln/detail/CVE-2025-23419) | 80 |
 | 194.60.87.80 | Ubiquiti | [CVE-2025-23419](https://nvd.nist.gov/vuln/detail/CVE-2025-23419) | 22,80,443 |
 | 94.236.146.160 | OpenWrt | [CVE-2025-23419](https://nvd.nist.gov/vuln/detail/CVE-2025-23419) | 80,81,8080,10554 |
+| 62.220.235.0 | OpenWrt | [CVE-2025-23419](https://nvd.nist.gov/vuln/detail/CVE-2025-23419) | 22,80 |
 | 213.136.53.171 | OPNsense | [CVE-2025-26465](https://nvd.nist.gov/vuln/detail/CVE-2025-26465) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2025-26465](https://nvd.nist.gov/vuln/detail/CVE-2025-26465) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2025-26465](https://nvd.nist.gov/vuln/detail/CVE-2025-26465) | 22,53,80,554,5985 |
@@ -990,21 +994,21 @@
 
 | Порт | Устройств |
 |---|---|
-| 80 | 465 |
-| 22 | 156 |
-| 2000 | 136 |
-| 8291 | 125 |
-| 443 | 118 |
-| 8080 | 105 |
-| 8728 | 91 |
-| 21 | 87 |
-| 53 | 65 |
-| 161 | 44 |
-| 23 | 39 |
-| 7547 | 36 |
-| 1701 | 28 |
-| 1723 | 22 |
-| 554 | 18 |
+| 80 | 473 |
+| 22 | 158 |
+| 2000 | 139 |
+| 8291 | 128 |
+| 443 | 119 |
+| 8080 | 106 |
+| 8728 | 92 |
+| 21 | 88 |
+| 53 | 66 |
+| 161 | 47 |
+| 23 | 41 |
+| 7547 | 37 |
+| 1701 | 30 |
+| 1723 | 24 |
+| 554 | 19 |
 
 ---
 *Данные Shodan InternetDB (обновление еженедельно).*
