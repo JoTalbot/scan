@@ -106,6 +106,12 @@ fi
 # log "Port probe..."
 # timeout 300 python3 port_probe.py --concurrency 50 --timeout 2 >> "$LOG" 2>&1 || true
 
+# 8b. InternetDB enrichment (опционально: INTERNETDB=1 ./pipeline.sh)
+if [ "${INTERNETDB:-0}" = "1" ]; then
+  log "InternetDB enrichment..."
+  timeout 600 python3 internetdb_enrich.py --delay 0.2 >> "$LOG" 2>&1 || true
+fi
+
 # 9. results & notify
 FOUND=$(python3 -c "
 import sqlite3
