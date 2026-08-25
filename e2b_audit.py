@@ -30,6 +30,8 @@ SCRIPTS = ["router_auth_check.py", "router_auth_browser.py", "port_probe.py",
 
 SETUP_CMDS = [
     "git clone --depth 1 {repo} /scan && cd /scan",
+    "apt-get update -qq && apt-get install -y -qq git-lfs 2>/dev/null || true",
+    "git lfs install && git lfs pull 2>/dev/null || true",   # скачивание реальной БД из LFS
     "pip install --quiet paramiko playwright==1.62.0 pytest 2>/dev/null || true",
     "python -m playwright install chromium 2>/dev/null || true",
     "gunzip -kf isp_cidr.db.gz 2>/dev/null || true",
@@ -72,8 +74,8 @@ def main():
         print("❌ Установите SDK: pip install e2b")
         sys.exit(1)
 
-    print(f"🚀 Создаю E2B-песочницу (template={args.template})...")
-    sandbox = Sandbox(template=args.template, timeout=args.timeout)
+    print(f"🚀 Создаю E2B-песочницу...")
+    sandbox = Sandbox.create()
     try:
         # 1. клонирование и подготовка
         for cmd in SETUP_CMDS:
@@ -112,12 +114,12 @@ def main():
             print(f"ℹ️ Песочница сохранена: {sandbox.sandbox_id} (удалите вручную)")
         else:
             print("🗑 Удаляю песочницу...")
-            sandbox.close()
+            sandbox.kill()
             print("✅ Готово")
     except Exception as e:
         print(f"❌ Ошибка: {e}")
         try:
-            sandbox.close()
+            sandbox.kill()
         except Exception:
             pass
         sys.exit(1)

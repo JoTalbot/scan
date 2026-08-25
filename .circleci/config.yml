@@ -32,7 +32,8 @@ commands:
       - run:
           name: Подготовка (БД + зависимости)
           command: |
-            sudo apt-get update -qq && sudo apt-get install -y -qq sqlite3 curl >/dev/null 2>&1 || true
+            sudo apt-get update -qq && sudo apt-get install -y -qq sqlite3 curl git-lfs >/dev/null 2>&1 || true
+            git lfs install && git lfs pull 2>/dev/null || true
             pip install --quiet paramiko pytest 2>/dev/null || true
             gunzip -kf isp_cidr.db.gz || true
             ls -la isp_cidr.db 2>/dev/null || echo "БД нет — пропускаю"
