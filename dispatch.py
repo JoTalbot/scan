@@ -82,6 +82,10 @@ TASKS = {
         "cmd": "e2b_targets_audit.py",
         "local_ok": False, "ssh_ok": False, "codespaces_ok": False, "e2b_ok": True,
     },
+    "csb_probe": {
+        "cmd": "csb_audit.js",
+        "local_ok": False, "ssh_ok": False, "codespaces_ok": False, "e2b_ok": False, "csb_ok": True,
+    },
 }
 
 CIRCLE_API = "https://circleci.com/api/v2"
@@ -267,6 +271,27 @@ def dispatch(task, shards, batch, ports, parallel, force_ssh, task_text=""):
         p = run_local(cmd, "logs/dispatch/e2b_probe.log")
         p.wait()
         print(f"[{get_now()}] OK E2B-аудит завершён (rc={p.returncode}). Лог: logs/dispatch/e2b_probe.log")
+        return
+    if task == "csb_probe":
+        import sqlite3
+        conn = sqlite3.connect("/root/scan/isp_cidr.db")
+        rows = conn.execute("SELECT ip FROM scan_routers WHERE auth_checked=0 LIMIT ?",
+                            (max(1, batch),)).fetchall()
+        conn.close()
+        ips = [r[0] for r in rows]
+        if not ips:
+            print("Нет непроверенных роутеров")
+            return
+        tfile = "/tmp/csb_targets.txt"
+        with open(tfile, "w") as f:
+            f.write("\n".join(ips))
+        print(f"[{get_now()}] CodeSandbox-аудит {len(ips)} целей (mode=http)")
+        cmd = ("cd /root/scan && CSB_API_KEY=$(grep CODESANDBOX_TOKEN .env | cut -d= -f2) "
+               "timeout 900 node csb_audit.js --file " + tfile + " --mode http")
+        os.makedirs("logs/dispatch", exist_ok=True)
+        p = run_local(cmd, "logs/dispatch/csb_probe.log")
+        p.wait()
+        print(f"[{get_now()}] OK CodeSandbox-аудит завершён (rc={p.returncode}). Лог: logs/dispatch/csb_probe.log")
         return
     print(f"[{get_now()}] Задача: {task} | шардов: {shards} | исполнители: "
           f"{[w['type'] for w in workers]}")
