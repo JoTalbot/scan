@@ -244,9 +244,9 @@ def dispatch(task, shards, batch, ports, parallel, force_ssh):
         token = os.environ.get("CIRCLE_CI_TOKEN", "")
         for i, (wtype, machine, shard) in enumerate(assignments):
             cmd = cfg["cmd"].format(batch=batch, shard=shard, total=shards, ports=ports)
-            # E2B песочницы имеют лимит RAM — меньший concurrency
+            # E2B песочницы имеют лимиты RAM/сети — меньший concurrency
             if wtype == "e2b":
-                cmd = cmd.replace("--concurrency 1000", "--concurrency 300")
+                cmd = cmd.replace("--concurrency 1000", "--concurrency 100")
             name = f"shard{shard}"
             logfile = f"logs/dispatch/{task}_{name}.log"
             if wtype == "local":
@@ -323,6 +323,8 @@ def dispatch(task, shards, batch, ports, parallel, force_ssh):
     # сборка: импорт чанков от всех шардов + синхронизация (главная машина)
     print(f"\n[{get_now()}] Все исполнители завершены. Импортирую чанки...")
     if task == "scan":
+        subprocess.run(["git", "pull", "--rebase", "origin", "main"], cwd="/root/scan",
+                       capture_output=True, text=True, timeout=300)
         subprocess.run([sys.executable, "import_chunks.py"], cwd="/root/scan", timeout=1800)
         subprocess.run([sys.executable, "sync_manager.py", "dispatch"], cwd="/root/scan", timeout=1800)
     print(f"[{get_now()}] ✅ Готово")
