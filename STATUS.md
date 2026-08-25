@@ -10,6 +10,9 @@
 
 | Задача | Агент | Хост / Окружение | Текущий шаг | Статус | Обновлено |
 | :--- | :--- | :--- | :--- | :---: | :---: |
+| **Task in progress** | `Agent-Arena-01` | `Unknown` | v1.9.1: dispatcher done (demo: 4 shards parallel) | `IN_PROGRESS` 🔄 | 2026-08-25 |
+
+--- | :--- | :--- | :--- | :---: | :---: |
 | **Task in progress** | `Agent-Arena-01` | `Unknown` | v1.9.0: Codespaces+InternetDB+E2B done | `IN_PROGRESS` 🔄 | 2026-08-25 |
 
 --- | :--- | :--- | :--- | :---: | :---: |

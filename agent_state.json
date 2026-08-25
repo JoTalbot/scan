@@ -1,16 +1,16 @@
 {
   "project": "ISP CIDR Multi-Agent Database",
   "version": "1.0.0",
-  "last_updated": "2026-08-25T01:00:09Z",
+  "last_updated": "2026-08-25T01:09:38Z",
   "active_agents": [
     {
       "agent_id": "Agent-Arena-01",
       "machine_id": "Unknown",
       "task_name": "Task in progress",
-      "current_step": "v1.9.0: Codespaces+InternetDB+E2B done",
+      "current_step": "v1.9.1: dispatcher done (demo: 4 shards parallel)",
       "status": "IN_PROGRESS",
       "started_at": "2026-08-25T01:00:09Z",
-      "updated_at": "2026-08-25T01:00:09Z"
+      "updated_at": "2026-08-25T01:09:38Z"
     }
   ],
   "tasks": {
