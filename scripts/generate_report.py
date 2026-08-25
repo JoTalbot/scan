@@ -53,11 +53,27 @@ def main():
     lines.append("")
 
     # роутеры по вендорам
-    lines.append("## 🛜 Роутеры по вендорам\n")
+    lines.append("## 🛜 Топ-10 роутеров по вендорам\n")
     lines.append("| Вендор | Кол-во |")
     lines.append("| :--- | :---: |")
-    for v, c in cur.execute("SELECT vendor, COUNT(*) c FROM scan_routers GROUP BY vendor ORDER BY c DESC LIMIT 15"):
+    for v, c in cur.execute("SELECT vendor, COUNT(*) c FROM scan_routers GROUP BY vendor ORDER BY c DESC LIMIT 10"):
         lines.append(f"| {v or 'Unknown'} | {c} |")
+    lines.append("")
+
+    # последние обнаруженные роутеры
+    lines.append("### 🆕 Последние 10 обнаруженных роутеров\n")
+    try:
+        last_routers = cur.execute("SELECT ip, vendor, port, detected_at FROM scan_routers "
+                                   "ORDER BY id DESC LIMIT 10").fetchall()
+    except Exception:
+        last_routers = []
+    if last_routers:
+        lines.append("| IP | Вендор | Порт | Обнаружен |")
+        lines.append("| :--- | :--- | :---: | :--- |")
+        for ip, v, p, d in last_routers:
+            lines.append(f"| {ip} | {v or 'Unknown'} | {p if p is not None else '-'} | {d or '-'} |")
+    else:
+        lines.append("_Нет данных._")
     lines.append("")
 
     # статусы аудита
@@ -92,6 +108,16 @@ def main():
                             "FROM scan_results WHERE has_banner=1 GROUP BY s ORDER BY c DESC LIMIT 10"):
         lines.append(f"| {s[:60]} | {c} |")
     lines.append("")
+
+    # CVE приоритеты
+    lines.append("## 🛡️ CVE — приоритеты\n")
+    cve_doc = "docs/CVE_PRIORITY.md"
+    if os.path.exists(cve_doc):
+        lines.append(f"Приоритизированный разбор CVE по обнаруженным роутерам: [{cve_doc}]({cve_doc})")
+    else:
+        lines.append(f"_{cve_doc} отсутствует в репозитории._")
+    lines.append("")
+
     lines.append("---\n*Авто-отчёт, генерируется GitHub Actions ежедневно.*")
 
     conn.close()
