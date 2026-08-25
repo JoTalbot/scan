@@ -1,0 +1,9 @@
+{
+  "rules": [],
+  "sources": [
+    "repair_history",
+    "scan_results",
+    "skill_memory"
+  ],
+  "version": "1.0"
+}
