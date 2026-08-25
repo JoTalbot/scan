@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RouterScan — управление и отчёты</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 40px 20px; }
+    .wrap { max-width: 900px; margin: 0 auto; }
+    h1 { color: #58a6ff; }
+    h2 { color: #58a6ff; font-size: 20px; }
+    .card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 20px; margin: 16px 0; }
+    .badge { display: inline-block; padding: 6px 16px; border-radius: 14px; font-weight: 600; }
+    .badge-running { background: #238636; color: #fff; }
+    .badge-stopping { background: #9e6a03; color: #fff; }
+    .badge-stopped { background: #21262d; color: #8b949e; }
+    .badge-unknown { background: #6e7681; color: #fff; }
+    .btn { padding: 12px 32px; border-radius: 8px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; margin-right: 14px; color: #fff; }
+    .btn-start { background: #238636; }
+    .btn-start:hover { background: #2ea043; }
+    .btn-stop { background: #da3633; }
+    .btn-stop:hover { background: #f85149; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .msg { margin-left: 12px; color: #8b949e; font-size: 14px; }
+    .stat { color: #8b949e; font-size: 14px; line-height: 1.7; margin-top: 12px; }
+    .stat b { color: #c9d1d9; }
+    .links a { color: #58a6ff; text-decoration: none; display: inline-block; padding: 8px 14px; margin: 6px 8px 0 0;
+               background: #161b22; border: 1px solid #30363d; border-radius: 8px; }
+    .links a:hover { border-color: #58a6ff; }
+    .err { color: #da3633; font-size: 13px; }
+    .step { margin-left: 12px; color: #c9d1d9; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🌐 RouterScan — управление и отчёты</h1>
+  <p style="color:#8b949e;">База CIDR провайдеров + распределённое сканирование и аудит роутеров</p>
+
+  <div class="card" id="controlCard">
+    <h2>🎛️ Управление сканированием</h2>
+    <div style="margin-bottom:14px;">
+      <span id="stateBadge" class="badge badge-unknown">—</span>
+      <span id="currentStep" class="step">Шаг: —</span>
+    </div>
+    <div>
+      <button id="btnStart" class="btn btn-start" onclick="control('start')">▶️ Старт</button>
+      <button id="btnStop" class="btn btn-stop" onclick="control('stop')">⏹ Стоп</button>
+      <span id="msg" class="msg"></span>
+    </div>
+    <div id="stats" class="stat"></div>
+    <div id="connInfo" style="font-size:12px;color:#6e7681;margin-top:8px;"></div>
+  </div>
+
+  <div class="card">
+    <h2>📄 Отчёты</h2>
+    <div class="links">
+      <a href="README.html">📖 README</a>
+      <a href="REPORT.html">📊 Ежедневный отчёт</a>
+      <a href="CVE_PRIORITY.html">🛡️ Приоритизация CVE</a>
+      <a href="CVE_REPORT.html">🔍 CVE-отчёт</a>
+      <a href="internetdb_report.html">🌐 InternetDB</a>
+    </div>
+  </div>
+
+  <p style="color:#6e7681;font-size:12px;">Кнопки управляют сервером через Cloudflare Tunnel. Обновление статуса каждые 5 секунд.</p>
+</div>
+
+<script>
+// URL туннеля к серверу (обновляется при перезапуске cloudflared)
+const TUNNEL = "https://relocation-republican-task-coupled.trycloudflare.com";
+let timer = null;
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+async function api(path) {
+  const res = await fetch(TUNNEL + path, { method: 'GET' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+async function control(action) {
+  const btnS = document.getElementById('btnStart');
+  const btnT = document.getElementById('btnStop');
+  btnS.disabled = true; btnT.disabled = true;
+  document.getElementById('msg').textContent = action === 'start' ? 'Запускаю...' : 'Останавливаю...';
+  try {
+    const d = await api('/api/control?action=' + action);
+    document.getElementById('msg').textContent = (d.message || (d.ok ? 'OK' : 'Ошибка')).slice(0, 120);
+  } catch (e) {
+    document.getElementById('msg').textContent = 'Ошибка соединения: ' + e.message;
+  }
+  btnS.disabled = false; btnT.disabled = false;
+  setTimeout(loadStatus, 1500);
+}
+
+async function loadStatus() {
+  const badge = document.getElementById('stateBadge');
+  const stepEl = document.getElementById('currentStep');
+  const stats = document.getElementById('stats');
+  try {
+    const d = await api('/api/status');
+    const st = d.state || 'UNKNOWN';
+    badge.textContent = st === 'RUNNING' ? '🟢 RUNNING' : st === 'STOPPING' ? '🟡 STOPPING' : st === 'STOPPED' ? '🔴 STOPPED' : st;
+    badge.className = 'badge ' + (st === 'RUNNING' ? 'badge-running' : st === 'STOPPING' ? 'badge-stopping' : st === 'STOPPED' ? 'badge-stopped' : 'badge-unknown');
+    stepEl.textContent = 'Шаг: ' + (d.current_step || 'idle') + ' | Циклов: ' + (d.cycles || 0);
+    let html = '';
+    if (d.last_cycle) {
+      html += 'Последний цикл: <b>' + esc(d.last_cycle.at || '') + '</b>' +
+        ' · новых роутеров: <b>' + (d.last_cycle.new_routers ?? 0) + '</b>' +
+        ' · всего: <b>' + (d.last_cycle.total_routers ?? 0) + '</b>' +
+        ' · pending raw: <b>' + (d.last_cycle.pending_raw ?? 0) + '</b>' +
+        ' · pending browser: <b>' + (d.last_cycle.pending_browser ?? 0) + '</b>';
+    }
+    if (d.last_scan_at) html += '<br>Последний скан: <b>' + esc(d.last_scan_at) + '</b> · найдено роутеров: <b>' + (d.last_routers_found ?? 0) + '</b>';
+    if (d.total_routers) html += '<br>Всего роутеров в БД: <b>' + d.total_routers + '</b>';
+    if (d.errors && d.errors.length) html += '<br><span class="err">Ошибки: ' + esc(d.errors.slice(-2).join('; ')) + '</span>';
+    stats.innerHTML = html || 'Нет данных';
+    document.getElementById('connInfo').textContent = 'Туннель: ' + TUNNEL;
+  } catch (e) {
+    badge.textContent = '🔴 НЕТ СВЯЗИ';
+    badge.className = 'badge badge-unknown';
+    stepEl.textContent = 'Шаг: —';
+    stats.innerHTML = '<span class="err">Не удалось подключиться к серверу: ' + esc(e.message) + '</span>';
+    document.getElementById('connInfo').textContent = 'Туннель: ' + TUNNEL + ' (недоступен)';
+  }
+}
+
+loadStatus();
+timer = setInterval(loadStatus, 5000);
+</script>
+</body>
+</html>

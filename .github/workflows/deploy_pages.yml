@@ -24,44 +24,15 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Сборка статического сайта (отчёты)
+      - name: Сборка статического сайта
         run: |
           mkdir -p site
-          # index.html с навигацией по отчётам
-          cat > site/index.html << 'HTML'
-          <!DOCTYPE html>
-          <html lang="ru">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>RouterScan — отчёты</title>
-            <style>
-              body { font-family: system-ui, sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 40px 20px; }
-              .wrap { max-width: 800px; margin: 0 auto; }
-              h1 { color: #58a6ff; }
-              a { color: #58a6ff; text-decoration: none; display: block; padding: 12px 16px; margin: 8px 0;
-                   background: #161b22; border: 1px solid #30363d; border-radius: 8px; }
-              a:hover { border-color: #58a6ff; }
-              small { color: #8b949e; }
-            </style>
-          </head>
-          <body>
-            <div class="wrap">
-              <h1>🌐 RouterScan — отчёты</h1>
-              <small>Проект: база CIDR провайдеров + сканирование и аудит роутеров</small>
-              <a href="README.html">📖 README</a>
-              <a href="REPORT.html">📊 Ежедневный отчёт</a>
-              <a href="CVE_PRIORITY.html">🛡️ Приоритизация CVE</a>
-              <a href="CVE_REPORT.html">🔍 CVE-отчёт (локальный)</a>
-              <a href="internetdb_report.html">🌐 InternetDB отчёт</a>
-            </div>
-          </body>
-          </html>
-          HTML
-          # конвертация markdown -> html (лёгкий конвертер)
+          # главная страница с кнопками управления (из site_control/)
+          cp site_control/index.html site/index.html
+          # конвертация markdown -> html
           pip install --quiet markdown 2>/dev/null || true
           python3 - << 'PY'
-          import markdown, html, os
+          import markdown, os
           files = ["README.md", "REPORT.md", "CVE_PRIORITY.md", "CVE_REPORT.md", "internetdb_report.md"]
           for f in files:
               if os.path.exists(f):
@@ -77,6 +48,7 @@ jobs:
                       fh.write(out)
                   print("OK:", f)
           PY
+          ls -la site/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
