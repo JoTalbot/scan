@@ -191,7 +191,11 @@ def sync_to_github(commit_msg=None):
         subprocess.run(["git", "add", "isp_cidr.db.gz"], check=False)
 
     subprocess.run(["git", "commit", "-m", commit_msg], check=False)
-    res = subprocess.run(["git", "push", "origin", "main"], capture_output=True, text=True)
+    # pull --rebase перед push: мульти-исполнители пушат параллельно
+    env = dict(os.environ, GIT_TERMINAL_PROMPT="0")
+    subprocess.run(["git", "pull", "--rebase", "origin", "main"], check=False,
+                   env=env, capture_output=True, text=True)
+    res = subprocess.run(["git", "push", "origin", "main"], capture_output=True, text=True, env=env)
     if res.returncode == 0:
         print("🎉 Успешно синхронизировано с GitHub!")
     else:
