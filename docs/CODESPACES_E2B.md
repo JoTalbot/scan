@@ -82,3 +82,29 @@ python3 e2b_audit.py --script router_auth_browser.py --args "--only-no-channel -
   E2B; для распределённого скана это плюс (другой источник).
 - ToS E2B — платформа «для агентов»; массовые атаки запрещены, исследовательские
   сценарии приемлемы. Соблюдать вежливость к целям.
+- **Проверено (v1.9.2)**: песочница клонирует репо, подтягивает БД из LFS
+  (бинарник git-lfs 3.5.1), ставит зависимости и выполняет скрипт; результаты
+  скачиваются в downloads/. SDK v2: `Sandbox.create()` / `sb.kill()`.
+
+---
+
+## Часть C: CircleCI (30 000 кредитов/мес бесплатно)
+
+### Статус подключения (август 2026)
+- `.circleci/config.yml` — job `worker` с параметрами (JOB/SHARD/SHARD_TOTAL/BATCH/PORTS),
+  выбор задачи: scan / audit_raw / audit_browser / internetdb / probe; LFS-pull БД.
+- Токен из .env (`CIRCLE_CI_TOKEN`) проходит `GET /api/v2/me` и видит проект
+  `gh/JoTalbot/scan`, **но НЕ имеет прав на запуск pipeline** ("Permission denied").
+- **Решение:** в app.circleci.com → User settings → Personal API Tokens создать
+  новый токен с доступом **All** (или Organization), обновить .env, проверить:
+  ```bash
+  curl -s -X POST -H "Circle-Token: $NEW_TOKEN" -H "Content-Type: application/json"     -d '{"branch":"main","parameters":{"JOB":"internetdb"}}'     https://circleci.com/api/v2/project/gh/JoTalbot/scan/pipeline
+  ```
+
+### Запуск через dispatch.py (после исправления токена)
+```bash
+python3 dispatch.py scan --batch 100000 --shards 4 --parallel
+# шарды распределятся: circleci → e2b → local
+```
+- Бесплатный план: 30 000 кредитов/мес (~3 000 мин Linux medium).
+- OSS-проекты: 400 000 кредитов/мес (у нашего репо есть лицензия — можно подать заявку).

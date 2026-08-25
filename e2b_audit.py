@@ -30,7 +30,11 @@ SCRIPTS = ["router_auth_check.py", "router_auth_browser.py", "port_probe.py",
 
 SETUP_CMDS = [
     "git clone --depth 1 {repo} ~/scan && cd ~/scan",
-    "apt-get update -qq && apt-get install -y -qq git-lfs 2>/dev/null || true",
+    # git-lfs из бинарника (в песочнице нет root/apt):
+    "curl -sL -o /tmp/lfs.tar.gz https://github.com/git-lfs/git-lfs/releases/download/v3.5.1/git-lfs-linux-amd64-v3.5.1.tar.gz && "
+    "tar xzf /tmp/lfs.tar.gz -C /tmp && cd ~/scan && "
+    "/tmp/git-lfs-3.5.1/git-lfs install --local 2>/dev/null; "
+    "/tmp/git-lfs-3.5.1/git-lfs pull 2>/dev/null || true",
     "pip install --quiet paramiko playwright==1.62.0 pytest 2>/dev/null || true",
     "python -m playwright install chromium 2>/dev/null || true",
     "cd ~/scan && gunzip -kf isp_cidr.db.gz 2>/dev/null || true",

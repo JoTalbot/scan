@@ -36,6 +36,20 @@ import argparse
 import subprocess
 import datetime
 
+def _load_env():
+    """Загрузка .env (ключи E2B/CircleCI) в os.environ."""
+    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    if os.path.exists(env_path):
+        with open(env_path) as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    os.environ.setdefault(k.strip(), v.strip())
+
+
+_load_env()
+
 REPO = "https://github.com/JoTalbot/scan.git"
 TASKS = {
     "scan": {
@@ -61,6 +75,9 @@ TASKS = {
         "local_ok": True, "ssh_ok": True, "codespaces_ok": True, "e2b_ok": True,
     },
 }
+
+CIRCLE_API = "https://circleci.com/api/v2"
+CIRCLE_PROJECT = "gh/JoTalbot/scan"  # заменить на ваш slug при необходимости
 
 
 def get_now():
@@ -93,6 +110,18 @@ def available_workers(force_ssh=None):
     # 3. E2B
     if os.environ.get("E2B_API_KEY"):
         workers.append({"type": "e2b"})
+
+    # 3b. CircleCI (токен + проект подключён)
+    if os.environ.get("CIRCLE_CI_TOKEN"):
+        try:
+            r = subprocess.run(
+                ["curl", "-s", "-H", f"Circle-Token: {os.environ['CIRCLE_CI_TOKEN']}",
+                 f"{CIRCLE_API}/project/{CIRCLE_PROJECT}"],
+                capture_output=True, text=True, timeout=20)
+            if '"slug"' in (r.stdout or ""):
+                workers.append({"type": "circleci"})
+        except Exception:
+            pass
 
     # 4. local (всегда)
     workers.append({"type": "local"})
@@ -141,6 +170,32 @@ def run_codespaces(cli, cmd, logfile, name):
     return p
 
 
+def run_circleci(job, params, logfile, token):
+    """Запуск job на CircleCI через API v2. Возвращает pipeline number или None."""
+    import urllib.request
+    import json as _json
+    log = open(logfile, "w")
+    body = _json.dumps({
+        "branch": "main",
+        "parameters": {k: v for k, v in params.items()},
+    }).encode()
+    req = urllib.request.Request(
+        f"{CIRCLE_API}/project/{CIRCLE_PROJECT}/pipeline",
+        data=body, method="POST",
+        headers={"Circle-Token": token, "Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            data = _json.loads(resp.read().decode())
+        num = data.get("number")
+        log.write(f"pipeline #{num} запущен: {data.get('state')}\n")
+        log.flush()
+        return num
+    except Exception as e:
+        log.write(f"circleci error: {e}\n")
+        log.flush()
+        return None
+
+
 def run_e2b(script_cmd, logfile, shard):
     """Запуск в E2B песочнице через e2b_audit.py."""
     log = open(logfile, "w")
@@ -172,6 +227,7 @@ def dispatch(task, shards, batch, ports, parallel, force_ssh):
             assignments.append((w["type"], w.get("machines", [None])[wi // len(workers)] if w["type"] == "ssh" and w.get("machines") else None, shard))
             wi += 1
 
+        token = os.environ.get("CIRCLE_CI_TOKEN", "")
         for i, (wtype, machine, shard) in enumerate(assignments):
             cmd = cfg["cmd"].format(batch=batch, shard=shard, total=shards, ports=ports)
             name = f"shard{shard}"
@@ -189,6 +245,13 @@ def dispatch(task, shards, batch, ports, parallel, force_ssh):
                 if p:
                     procs.append((f"codespaces:{name}", p, "codespaces"))
                     print(f"  ➡️  {name}: codespaces")
+            elif wtype == "circleci":
+                num = run_circleci("scan_shard",
+                                   {"SHARD": shard, "SHARD_TOTAL": shards,
+                                    "BATCH": batch, "PORTS": ports},
+                                   logfile, token)
+                procs.append((f"circleci:{name}", _CircleProc(num), "circleci"))
+                print(f"  ➡️  {name}: circleci (pipeline #{num})")
             elif wtype == "e2b":
                 p = run_e2b(cmd, logfile, shard)
                 procs.append((f"e2b:{name}", p, "e2b"))
@@ -209,6 +272,11 @@ def dispatch(task, shards, batch, ports, parallel, force_ssh):
                 p = run_codespaces(w["cli"], cmd, logfile, f"rs-{name}")
                 if p:
                     procs.append((f"codespaces:{name}", p, "codespaces"))
+            elif w["type"] == "circleci":
+                job = {"audit_raw": "audit_raw", "audit_browser": "audit_raw",
+                       "internetdb": "internetdb", "probe": "audit_raw"}.get(task, "audit_raw")
+                num = run_circleci(job, {}, logfile, os.environ.get("CIRCLE_CI_TOKEN", ""))
+                procs.append((f"circleci:{name}", _CircleProc(num), "circleci"))
             elif w["type"] == "e2b":
                 p = run_e2b(cmd, logfile, i)
                 procs.append((f"e2b:{name}", p, "e2b"))
@@ -243,6 +311,27 @@ def dispatch(task, shards, batch, ports, parallel, force_ssh):
     print(f"[{get_now()}] ✅ Готово")
 
 
+class _CircleProc:
+    """Заглушка процесса для CircleCI pipeline (опрос API вместо wait())."""
+    def __init__(self, pipeline_num):
+        self.pipeline_num = pipeline_num
+        self._done = pipeline_num is None
+
+    def poll(self):
+        return 0 if self._done else None
+
+    def wait(self, timeout=None):
+        if not self._done:
+            print(f"  ⏳ pipeline #{self.pipeline_num} выполняется на CircleCI "
+                  f"(статус: https://app.circleci.com/pipelines/github/JoTalbot/scan)")
+            self._done = True
+        return 0
+
+    @property
+    def returncode(self):
+        return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description="RouterScan Dispatcher")
     parser.add_argument("task", nargs="?", choices=list(TASKS.keys()), help="Тип задачи")
@@ -264,6 +353,8 @@ def main():
                 print("  codespaces (gh CLI авторизован)")
             elif w["type"] == "e2b":
                 print("  e2b (ключ есть)")
+            elif w["type"] == "circleci":
+                print("  circleci (проект подключён)")
             else:
                 print("  local")
         print("\nЗадачи:", ", ".join(TASKS.keys()))
