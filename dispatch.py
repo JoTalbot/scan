@@ -52,6 +52,10 @@ _load_env()
 
 REPO = "https://github.com/JoTalbot/scan.git"
 TASKS = {
+    "dev": {
+        "cmd": "openhands_agent.py --task \"{task}\"",
+        "local_ok": True, "ssh_ok": False, "codespaces_ok": False, "e2b_ok": False,
+    },
     "scan": {
         "cmd": "python3 port_scanner.py run --batch {batch} --shard {shard} --shard-total {total} "
                "--concurrency 1000 --timeout 1.0 --ports {ports}",
@@ -222,8 +226,21 @@ def run_e2b(script_cmd, logfile, shard):
 # ---------------------------------------------------------------------------
 # Раздача
 # ---------------------------------------------------------------------------
-def dispatch(task, shards, batch, ports, parallel, force_ssh):
+def dispatch(task, shards, batch, ports, parallel, force_ssh, task_text=""):
     cfg = TASKS[task]
+    if task == "dev":
+        if not task_text:
+            print("❌ Для задачи dev нужен --task-text \"описание задачи\"")
+            return
+        print(f"[{get_now()}] OpenHands агент получает задачу: {task_text[:120]}")
+        cmd = cfg["cmd"].format(task=task_text.replace('"', '\\"')).replace(
+            "openhands_agent.py", "/root/scan/.venv/bin/python /root/scan/openhands_agent.py", 1)
+        os.makedirs("logs/dispatch", exist_ok=True)
+        logfile = "logs/dispatch/dev_openhands.log"
+        p = run_local("cd /root/scan && " + cmd, logfile)
+        p.wait()
+        print(f"[{get_now()}] ✅ Агент завершился (rc={p.returncode}). Лог: {logfile}")
+        return
     workers = available_workers(force_ssh)
     print(f"[{get_now()}] Задача: {task} | шардов: {shards} | исполнители: "
           f"{[w['type'] for w in workers]}")
@@ -400,6 +417,7 @@ def main():
     parser.add_argument("--parallel", action="store_true", help="Параллельно, а не последовательно")
     parser.add_argument("--force-ssh", help="Принудительно использовать эти SSH-машины (через запятую)")
     parser.add_argument("--workers", action="store_true", help="Показать доступных исполнителей")
+    parser.add_argument("--task-text", help="Текст задачи для dev (OpenHands)")
     args = parser.parse_args()
 
     if args.workers or not args.task:
@@ -417,10 +435,13 @@ def main():
             else:
                 print("  local")
         print("\nЗадачи:", ", ".join(TASKS.keys()))
+        if os.environ.get("OPENHANDS_API_KEY"):
+            print("\n🧠 OpenHands агент: ключ есть (задача dev)")
         print("Пример: python3 dispatch.py scan --batch 100000 --shards 4")
         return
 
-    dispatch(args.task, args.shards, args.batch, args.ports, args.parallel, args.force_ssh)
+    dispatch(args.task, args.shards, args.batch, args.ports, args.parallel, args.force_ssh,
+             args.task_text)
 
 
 if __name__ == "__main__":
