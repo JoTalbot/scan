@@ -10,6 +10,9 @@
 
 | Задача | Агент | Хост / Окружение | Текущий шаг | Статус | Обновлено |
 | :--- | :--- | :--- | :--- | :---: | :---: |
+| **Auto pipeline scan** | `Agent-Arena-01` | `aios-server` | Scanning 5000 IP | `IN_PROGRESS` 🔄 | 2026-08-25 |
+
+--- | :--- | :--- | :--- | :---: | :---: |
 | **Task in progress** | `Agent-Arena-01` | `Unknown` | v1.9.3: CircleCI worker live (pipeline #4 success 66s) | `IN_PROGRESS` 🔄 | 2026-08-25 |
 
 --- | :--- | :--- | :--- | :---: | :---: |

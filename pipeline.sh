@@ -44,12 +44,20 @@ git pull --rebase origin main 2>&1 | tail -1 >> "$LOG" || true
 python3 agent_sync.py lock --agent "$AGENT" --task "Auto pipeline scan" \
   --step "Scanning $BATCH IP" --machine "aios-server" >> "$LOG" 2>&1 || true
 
-# 3. scan (оптимизировано: ulimit + timeout 1.0 + 1000 потоков = ~1000 IP/сек;
-#    мультипорт 80+8080+8443 — больше админок роутеров)
-log "Сканирование $BATCH IP (порты: ${PORTS:-80,8080,8443})..."
-ulimit -n 65535 2>/dev/null || true
-python3 port_scanner.py run --batch "$BATCH" --concurrency 1000 --timeout 1.0 \
-  --ports "${PORTS:-80,8080,8443}" >> "$LOG" 2>&1
+# 3. scan — локально ИЛИ через dispatch (SCAN_MODE=dispatch раздаёт по машинам)
+SCAN_MODE="${SCAN_MODE:-local}"   # local | dispatch
+if [ "$SCAN_MODE" = "dispatch" ]; then
+  SHARDS="${SHARDS:-3}"
+  log "Сканирование $BATCH IP через dispatch ($SHARDS шардов, порты ${PORTS:-80,8080,8443})..."
+  timeout 3600 python3 -u dispatch.py scan --batch "$BATCH" --shards "$SHARDS" \
+    --ports "${PORTS:-80,8080,8443}" --parallel >> "$LOG" 2>&1 || true
+else
+  # локально (оптимизировано: ulimit + timeout 1.0 + 1000 потоков = ~1000 IP/сек)
+  log "Сканирование $BATCH IP локально (порты: ${PORTS:-80,8080,8443})..."
+  ulimit -n 65535 2>/dev/null || true
+  python3 port_scanner.py run --batch "$BATCH" --concurrency 1000 --timeout 1.0 \
+    --ports "${PORTS:-80,8080,8443}" >> "$LOG" 2>&1
+fi
 log "Скан завершён."
 
 # 4. find new routers count
@@ -67,44 +75,29 @@ conn.close()
 ")
 log "Новых роутеров: raw=$NEW_RAW, browser=$NEW_BR"
 
-# 5. raw audit (fast)
+# 5. raw audit (fast) — локально (быстро)
 if [ "$NEW_RAW" -gt 0 ]; then
   log "Fast raw audit ($NEW_RAW устройств)..."
   python3 router_auth_check.py --fast --concurrency 30 --timeout 4 >> "$LOG" 2>&1 || true
 fi
 
-# 6. browser audit (fast)
-if [ "$NEW_BR" -gt 0 ]; then
-  log "Fast browser audit ($NEW_BR устройств)..."
+# 6. АВТО-DISPATCH: раздача задач по исполнителям (circleci/codesandbox/e2b/local)
+#     - browser-аудит SPA (если есть no-verifiable-channel)
+#     - точечный аудит непроверенных (CodeSandbox/E2B)
+#     - InternetDB (если INTERNETDB=1)
+AUDIT_MODE="${AUDIT_MODE:-auto}"   # auto | manual (manual = только локально)
+if [ "$AUDIT_MODE" = "auto" ] && [ "$NEW_BR" -gt 0 ]; then
+  log "Авто-dispatch: browser-аудит $NEW_BR SPA-целей..."
+  timeout 2400 python3 dispatch.py audit_browser --shards 2 >> "$LOG" 2>&1 || true
+  log "Авто-dispatch: точечный аудит CodeSandbox..."
+  timeout 1200 python3 dispatch.py csb_probe --batch 20 >> "$LOG" 2>&1 || true
+  log "Авто-dispatch: точечный аудит E2B..."
+  timeout 1200 python3 dispatch.py e2b_probe --batch 20 >> "$LOG" 2>&1 || true
+elif [ "$NEW_BR" -gt 0 ]; then
+  log "Browser audit (manual mode, локально)..."
   .venv/bin/python -u router_auth_browser.py --only-no-channel --pairs 8 \
     --concurrency 4 --timeout 7 --wait 2.5 >> "$LOG" 2>&1 || true
 fi
-
-# 7. SSH/Telnet audit — ОТКЛЮЧЕНО (по запросу)
-# Для включения раскомментируйте блок ниже:
-# SSH_N=$(python3 -c "
-# import sqlite3, json
-# conn = sqlite3.connect('isp_cidr.db')
-# n = 0
-# for r in conn.execute('SELECT extra_ports FROM scan_routers WHERE extra_ports IS NOT NULL'):
-#     try:
-#         ports = json.loads(r[0])
-#     except Exception:
-#         continue
-#     if 22 in ports or 23 in ports:
-#         n += 1
-# conn.close()
-# print(n)
-# ")
-# if [ "$SSH_N" -gt 0 ]; then
-#   log "SSH/Telnet audit ($SSH_N устройств)..."
-#   timeout 900 .venv/bin/python -u router_ssh_telnet_audit.py --concurrency 25 --timeout 5 >> "$LOG" 2>&1 || true
-# fi
-
-# 8. Port probe + SNMP — ОТКЛЮЧЕНО (по запросу)
-# Для включения раскомментируйте:
-# log "Port probe..."
-# timeout 300 python3 port_probe.py --concurrency 50 --timeout 2 >> "$LOG" 2>&1 || true
 
 # 8b. InternetDB enrichment (опционально: INTERNETDB=1 ./pipeline.sh)
 if [ "${INTERNETDB:-0}" = "1" ]; then
