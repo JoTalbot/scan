@@ -90,15 +90,20 @@ python3 e2b_audit.py --script router_auth_browser.py --args "--only-no-channel -
 
 ## Часть C: CircleCI (30 000 кредитов/мес бесплатно)
 
-### Статус подключения (август 2026)
+### Статус подключения (август 2026) — ✅ РАБОТАЕТ
 - `.circleci/config.yml` — job `worker` с параметрами (JOB/SHARD/SHARD_TOTAL/BATCH/PORTS),
   выбор задачи: scan / audit_raw / audit_browser / internetdb / probe; LFS-pull БД.
-- Токен из .env (`CIRCLE_CI_TOKEN`) проходит `GET /api/v2/me` и видит проект
-  `gh/JoTalbot/scan`, **но НЕ имеет прав на запуск pipeline** ("Permission denied").
-- **Решение:** в app.circleci.com → User settings → Personal API Tokens создать
-  новый токен с доступом **All** (или Organization), обновить .env, проверить:
+- Новый токен `CCIPAT_...` (аккаунт JoTalbot) — полные права: `POST /pipeline` → создаёт pipeline.
+- **Deploy key** для checkout приватного репо:
+  1. `ssh-keygen -t ed25519 -f /tmp/circle_deploy`
+  2. GitHub: `POST /repos/JoTalbot/scan/keys` (deploy key, read_only) — токеном ghp_...
+  3. CircleCI: `POST /api/v1.1/project/gh/JoTalbot/scan/ssh-key` с hostname=github.com, private_key
+- Проверено: pipeline #2 (internetdb) — success; pipeline #4 (скан шарда через dispatch) — success за 66 сек.
+- Запуск:
   ```bash
-  curl -s -X POST -H "Circle-Token: $NEW_TOKEN" -H "Content-Type: application/json"     -d '{"branch":"main","parameters":{"JOB":"internetdb"}}'     https://circleci.com/api/v2/project/gh/JoTalbot/scan/pipeline
+  curl -s -X POST -H "Circle-Token: $TOKEN" -H "Content-Type: application/json" \
+    -d '{"branch":"main","parameters":{"JOB":"internetdb"}}' \
+    https://circleci.com/api/v2/project/gh/JoTalbot/scan/pipeline
   ```
 
 ### Запуск через dispatch.py (после исправления токена)
