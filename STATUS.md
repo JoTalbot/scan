@@ -194,6 +194,10 @@
 
 ## 📜 Журнал завершенных этапов (Milestone Changelog)
 
+- **2026-08-25 (v1.13.2): Ускоренное обновление URL туннеля (до 5 мин)**
+  - Cron: */5 — update_tunnel_url.py каждые 5 минут.
+  - **Systemd watchdog** (tunnel-url-watchdog.timer): проверка URL каждые 2 минуты + сразу после загрузки (OnBootSec=30) — страница GitHub Pages обновляется не позже ~2-3 мин после смены URL туннеля.
+  - Подтверждено: watchdog работает (журнал "URL актуален"), GitHub Pages показывает актуальный URL.
 - **2026-08-25 (v1.13.1): Кнопки Старт/Стоп + статус на GitHub Pages**
   - **Cloudflare Tunnel** к серверу: `https://wires-yields-members-generator.trycloudflare.com` (systemd-сервис cloudflared-tunnel, автозапуск после ребута, Restart=always).
   - **CORS** в web_server.py (end_headers override) — GitHub Pages может вызывать API.
