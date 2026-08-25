@@ -104,7 +104,7 @@ def main():
         print(f"🚀 Запуск: {full}")
         proc = sandbox.commands.run(full, timeout=args.timeout - 60)
         out = (proc.stdout or "")[-4000:]
-        err = (proc.stderr or "")[-2000:]
+        err = (proc.stderr or "")[-4000:]
         print("=" * 60)
         print("=== STDOUT ===")
         print(out)
@@ -132,6 +132,11 @@ def main():
             print("✅ Готово")
     except Exception as e:
         print(f"❌ Ошибка: {e}")
+        try:
+            if proc is not None and hasattr(proc, "stderr") and proc.stderr:
+                print("STDERR:", proc.stderr[-3000:])
+        except Exception:
+            pass
         try:
             sandbox.kill()
         except Exception:
