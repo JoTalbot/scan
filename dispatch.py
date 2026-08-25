@@ -78,6 +78,10 @@ TASKS = {
         "cmd": "python3 port_probe.py --concurrency 50 --timeout 2",
         "local_ok": True, "ssh_ok": True, "codespaces_ok": True, "e2b_ok": True,
     },
+    "e2b_probe": {
+        "cmd": "e2b_targets_audit.py",
+        "local_ok": False, "ssh_ok": False, "codespaces_ok": False, "e2b_ok": True,
+    },
 }
 
 CIRCLE_API = "https://circleci.com/api/v2"
@@ -242,6 +246,28 @@ def dispatch(task, shards, batch, ports, parallel, force_ssh, task_text=""):
         print(f"[{get_now()}] ✅ Агент завершился (rc={p.returncode}). Лог: {logfile}")
         return
     workers = available_workers(force_ssh)
+    if task == "e2b_probe":
+        import sqlite3
+        conn = sqlite3.connect("/root/scan/isp_cidr.db")
+        rows = conn.execute("SELECT ip FROM scan_routers WHERE auth_checked=0 LIMIT ?",
+                            (max(1, batch),)).fetchall()
+        conn.close()
+        ips = [r[0] for r in rows]
+        if not ips:
+            print("Нет непроверенных роутеров")
+            return
+        tfile = "/tmp/e2b_targets.txt"
+        with open(tfile, "w") as f:
+            f.write("\n".join(ips))
+        print(f"[{get_now()}] E2B-аудит {len(ips)} целей (mode=http)")
+        cmd = ("cd /root/scan && E2B_API_KEY=$(grep E2B_API_KEY .env | cut -d= -f2) "
+               "timeout 900 .venv/bin/python e2b_audit.py --script e2b_targets_audit.py "
+               "--args '--targets-file /tmp/e2b_targets.txt --mode http' --upload " + tfile)
+        os.makedirs("logs/dispatch", exist_ok=True)
+        p = run_local(cmd, "logs/dispatch/e2b_probe.log")
+        p.wait()
+        print(f"[{get_now()}] OK E2B-аудит завершён (rc={p.returncode}). Лог: logs/dispatch/e2b_probe.log")
+        return
     print(f"[{get_now()}] Задача: {task} | шардов: {shards} | исполнители: "
           f"{[w['type'] for w in workers]}")
 

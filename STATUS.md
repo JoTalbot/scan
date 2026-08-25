@@ -185,6 +185,12 @@
 
 ## 📜 Журнал завершенных этапов (Milestone Changelog)
 
+- **2026-08-25 (v1.10.1): E2B проверен — рабочий режим найден (малые батчи, аудит целей)**
+  - Диагностика ресурсов: E2B base = 478 МБ RAM / 2 CPU. Скан с большой БД → OOM (EXIT=137) уже на 300 IP.
+  - Решение: `e2b_targets_audit.py` — лёгкий аудитор целей БЕЗ БД (socket); файл целей загружается в песочницу (--upload в /tmp).
+  - `dispatch.py e2b_probe --batch N` — берёт непроверенные роутеры из БД и отдаёт в песочницу.
+  - Проверено end-to-end: 5 целей за ~1 мин, rc=0; найден **SonicWALL 216.30.179.192** (HTTP 302) среди 5.
+  - Полный скан в E2B невозможен (RAM) — для сканов используем circleci/local, для точечного аудита — E2B.
 - **2026-08-25 (v1.10.0): OpenHands агент — ПОЛНЫЙ ЦИКЛ РАБОТАЕТ**
   - Ключ sk-oh-... в .env (OPENHANDS_API_KEY), API app.all-hands.dev/api/v1/app-conversations.
   - `openhands_agent.py`: создание разговора → поллинг search (execution_status) → события агента → git diff.
