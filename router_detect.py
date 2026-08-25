@@ -101,6 +101,7 @@ TITLE_RULES = [
     ("SonicWALL",   DEVICE_FIREWALL, CONF_HIGH, r"sonicwall",                             None),
     ("Sagemcom",    DEVICE_ROUTER,   CONF_HIGH, r"sagemcom",                              None),
     ("Technicolor", DEVICE_ROUTER,   CONF_HIGH, r"technicolor",                           None),
+    ("Hikvision",   DEVICE_ROUTER,   CONF_HIGH, r"hikvision",                             None),
     ("TP-Link",     DEVICE_ROUTER,   CONF_HIGH, r"wireless (n )?(lite )?router",
                                                               r"(?i)(tl-wr[a-z0-9]+|wr[a-z0-9]{3,})"),
 ]
