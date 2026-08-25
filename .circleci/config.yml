@@ -79,6 +79,11 @@ jobs:
       - run:
           name: Синхронизация с GitHub
           command: |
+            if [ -n "$GITHUB_TOKEN" ]; then
+              git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/JoTalbot/scan.git"
+              git config user.email "circleci@users.noreply.github.com"
+              git config user.name "circleci-worker"
+            fi
             python3 sync_manager.py "circleci-<< pipeline.parameters.JOB >>-<< pipeline.parameters.SHARD >>" || echo "sync пропущен"
       - store_artifacts:
           path: data/scans
