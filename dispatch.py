@@ -186,10 +186,11 @@ def run_circleci(job, params, logfile, token):
     try:
         with urllib.request.urlopen(req, timeout=60) as resp:
             data = _json.loads(resp.read().decode())
+        pid = data.get("id")          # нужен id для опроса /pipeline/{id}/workflow
         num = data.get("number")
-        log.write(f"pipeline #{num} запущен: {data.get('state')}\n")
+        log.write(f"pipeline #{num} (id={pid}) запущен: {data.get('state')}\n")
         log.flush()
-        return num
+        return pid
     except Exception as e:
         log.write(f"circleci error: {e}\n")
         log.flush()
@@ -197,8 +198,9 @@ def run_circleci(job, params, logfile, token):
 
 
 def run_e2b(script_cmd, logfile, shard):
-    """Запуск в E2B песочнице через e2b_audit.py."""
+    """Запуск в E2B песочнице через e2b_audit.py (venv, где установлен e2b)."""
     log = open(logfile, "w")
+    py = "/root/scan/.venv/bin/python" if os.path.exists("/root/scan/.venv/bin/python") else sys.executable
     parts = script_cmd.split()
     # имя скрипта — после "python3" (первый токен, оканчивающийся на .py)
     script = None
@@ -211,7 +213,7 @@ def run_e2b(script_cmd, logfile, shard):
         log.close()
         return subprocess.Popen(["true"])
     args = " ".join(parts[parts.index(script) + 1:])
-    p = subprocess.Popen([sys.executable, "e2b_audit.py", "--script", script,
+    p = subprocess.Popen([py, "e2b_audit.py", "--script", script,
                           "--args", args],
                          stdout=log, stderr=subprocess.STDOUT)
     return p
