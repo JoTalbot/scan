@@ -6,6 +6,7 @@ Runs on 0.0.0.0:8000 and serves an interactive search, analytics, and export das
 
 import http.server
 import socketserver
+import sys
 import json
 import sqlite3
 import urllib.parse
@@ -62,6 +63,11 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json(self.get_audit_stats())
         elif path == "/api/routers_geo":
             self.send_json(self.get_routers_geo())
+        elif path == "/api/status":
+            self.send_json(self.get_orch_status())
+        elif path == "/api/control":
+            action = params.get("action", [""])[0]
+            self.send_json(self.orch_control(action))
         elif path == "/" or path == "/index.html":
             self.serve_html()
         else:
@@ -114,6 +120,39 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
             if cc in coords:
                 out.append({"ip": ip, "vendor": vendor, "lat": coords[cc][0], "lon": coords[cc][1], "cc": cc})
         return {"count": len(out), "points": out}
+
+    def get_orch_status(self):
+        """Статус оркестратора из state-файла."""
+        import json as _json
+        sf = os.path.join(os.path.dirname(os.path.abspath(__file__)), "orchestrator_state.json")
+        if os.path.exists(sf):
+            try:
+                with open(sf, encoding="utf-8") as f:
+                    return _json.load(f)
+            except Exception:
+                pass
+        return {"state": "STOPPED", "current_step": "idle", "cycles": 0,
+                "last_cycle": None, "errors": []}
+
+    def orch_control(self, action):
+        """start|stop — управление оркестратором."""
+        import subprocess as _sp
+        base = os.path.dirname(os.path.abspath(__file__))
+        if action == "start":
+            try:
+                r = _sp.run([sys.executable, os.path.join(base, "orchestrator.py"), "start"],
+                            capture_output=True, text=True, timeout=30)
+                return {"ok": True, "message": (r.stdout or r.stderr).strip()[:200]}
+            except Exception as e:
+                return {"ok": False, "message": str(e)[:200]}
+        elif action == "stop":
+            try:
+                r = _sp.run([sys.executable, os.path.join(base, "orchestrator.py"), "stop"],
+                            capture_output=True, text=True, timeout=30)
+                return {"ok": True, "message": "Остановка после текущего цикла..."}
+            except Exception as e:
+                return {"ok": False, "message": str(e)[:200]}
+        return {"ok": False, "message": "action должен быть start|stop"}
 
     def get_audit_stats(self):
         conn = self.get_conn()
@@ -863,6 +902,8 @@ async function init() {
   loadRouters();
   loadAuditStats();
   loadGeo();
+  loadOrchStatus();
+  orchTimer = setInterval(loadOrchStatus, 5000);
 }
 
 async function loadStats() {
@@ -1144,6 +1185,44 @@ async function loadAuditStats() {
   } catch (e) { console.log('audit err', e); }
 }
 
+// ===== Оркестратор (управление) =====
+let orchTimer = null;
+
+async function orchControl(action) {
+  try {
+    const res = await fetch('/api/control?action=' + action);
+    const d = await res.json();
+    document.getElementById('orchMsg').textContent = d.message || '';
+    setTimeout(loadOrchStatus, 1500);
+  } catch (e) { console.log('ctrl err', e); }
+}
+
+async function loadOrchStatus() {
+  try {
+    const res = await fetch('/api/status');
+    const d = await res.json();
+    const badge = document.getElementById('orchStateBadge');
+    const step = document.getElementById('orchStep');
+    const st = d.state || 'STOPPED';
+    if (st === 'RUNNING') { badge.textContent = '🟢 RUNNING'; badge.style.background = '#238636'; }
+    else if (st === 'STOPPING') { badge.textContent = '🟡 STOPPING'; badge.style.background = '#9e6a03'; }
+    else { badge.textContent = '🔴 STOPPED'; badge.style.background = '#21262d'; }
+    step.textContent = 'Шаг: ' + (d.current_step || 'idle') + ' | Циклов: ' + (d.cycles || 0);
+    const stats = document.getElementById('orchStats');
+    let html = '';
+    if (d.last_cycle) {
+      html += 'Последний цикл: ' + (d.last_cycle.at || '') +
+        ' | новых роутеров: ' + (d.last_cycle.new_routers ?? 0) +
+        ' | всего: ' + (d.last_cycle.total_routers ?? 0) +
+        ' | pending raw: ' + (d.last_cycle.pending_raw ?? 0) +
+        ' | pending browser: ' + (d.last_cycle.pending_browser ?? 0);
+    }
+    if (d.last_scan_at) html += '<br>Последний скан: ' + d.last_scan_at + ' | найдено: ' + (d.last_routers_found ?? 0);
+    if (d.errors && d.errors.length) html += '<br><span style="color:#da3633;">Ошибки: ' + d.errors.slice(-2).join('; ') + '</span>';
+    stats.innerHTML = html || '';
+  } catch (e) { console.log('orch err', e); }
+}
+
 async function loadGeo() {
   try {
     const res = await fetch('/api/routers_geo');
@@ -1183,6 +1262,21 @@ window.onload = init;
       <rect x="0" y="0" width="1000" height="500" fill="#0d1117"/>
       <text x="500" y="250" fill="#8b949e" text-anchor="middle">Загрузка карты...</text>
     </svg>
+  </div>
+
+  <!-- Orchestrator Control -->
+  <div class="section" style="margin-top:24px;border:1px solid #58a6ff;border-radius:8px;padding:16px;">
+    <h2>🎛️ Управление сканированием</h2>
+    <div id="orchStatus" style="margin-bottom:12px;font-size:14px;">
+      <span id="orchStateBadge" style="padding:4px 12px;border-radius:12px;background:#21262d;color:#8b949e;">—</span>
+      <span id="orchStep" style="margin-left:12px;color:#c9d1d9;">—</span>
+    </div>
+    <div>
+      <button id="btnStart" onclick="orchControl('start')" style="padding:10px 28px;border-radius:8px;border:none;background:#238636;color:#fff;font-size:15px;cursor:pointer;margin-right:12px;">▶️ Старт</button>
+      <button id="btnStop" onclick="orchControl('stop')" style="padding:10px 28px;border-radius:8px;border:none;background:#da3633;color:#fff;font-size:15px;cursor:pointer;">⏹ Стоп</button>
+      <span id="orchMsg" style="margin-left:12px;color:#8b949e;font-size:13px;"></span>
+    </div>
+    <div id="orchStats" style="margin-top:12px;font-size:13px;color:#8b949e;"></div>
   </div>
 
   <!-- Router Audit Section -->
