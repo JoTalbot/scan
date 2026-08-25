@@ -1,0 +1,23 @@
+{
+  "agents": [
+    {
+      "id": "supervisor",
+      "role": "orchestrator",
+      "status": "active",
+      "capabilities": [
+        "heartbeat_monitoring",
+        "task_recovery",
+        "agent_coordination"
+      ]
+    },
+    {
+      "id": "scanner",
+      "role": "security_scanner",
+      "status": "available",
+      "capabilities": [
+        "code_scan",
+        "dependency_audit"
+      ]
+    }
+  ]
+}
