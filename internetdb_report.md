@@ -1,8 +1,8 @@
 # 🌐 InternetDB Enrichment Report
 
-**Сформирован:** 2026-08-25T09:35:06Z
+**Сформирован:** 2026-08-25T10:28:43Z
 
-**IP с данными:** 497 из 549
+**IP с данными:** 523 из 575
 
 ## 🛡️ CVE по данным InternetDB
 
@@ -52,6 +52,7 @@
 | 188.117.196.128 | TP-Link | [CVE-2012-6708](https://nvd.nist.gov/vuln/detail/CVE-2012-6708) | 80,443 |
 | 46.216.213.192 | TP-Link | [CVE-2012-6708](https://nvd.nist.gov/vuln/detail/CVE-2012-6708) | 80 |
 | 213.91.190.176 | Huawei | [CVE-2012-6708](https://nvd.nist.gov/vuln/detail/CVE-2012-6708) | 8080 |
+| 95.47.59.160 | TP-Link | [CVE-2012-6708](https://nvd.nist.gov/vuln/detail/CVE-2012-6708) | 80,7547 |
 | 93.123.57.247 | MikroTik | [CVE-2013-0941](https://nvd.nist.gov/vuln/detail/CVE-2013-0941) | 53,80,81,82,1080 |
 | 5.161.88.0 | Fortinet | [CVE-2013-0941](https://nvd.nist.gov/vuln/detail/CVE-2013-0941) | 80,443 |
 | 91.149.165.16 | D-Link | [CVE-2013-0941](https://nvd.nist.gov/vuln/detail/CVE-2013-0941) | 21,80,8080 |
@@ -80,6 +81,7 @@
 | 188.117.196.128 | TP-Link | [CVE-2015-9251](https://nvd.nist.gov/vuln/detail/CVE-2015-9251) | 80,443 |
 | 46.216.213.192 | TP-Link | [CVE-2015-9251](https://nvd.nist.gov/vuln/detail/CVE-2015-9251) | 80 |
 | 213.91.190.176 | Huawei | [CVE-2015-9251](https://nvd.nist.gov/vuln/detail/CVE-2015-9251) | 8080 |
+| 95.47.59.160 | TP-Link | [CVE-2015-9251](https://nvd.nist.gov/vuln/detail/CVE-2015-9251) | 80,7547 |
 | 199.189.241.32 | SonicWALL | [CVE-2016-10009](https://nvd.nist.gov/vuln/detail/CVE-2016-10009) | 22,443 |
 | 66.231.29.224 | SonicWALL | [CVE-2016-10009](https://nvd.nist.gov/vuln/detail/CVE-2016-10009) | 22,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2016-10010](https://nvd.nist.gov/vuln/detail/CVE-2016-10010) | 22,443 |
@@ -234,6 +236,7 @@
 | 188.117.196.128 | TP-Link | [CVE-2019-11358](https://nvd.nist.gov/vuln/detail/CVE-2019-11358) | 80,443 |
 | 46.216.213.192 | TP-Link | [CVE-2019-11358](https://nvd.nist.gov/vuln/detail/CVE-2019-11358) | 80 |
 | 213.91.190.176 | Huawei | [CVE-2019-11358](https://nvd.nist.gov/vuln/detail/CVE-2019-11358) | 8080 |
+| 95.47.59.160 | TP-Link | [CVE-2019-11358](https://nvd.nist.gov/vuln/detail/CVE-2019-11358) | 80,7547 |
 | 82.160.138.224 | MikroTik | [CVE-2019-13074](https://nvd.nist.gov/vuln/detail/CVE-2019-13074) | 22,23,80,4440,4443 |
 | 212.32.43.160 | MikroTik | [CVE-2019-13074](https://nvd.nist.gov/vuln/detail/CVE-2019-13074) | 23,80,2000,8291,8728 |
 | 91.149.165.16 | D-Link | [CVE-2019-13224](https://nvd.nist.gov/vuln/detail/CVE-2019-13224) | 21,80,8080 |
@@ -300,6 +303,7 @@
 | 188.117.196.128 | TP-Link | [CVE-2020-11022](https://nvd.nist.gov/vuln/detail/CVE-2020-11022) | 80,443 |
 | 46.216.213.192 | TP-Link | [CVE-2020-11022](https://nvd.nist.gov/vuln/detail/CVE-2020-11022) | 80 |
 | 213.91.190.176 | Huawei | [CVE-2020-11022](https://nvd.nist.gov/vuln/detail/CVE-2020-11022) | 8080 |
+| 95.47.59.160 | TP-Link | [CVE-2020-11022](https://nvd.nist.gov/vuln/detail/CVE-2020-11022) | 80,7547 |
 | 136.239.109.176 | Zyxel | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 80 |
 | 153.75.215.128 | Zyxel | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 22,80,161,443,7547 |
 | 93.115.8.192 | Zyxel | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 22,80,443 |
@@ -310,6 +314,7 @@
 | 188.117.196.128 | TP-Link | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 80,443 |
 | 46.216.213.192 | TP-Link | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 80 |
 | 213.91.190.176 | Huawei | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 8080 |
+| 95.47.59.160 | TP-Link | [CVE-2020-11023](https://nvd.nist.gov/vuln/detail/CVE-2020-11023) | 80,7547 |
 | 91.149.165.16 | D-Link | [CVE-2020-11579](https://nvd.nist.gov/vuln/detail/CVE-2020-11579) | 21,80,8080 |
 | 82.160.138.224 | MikroTik | [CVE-2020-11881](https://nvd.nist.gov/vuln/detail/CVE-2020-11881) | 22,23,80,4440,4443 |
 | 85.187.232.16 | MikroTik | [CVE-2020-11881](https://nvd.nist.gov/vuln/detail/CVE-2020-11881) | 21,22,53,80,161 |
@@ -419,6 +424,7 @@
 | 188.117.196.128 | TP-Link | [CVE-2020-7656](https://nvd.nist.gov/vuln/detail/CVE-2020-7656) | 80,443 |
 | 46.216.213.192 | TP-Link | [CVE-2020-7656](https://nvd.nist.gov/vuln/detail/CVE-2020-7656) | 80 |
 | 213.91.190.176 | Huawei | [CVE-2020-7656](https://nvd.nist.gov/vuln/detail/CVE-2020-7656) | 8080 |
+| 95.47.59.160 | TP-Link | [CVE-2020-7656](https://nvd.nist.gov/vuln/detail/CVE-2020-7656) | 80,7547 |
 | 93.123.57.247 | MikroTik | [CVE-2020-9490](https://nvd.nist.gov/vuln/detail/CVE-2020-9490) | 53,80,81,82,1080 |
 | 91.149.165.16 | D-Link | [CVE-2020-9490](https://nvd.nist.gov/vuln/detail/CVE-2020-9490) | 21,80,8080 |
 | 188.172.240.233 | OPNsense | [CVE-2021-23017](https://nvd.nist.gov/vuln/detail/CVE-2021-23017) | 80,443 |
@@ -428,6 +434,7 @@
 | 213.136.52.214 | OpenWrt | [CVE-2021-23017](https://nvd.nist.gov/vuln/detail/CVE-2021-23017) | 22,80,443 |
 | 213.136.52.216 | OpenWrt | [CVE-2021-23017](https://nvd.nist.gov/vuln/detail/CVE-2021-23017) | 22,80,443 |
 | 213.136.52.219 | OpenWrt | [CVE-2021-23017](https://nvd.nist.gov/vuln/detail/CVE-2021-23017) | 22,80 |
+| 195.226.144.192 | OpenWrt | [CVE-2021-23017](https://nvd.nist.gov/vuln/detail/CVE-2021-23017) | 80 |
 | 93.123.57.247 | MikroTik | [CVE-2021-26690](https://nvd.nist.gov/vuln/detail/CVE-2021-26690) | 53,80,81,82,1080 |
 | 91.149.165.16 | D-Link | [CVE-2021-26690](https://nvd.nist.gov/vuln/detail/CVE-2021-26690) | 21,80,8080 |
 | 93.123.57.247 | MikroTik | [CVE-2021-26691](https://nvd.nist.gov/vuln/detail/CVE-2021-26691) | 53,80,81,82,1080 |
@@ -469,6 +476,7 @@
 | 213.136.52.214 | OpenWrt | [CVE-2021-3618](https://nvd.nist.gov/vuln/detail/CVE-2021-3618) | 22,80,443 |
 | 213.136.52.216 | OpenWrt | [CVE-2021-3618](https://nvd.nist.gov/vuln/detail/CVE-2021-3618) | 22,80,443 |
 | 213.136.52.219 | OpenWrt | [CVE-2021-3618](https://nvd.nist.gov/vuln/detail/CVE-2021-3618) | 22,80 |
+| 195.226.144.192 | OpenWrt | [CVE-2021-3618](https://nvd.nist.gov/vuln/detail/CVE-2021-3618) | 80 |
 | 213.136.53.171 | OPNsense | [CVE-2021-36368](https://nvd.nist.gov/vuln/detail/CVE-2021-36368) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2021-36368](https://nvd.nist.gov/vuln/detail/CVE-2021-36368) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2021-36368](https://nvd.nist.gov/vuln/detail/CVE-2021-36368) | 22,53,80,554,5985 |
@@ -608,6 +616,7 @@
 | 213.136.52.214 | OpenWrt | [CVE-2023-44487](https://nvd.nist.gov/vuln/detail/CVE-2023-44487) | 22,80,443 |
 | 213.136.52.216 | OpenWrt | [CVE-2023-44487](https://nvd.nist.gov/vuln/detail/CVE-2023-44487) | 22,80,443 |
 | 213.136.52.219 | OpenWrt | [CVE-2023-44487](https://nvd.nist.gov/vuln/detail/CVE-2023-44487) | 22,80 |
+| 195.226.144.192 | OpenWrt | [CVE-2023-44487](https://nvd.nist.gov/vuln/detail/CVE-2023-44487) | 80 |
 | 93.123.57.247 | MikroTik | [CVE-2023-45802](https://nvd.nist.gov/vuln/detail/CVE-2023-45802) | 53,80,81,82,1080 |
 | 91.149.165.16 | D-Link | [CVE-2023-45802](https://nvd.nist.gov/vuln/detail/CVE-2023-45802) | 21,80,8080 |
 | 213.136.53.171 | OPNsense | [CVE-2023-48795](https://nvd.nist.gov/vuln/detail/CVE-2023-48795) | 22,53,80,443 |
@@ -687,6 +696,7 @@
 | 213.136.52.214 | OpenWrt | [CVE-2025-23419](https://nvd.nist.gov/vuln/detail/CVE-2025-23419) | 22,80,443 |
 | 213.136.52.216 | OpenWrt | [CVE-2025-23419](https://nvd.nist.gov/vuln/detail/CVE-2025-23419) | 22,80,443 |
 | 213.136.52.219 | OpenWrt | [CVE-2025-23419](https://nvd.nist.gov/vuln/detail/CVE-2025-23419) | 22,80 |
+| 195.226.144.192 | OpenWrt | [CVE-2025-23419](https://nvd.nist.gov/vuln/detail/CVE-2025-23419) | 80 |
 | 213.136.53.171 | OPNsense | [CVE-2025-26465](https://nvd.nist.gov/vuln/detail/CVE-2025-26465) | 22,53,80,443 |
 | 199.189.241.32 | SonicWALL | [CVE-2025-26465](https://nvd.nist.gov/vuln/detail/CVE-2025-26465) | 22,443 |
 | 128.1.33.16 | MikroTik | [CVE-2025-26465](https://nvd.nist.gov/vuln/detail/CVE-2025-26465) | 22,53,80,554,5985 |
@@ -850,21 +860,21 @@
 
 | Порт | Устройств |
 |---|---|
-| 80 | 395 |
-| 22 | 137 |
-| 2000 | 111 |
-| 8291 | 106 |
+| 80 | 410 |
+| 22 | 140 |
+| 2000 | 119 |
+| 8291 | 114 |
 | 443 | 101 |
-| 8728 | 75 |
-| 21 | 72 |
-| 8080 | 69 |
-| 53 | 57 |
+| 8728 | 81 |
+| 8080 | 79 |
+| 21 | 77 |
+| 53 | 59 |
+| 161 | 37 |
 | 23 | 37 |
-| 161 | 36 |
-| 7547 | 24 |
-| 1701 | 21 |
-| 1723 | 17 |
-| 554 | 13 |
+| 7547 | 27 |
+| 1701 | 24 |
+| 1723 | 19 |
+| 554 | 15 |
 
 ---
 *Данные Shodan InternetDB (обновление еженедельно).*
