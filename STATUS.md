@@ -194,6 +194,13 @@
 
 ## 📜 Журнал завершенных этапов (Milestone Changelog)
 
+- **2026-08-25 (v1.12.0): SNMP-скрипт, авто-отчёт, GitHub Pages, очистка БД**
+  - **№8 Агент: snmp_cve_check.py** (коммит 798620c) — проверка UDP 161 + community public/private для 12 MikroTik из CVE_PRIORITY: **0/12 открытых** (CVE-2022-45315 не эксплуатируем).
+  - **№10 Агент: generate_report.py** (коммит 66e29f7) — секции: последние роутеры, ссылка на CVE_PRIORITY.
+  - **№12 GitHub Pages**: включён (https://jotalbot.github.io/scan/), workflow deploy_pages.yml — отчёты в HTML (README/REPORT/CVE/internetdb).
+  - **№14 Авто-аудит**: cron (каждые 6ч) + AUDIT_MODE=auto в pipeline (browser+csb+e2b dispatch) — подтверждено.
+  - **Очистка**: cleanup_non_routers.py — удалено **3,554,387 записей не-роутеров**, 28 чанков; БД **905 МБ → 91 МБ** (VACUUM), архив 24.76 МБ. Осталось: 755 scan_results (только роутерные IP) + 433 роутера.
+  - Fix: daily-report workflow (LFS pull для isp_cidr.db.gz).
 - **2026-08-25 (v1.11.1): Скан-приоритизация + ИИ-агент: детектор и CVE-анализ**
   - **№2 Скан с приоритизацией ISP** (`--isp-words cable,dsl,fiber...`): 100k за 158 сек, **+47 роутеров** (плотность выше обычного ~30). Всего: 3,555,142 IP, 433 роутера.
   - **№8 Агент расширил детектор**: OpenHands добавил сигнатуру Hikvision в router_detect.py (коммит `2ff3695` от openhands@all-hands.dev) — проверено: title "Hikvision Camera" → vendor Hikvision, тесты 21/21 ✅.
