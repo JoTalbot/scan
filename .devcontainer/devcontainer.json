@@ -1,0 +1,22 @@
+{
+  "name": "RouterScan Worker",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      }
+    }
+  },
+  "postCreateCommand": "pip install --no-cache-dir paramiko playwright==1.62.0 pytest && python -m playwright install --with-deps chromium && pip install -e . 2>/dev/null || true && echo 'RouterScan worker ready'",
+  "postStartCommand": "echo '[$(date)] Codespaces worker started' >> /workspaces/*/logs/codespaces.log 2>/dev/null || true"
+}
