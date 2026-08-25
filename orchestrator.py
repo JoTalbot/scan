@@ -78,26 +78,61 @@ def setup_logger():
     return logger
 
 
-def run_step(logger, name, cmd, timeout=3600):
-    """Запуск шага, логирование, проверка остановки."""
+def run_step(logger, name, cmd, timeout=3600, interruptible=False):
+    """Запуск шага, логирование. Если interruptible — при STOPPING убивает процесс."""
     logger.info(f"STEP {name}: {cmd[:100]}")
     save_state(current_step=name)
     env = dict(os.environ)
+    p = None
     try:
         p = subprocess.Popen(f"cd {BASE_DIR} && ulimit -n 65535 2>/dev/null; {cmd}",
-                             shell=True, env=env,
+                             shell=True, env=env, start_new_session=True,
                              stdout=open(os.path.join(BASE_DIR, "logs", f"orchestrator_{name}.log"), "w"),
                              stderr=subprocess.STDOUT)
-        p.wait(timeout=timeout)
-        logger.info(f"STEP {name} done rc={p.returncode}")
-        return p.returncode
-    except subprocess.TimeoutExpired:
-        p.kill()
-        logger.warning(f"STEP {name} TIMEOUT")
-        return -1
+        # ждём с проверкой остановки каждые 5 сек (если interruptible)
+        while True:
+            try:
+                rc = p.wait(timeout=5)
+                logger.info(f"STEP {name} done rc={rc}")
+                return rc
+            except subprocess.TimeoutExpired:
+                if interruptible and get_state().get("state") == "STOPPING":
+                    logger.info(f"STEP {name} прерван (STOPPING)")
+                    _kill_proc(p)
+                    return -2  # прерван
+                continue
     except Exception as e:
         logger.error(f"STEP {name} error: {e}")
+        if p:
+            _kill_proc(p)
         return -1
+
+
+def _kill_proc(p):
+    """Мягко остановить процесс и его детей: SIGTERM, ждём 5с, затем SIGKILL.
+    SIGKILL сразу опасен для SQLite (повреждение WAL) — поэтому сначала TERM."""
+    import signal as _sig
+    try:
+        os.killpg(os.getpgid(p.pid), _sig.SIGTERM)
+    except Exception:
+        try:
+            p.terminate()
+        except Exception:
+            pass
+    # ждём graceful shutdown
+    try:
+        p.wait(timeout=5)
+        return
+    except Exception:
+        pass
+    # не завершился — жёсткий kill (последний резерв)
+    try:
+        os.killpg(os.getpgid(p.pid), _sig.SIGKILL)
+    except Exception:
+        try:
+            p.kill()
+        except Exception:
+            pass
 
 
 def db_count(table="scan_routers"):
@@ -116,8 +151,9 @@ def run_cycle(logger):
     logger.info("=== CYCLE START ===")
     save_state(current_step="scan")
 
-    # 1. скан батча
-    rc = run_step(logger, "scan", STEPS["scan"].format(batch=BATCH, ports=PORTS), timeout=3600)
+    # 1. скан батча (НЕ прерывается — дожидается конца 100k)
+    rc = run_step(logger, "scan", STEPS["scan"].format(batch=BATCH, ports=PORTS),
+                  timeout=3600, interruptible=False)
 
     routers_before = db_count()
     new_routers = db_count() - routers_before if routers_before >= 0 else 0
@@ -147,27 +183,29 @@ def run_cycle(logger):
     def stopping():
         return get_state().get("state") == "STOPPING"
 
+    # Остальные модули прерываются СРАЗУ при STOPPING (максимум 5 сек задержки)
     if pending_raw > 0:
-        run_step(logger, "raw_audit", STEPS["raw_audit"], timeout=900)
-    if stopping():
-        logger.info("STOP requested — завершаю цикл после raw_audit")
-        return _finish_cycle(logger, rc, new_routers, total, pending_raw, pending_br)
+        rc2 = run_step(logger, "raw_audit", STEPS["raw_audit"], timeout=900, interruptible=True)
+        if rc2 == -2:
+            logger.info("STOP — останавливаю остальные модули")
+            return _finish_cycle(logger, rc, new_routers, total, pending_raw, pending_br)
     if pending_br > 0:
-        run_step(logger, "browser_audit", STEPS["browser_audit"], timeout=2400)
-    if stopping():
-        logger.info("STOP requested — завершаю цикл после browser_audit")
-        return _finish_cycle(logger, rc, new_routers, total, pending_raw, pending_br)
+        rc2 = run_step(logger, "browser_audit", STEPS["browser_audit"], timeout=2400, interruptible=True)
+        if rc2 == -2:
+            logger.info("STOP — останавливаю остальные модули")
+            return _finish_cycle(logger, rc, new_routers, total, pending_raw, pending_br)
     if pending_br > 0:
-        run_step(logger, "csb_probe", STEPS["csb_probe"], timeout=1200)
-        run_step(logger, "e2b_probe", STEPS["e2b_probe"], timeout=1200)
-    if stopping():
-        logger.info("STOP requested — завершаю цикл после probe")
-        return _finish_cycle(logger, rc, new_routers, total, pending_raw, pending_br)
+        rc2 = run_step(logger, "csb_probe", STEPS["csb_probe"], timeout=1200, interruptible=True)
+        if rc2 == -2:
+            return _finish_cycle(logger, rc, new_routers, total, pending_raw, pending_br)
+        rc2 = run_step(logger, "e2b_probe", STEPS["e2b_probe"], timeout=1200, interruptible=True)
+        if rc2 == -2:
+            return _finish_cycle(logger, rc, new_routers, total, pending_raw, pending_br)
     if new_routers > 0:
-        run_step(logger, "internetdb", STEPS["internetdb"], timeout=600)
+        run_step(logger, "internetdb", STEPS["internetdb"], timeout=600, interruptible=True)
 
-    # 3. sync
-    run_step(logger, "sync", STEPS["sync"], timeout=900)
+    # 3. sync (всегда выполняется, но тоже прерываемый — если стоп нажат)
+    rc2 = run_step(logger, "sync", STEPS["sync"], timeout=900, interruptible=True)
     return _finish_cycle(logger, rc, new_routers, total, pending_raw, pending_br)
 
 
