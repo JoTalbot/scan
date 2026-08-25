@@ -12,7 +12,7 @@ import urllib.parse
 import os
 import ipaddress
 
-PORT = 8000
+PORT = 8899
 DB_PATH = os.path.join(os.path.dirname(__file__), "isp_cidr.db")
 
 def get_db():
@@ -354,9 +354,6 @@ class ISPHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(content)
 
     def serve_html(self):
-        with open("/home/user/web_server.py", "r", encoding="utf-8") as f:
-            full_code = f.read()
-        
         html_code = """<!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -838,6 +835,8 @@ async function init() {
   runSearch();
   loadTopUa();
   loadTopCountries();
+  loadRouters();
+  loadAuditStats();
 }
 
 async function loadStats() {
@@ -1086,8 +1085,53 @@ function escapeHtml(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
+// ===== Роутеры и аудит =====
+async function loadRouters() {
+  try {
+    const res = await fetch('/api/routers?limit=30');
+    const data = await res.json();
+    const tb = document.getElementById('routerTable');
+    if (!tb) return;
+    tb.innerHTML = '';
+    document.getElementById('routerCount').textContent = data.count + ' показано';
+    data.routers.forEach(r => {
+      const tr = document.createElement('tr');
+      const st = r.auth_result || r.browser_result || 'not-checked';
+      tr.innerHTML = `<td>${esc(r.ip)}</td><td>${esc(r.vendor || '-')}</td><td>${esc(r.model || '-')}</td>
+        <td>${esc(r.device_type || '-')}</td><td>${esc(st)}</td><td>${esc(r.extra_ports || '')}</td>`;
+      tb.appendChild(tr);
+    });
+  } catch (e) { console.log('routers err', e); }
+}
+
+async function loadAuditStats() {
+  try {
+    const res = await fetch('/api/audit_stats');
+    const d = await res.json();
+    const el = document.getElementById('auditStats');
+    if (!el) return;
+    let html = `<b>Роутеров всего: ${d.total_routers || 0}</b> | Пар: ${d.total_creds || 0}<br>`;
+    for (const [k, v] of Object.entries(d)) {
+      if (k.startsWith('raw:') || k.startsWith('browser:')) html += `<span class="badge-tag">${esc(k)}: ${v}</span> `;
+    }
+    el.innerHTML = html;
+  } catch (e) { console.log('audit err', e); }
+}
+
 window.onload = init;
 </script>
+
+  <!-- Router Audit Section -->
+  <div class="section" style="margin-top:24px;">
+    <h2>🛜 Обнаруженные роутеры <span id="routerCount" style="font-size:14px;color:#8b949e;"></span></h2>
+    <div id="auditStats" style="margin-bottom:12px;"></div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead><tr style="color:#58a6ff;text-align:left;">
+        <th style="padding:6px;">IP</th><th>Вендор</th><th>Модель</th><th>Тип</th><th>Статус аудита</th><th>Доп. порты</th>
+      </tr></thead>
+      <tbody id="routerTable"></tbody>
+    </table>
+  </div>
 
 </body>
 </html>

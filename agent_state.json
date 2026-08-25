@@ -1,18 +1,8 @@
 {
   "project": "ISP CIDR Multi-Agent Database",
   "version": "1.0.0",
-  "last_updated": "2026-08-24T23:46:12Z",
-  "active_agents": [
-    {
-      "agent_id": "Agent-Arena-01",
-      "machine_id": "Unknown",
-      "task_name": "Task in progress",
-      "current_step": "v1.7.0: multiport+shards+realm+GH Actions done",
-      "status": "IN_PROGRESS",
-      "started_at": "2026-08-24T23:11:56Z",
-      "updated_at": "2026-08-24T23:46:12Z"
-    }
-  ],
+  "last_updated": "2026-08-25T00:08:16Z",
+  "active_agents": [],
   "tasks": {
     "TASK-01": {
       "title": "Database Construction",

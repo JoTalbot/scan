@@ -1,14 +1,14 @@
 # 📊 Ежедневный отчёт — RouterScan Project
 
-**Сформирован:** 2026-08-24 23:45 UTC
+**Сформирован:** 2026-08-25 00:04 UTC
 
 ## 📈 Общая статистика
 
 | Метрика | Значение |
 | :--- | :---: |
-| Просканировано IP | 1,585,675 |
-| Веб-баннеров | 43,152 |
-| Роутеров обнаружено | 284 |
+| Просканировано IP | 2,180,500 |
+| Веб-баннеров | 50,271 |
+| Роутеров обнаружено | 327 |
 | Проверено raw-каналами | 263 |
 | Проверено браузером | 143 |
 | Найдено пар | 0 |
@@ -17,31 +17,31 @@
 
 | Вендор | Кол-во |
 | :--- | :---: |
-| MikroTik | 124 |
-| Generic DSL Router | 32 |
-| SonicWALL | 28 |
-| Zyxel | 23 |
-| Keenetic | 14 |
-| OpenWrt | 14 |
-| Cisco | 10 |
-| TP-Link | 7 |
+| MikroTik | 137 |
+| Generic DSL Router | 40 |
+| SonicWALL | 29 |
+| Zyxel | 27 |
+| OpenWrt | 19 |
+| Keenetic | 15 |
+| Cisco | 11 |
+| TP-Link | 10 |
 | Ubiquiti | 7 |
-| httpd | 5 |
-| GoAhead | 4 |
+| httpd | 6 |
+| GoAhead | 5 |
 | OPNsense | 4 |
+| micro_httpd | 4 |
+| D-Link | 3 |
 | Check Point | 2 |
-| D-Link | 2 |
-| NETGEAR | 2 |
 
 ## 🔍 Статусы аудита (raw)
 
 | Статус | Кол-во |
 | :--- | :---: |
 | no-verifiable-channel | 115 |
+| not-checked | 64 |
 | rest-no-match | 57 |
 | basic-no-match | 41 |
 | mikrotik_api-no-match | 28 |
-| not-checked | 21 |
 | sonicwall-no-match | 10 |
 | luci-no-match | 8 |
 | unreachable | 3 |
@@ -55,16 +55,16 @@ _Пар не найдено._
 
 | Server | Кол-во |
 | :--- | :---: |
-| nginx | 10501 |
-| (hidden) | 6373 |
-| CloudFront | 4227 |
-| AkamaiGHost | 2694 |
-| Apache | 2609 |
-| cloudflare | 2181 |
-| Caddy | 962 |
-| nginx/1.24.0 (Ubuntu) | 928 |
-| LiteSpeed | 772 |
-| nginx/1.18.0 (Ubuntu) | 695 |
+| nginx | 11341 |
+| (hidden) | 7472 |
+| CloudFront | 5141 |
+| AkamaiGHost | 3295 |
+| Apache | 3059 |
+| cloudflare | 2873 |
+| nginx/1.24.0 (Ubuntu) | 1118 |
+| Caddy | 1106 |
+| LiteSpeed | 921 |
+| nginx/1.18.0 (Ubuntu) | 829 |
 
 ---
 *Авто-отчёт, генерируется GitHub Actions ежедневно.*
