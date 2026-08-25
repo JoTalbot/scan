@@ -1,0 +1,9 @@
+{
+  "nodes": [],
+  "edges": [],
+  "relations": {
+    "error_to_solution": [],
+    "solution_to_skill": [],
+    "skill_to_agent": []
+  }
+}
