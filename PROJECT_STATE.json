@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "project": "RouterScan",
+  "version": "1.1.0-hardening",
+  "status": "hardening",
+  "source_of_truth": "PROJECT_STATE.json",
+  "active_work": [],
+  "completed_foundation": [
+    "database",
+    "firewall_exports",
+    "cli",
+    "dashboard",
+    "multi_agent_protocol",
+    "github_sync"
+  ],
+  "quality_gates": {
+    "authorized_targets_required": true,
+    "public_credential_redaction_required": true,
+    "ci_required": true,
+    "tests_required": true
+  },
+  "backlog": {
+    "p0": [
+      "SCAN-SEC-001",
+      "SCAN-SEC-002",
+      "SCAN-SEC-003",
+      "SCAN-SEC-004"
+    ],
+    "p1": [
+      "SCAN-ARCH-001",
+      "SCAN-ARCH-002",
+      "SCAN-ARCH-003",
+      "SCAN-DET-001",
+      "SCAN-DET-002",
+      "SCAN-CI-001",
+      "SCAN-CI-002",
+      "SCAN-DOC-001"
+    ],
+    "p2": [
+      "SCAN-OBS-001",
+      "SCAN-OBS-002",
+      "SCAN-DOC-002",
+      "SCAN-REL-001",
+      "SCAN-TEST-001"
+    ]
+  }
+}
