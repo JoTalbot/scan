@@ -12,7 +12,7 @@ This backlog is the canonical implementation order for the current hardening cyc
 ## P1
 
 - [x] SCAN-ARCH-001 Make `PROJECT_STATE.json` the machine-readable source of truth.
-- [ ] SCAN-ARCH-002 Make distributed jobs resumable and shard-idempotent.
+- [ ] SCAN-ARCH-002 Make distributed jobs resumable and shard-idempotent. Durable job/shard state is implemented and wired into the standalone/multimachine and Codespaces worker lifecycles; dispatcher-level shard launch still needs to route through the same executor before this item is closed.
 - [x] SCAN-ARCH-003 Replace hard-coded scanner limits with central configuration and bounded concurrency.
 - [ ] SCAN-DET-001 Add multi-signal router detection scoring.
 - [ ] SCAN-DET-002 Expand router detection regression coverage.
