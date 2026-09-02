@@ -12,7 +12,7 @@ from pathlib import Path
 _MAX_STRING = 256
 _SAFE_ID = re.compile(r"[^A-Za-z0-9_.:-]+")
 _SENSITIVE_KEY = re.compile(
-    r"(?:token|secret|password|passwd|authorization|auth|credential|api[_-]?key|private[_-]?key|target|inventory|header)",
+    r"(?:token|secret|password|passwd|authorization|auth|credential|api[_-]?key|private[_-]?key|target|inventory|header|scope(?:[_-]?ref)?)",
     re.IGNORECASE,
 )
 
