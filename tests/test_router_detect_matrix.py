@@ -6,7 +6,8 @@ def test_strong_server_header_scores_high():
     assert result["vendor"] == "MikroTik"
     assert result["confidence"] == "high"
     assert result["score"] >= 0.8
-    assert result["matched_on"] == ["server_header"]
+    assert result["matched_on"] == "server_header"
+    assert result["matched_sources"] == ["server_header"]
 
 
 def test_independent_realm_and_title_signals_agree():
@@ -15,7 +16,7 @@ def test_independent_realm_and_title_signals_agree():
     assert result["vendor"] == "TP-Link"
     assert result["confidence"] == "high"
     assert result["score"] > 0.8
-    assert set(result["matched_on"]) >= {"realm", "title"}
+    assert set(result["matched_sources"]) >= {"realm", "title"}
     assert len(result["signals"]) >= 2
 
 
@@ -23,7 +24,8 @@ def test_specific_banner_is_usable_without_active_probe():
     result = detect_router(None, None, "OpenWrt LuCI administration interface")
     assert result["vendor"] == "OpenWrt"
     assert result["confidence"] == "high"
-    assert result["matched_on"] == ["banner"]
+    assert result["matched_on"] == "banner"
+    assert result["matched_sources"] == ["banner"]
     assert result["score"] >= 0.8
 
 
@@ -53,6 +55,7 @@ def test_model_signal_is_preserved():
     assert result["vendor"] == "TP-Link"
     assert result["model"] == "WR741ND"
     assert "realm" in result["matched_on"]
+    assert "realm" in result["matched_sources"]
 
 
 def test_scoring_is_deterministic():
