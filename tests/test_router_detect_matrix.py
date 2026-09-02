@@ -6,7 +6,7 @@ def test_strong_server_header_scores_high():
     assert result["vendor"] == "MikroTik"
     assert result["confidence"] == "high"
     assert result["score"] >= 0.8
-    assert result["matched_on"] == "server_header"
+    assert result["matched_on"] == ["server_header"]
 
 
 def test_independent_realm_and_title_signals_agree():
@@ -46,7 +46,7 @@ def test_cisco_umbrella_is_not_misclassified_as_router():
 
 def test_model_signal_is_preserved():
     result = detect_router(
-        "Router Webserver",
+        "Web server",
         "Login",
         'WWW-Authenticate: Basic realm="TP-Link Wireless Lite N Router WR741ND"',
     )
