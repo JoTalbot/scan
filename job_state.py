@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
-"""Durable, resumable and shard-idempotent scan job state.
-
-State contains operational metadata only. Targets, credentials and secrets must
-never be persisted here.
-"""
+"""Durable, resumable and shard-idempotent scan job state."""
 
 import json
 import os
 import tempfile
 from contextlib import contextmanager
 from datetime import datetime, timezone
+
+import observability
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_STATE_FILE = os.path.join(BASE_DIR, "job_state.json")
@@ -44,7 +42,7 @@ def _state_lock(path):
         try:
             import fcntl
             fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
-        except ImportError:  # pragma: no cover - Windows fallback
+        except ImportError:
             pass
         try:
             yield
@@ -52,7 +50,7 @@ def _state_lock(path):
             try:
                 import fcntl
                 fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
-            except ImportError:  # pragma: no cover
+            except ImportError:
                 pass
 
 
@@ -95,23 +93,16 @@ def start_job(job_id, *, authorization_ref, scope_ref, state_path=DEFAULT_STATE_
         state = load_state(state_path)
         existing = state["jobs"].get(job_id)
         if existing and existing.get("status") == "completed":
+            observability.emit("job.resume_skipped", job_id=job_id, reason="already_completed")
             return existing
-        record = existing or {
-            "job_id": job_id,
-            "status": "pending",
-            "completed_steps": [],
-            "completed_shards": [],
-            "created_at": _now(),
-        }
+        record = existing or {"job_id": job_id, "status": "pending", "completed_steps": [],
+                              "completed_shards": [], "created_at": _now()}
         record.setdefault("completed_shards", [])
-        record.update({
-            "status": "running",
-            "scope_ref": str(scope_ref),
-            "authorization_ref": str(authorization_ref),
-            "updated_at": _now(),
-        })
+        record.update({"status": "running", "scope_ref": str(scope_ref),
+                       "authorization_ref": str(authorization_ref), "updated_at": _now()})
         state["jobs"][job_id] = record
         save_state(state, state_path)
+        observability.emit("job.started", job_id=job_id)
         return record
 
 
@@ -131,9 +122,7 @@ def mark_step(job_id, step, *, state_path=DEFAULT_STATE_FILE):
 
 
 def step_completed(job_id, step, *, state_path=DEFAULT_STATE_FILE):
-    return _validate_step(step) in load_state(state_path)["jobs"].get(
-        _validate_job_id(job_id), {}
-    ).get("completed_steps", [])
+    return _validate_step(step) in load_state(state_path)["jobs"].get(_validate_job_id(job_id), {}).get("completed_steps", [])
 
 
 def complete_job(job_id, *, state_path=DEFAULT_STATE_FILE):
@@ -144,6 +133,8 @@ def complete_job(job_id, *, state_path=DEFAULT_STATE_FILE):
             raise KeyError(job_id)
         state["jobs"][job_id].update({"status": "completed", "updated_at": _now()})
         save_state(state, state_path)
+        observability.emit("job.completed", job_id=job_id,
+                           shard_total=state["jobs"][job_id].get("shard_total"))
         return state["jobs"][job_id]
 
 
