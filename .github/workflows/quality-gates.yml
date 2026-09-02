@@ -1,0 +1,49 @@
+name: Quality Gates
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install test dependencies
+        run: python -m pip install --upgrade pip pytest
+      - name: Compile Python sources
+        run: python -m compileall -q .
+      - name: Run tests
+        run: python -m pytest -q
+
+  policy:
+    name: Repository policy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject obvious secret material
+        shell: bash
+        run: |
+          set -euo pipefail
+          ghp_prefix='ghp_'
+          sk_prefix='sk-'
+          openai_key='OPENAI_'"'"'API_KEY='"'"''
+          private_key='BEGIN (RSA|OPENSSH|EC) PRIVATE KEY'
+          secret_pattern="(^|[^A-Za-z0-9_])(${ghp_prefix}[A-Za-z0-9_]{20,}|${sk_prefix}[A-Za-z0-9_-]{20,}|${openai_key}[^<[:space:]]+|${private_key})"
+          if git grep -I -nE "$secret_pattern" -- . ':!*.md' ':!SECURITY_POLICY.md'; then
+            echo 'Potential credential material detected in tracked source.' >&2
+            exit 1
+          fi
+      - name: Validate project state JSON
+        run: python -m json.tool PROJECT_STATE.json >/dev/null
