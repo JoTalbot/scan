@@ -22,8 +22,9 @@ def test_independent_realm_and_title_signals_agree():
 def test_specific_banner_is_usable_without_active_probe():
     result = detect_router(None, None, "OpenWrt LuCI administration interface")
     assert result["vendor"] == "OpenWrt"
-    assert result["confidence"] == "medium"
+    assert result["confidence"] == "low"
     assert result["matched_on"] == "banner"
+    assert result["score"] >= 0.1
 
 
 def test_generic_web_server_does_not_get_high_confidence():
