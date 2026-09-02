@@ -18,4 +18,4 @@ jobs:
       - name: Install test dependencies
         run: python -m pip install --upgrade pip pytest
       - name: Run security and detector tests
-        run: python -m pytest tests/test_report_sanitize.py tests/test_router_scan.py -q
+        run: python -m pytest tests/test_report_sanitize.py tests/test_router_scan.py tests/test_public_repo_policy.py tests/test_public_artifacts.py tests/test_dashboard_credential_boundary.py tests/test_sync_manager_security.py tests/test_sync_manager_public_exports.py -q
