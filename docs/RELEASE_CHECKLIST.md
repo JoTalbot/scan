@@ -5,8 +5,9 @@
 - [x] Active probing has an explicit authorization reference.
 - [x] Target scope is explicit and bounded.
 - [x] Credentials and tokens are supplied outside Git.
-- [ ] Public reports/history are fully sanitized. **P0 blocker: SCAN-SEC-004.**
+- [x] Public reports/history are sanitized; live targets and credential evidence are excluded.
 - [x] CI policy checks are green.
+- [x] No open P0 security blockers remain.
 
 ## Distributed execution
 
@@ -30,6 +31,7 @@
 - [x] Source compilation passes.
 - [x] `PROJECT_STATE.json` is valid and current.
 - [x] Architecture, observability, security, and release documentation match the implementation.
+- [x] Public artifact regression tests cover credentials and target addresses.
 
 ## Post-release
 
@@ -38,4 +40,6 @@
 
 ## Release decision
 
-**Current decision: release candidate only.** Do not publish an unrestricted production release until `SCAN-SEC-004` is closed and the checklist is revalidated.
+**Production release approved pending final CI validation of this branch.**
+
+Release tag: `v1.3.0`
