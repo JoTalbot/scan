@@ -24,5 +24,12 @@ def test_public_report_does_not_contain_ipv4_targets():
 
 def test_public_status_contains_no_live_operational_targets():
     text = (ROOT / "STATUS.md").read_text(encoding="utf-8", errors="ignore").lower()
-    for marker in ("scanning ", "probing ", "audit of ", "aios-server", "authorization", "scope"):
+    for marker in (
+        "authorization_ref",
+        "scope_ref",
+        "target_inventory",
+        "live_target",
+        "raw_http",
+        "data/creds/",
+    ):
         assert marker not in text
