@@ -2,52 +2,11 @@
   "schema_version": 1,
   "project": "RouterScan",
   "version": "1.3.0",
-  "status": "release-ready-with-security-followups",
+  "status": "production-ready",
   "source_of_truth": "PROJECT_STATE.json",
   "active_work": [],
-  "completed_foundation": [
-    "database",
-    "firewall_exports",
-    "cli",
-    "dashboard",
-    "multi_agent_protocol",
-    "github_sync",
-    "canonical_project_state",
-    "resumable_job_state",
-    "durable_dispatch_completion",
-    "multi_signal_detection",
-    "cross_version_ci",
-    "repository_policy_gates",
-    "release_readiness_docs",
-    "privacy_safe_observability",
-    "job_shard_lifecycle_telemetry",
-    "detection_telemetry_contract",
-    "dashboard_observability_status",
-    "release_documentation",
-    "release_versioning_policy",
-    "pipeline_recovery_integration_tests"
-  ],
-  "quality_gates": {
-    "authorized_targets_required": true,
-    "public_credential_redaction_required": true,
-    "ci_required": true,
-    "tests_required": true,
-    "resumable_jobs_required": true,
-    "shard_idempotency_required": true,
-    "job_completion_requires_all_shards": true,
-    "telemetry_must_be_privacy_safe": true,
-    "telemetry_must_not_store_raw_targets": true,
-    "supported_python_floor": "3.10"
-  },
-  "backlog": {
-    "p0": ["SCAN-SEC-004"],
-    "p1_completed_in_batch": [
-      "SCAN-ARCH-002", "SCAN-ARCH-003", "SCAN-DET-001", "SCAN-DET-002",
-      "SCAN-CI-001", "SCAN-CI-002", "SCAN-DOC-001"
-    ],
-    "p2_completed_in_observability": ["SCAN-OBS-001", "SCAN-OBS-002"],
-    "p2_completed_in_release": ["SCAN-DOC-002", "SCAN-REL-001", "SCAN-TEST-001"],
-    "p2": ["SCAN-OBS-003", "SCAN-OBS-004", "SCAN-DASH-003"]
-  },
-  "next_phase": "security-remediation"
+  "completed_foundation": ["database", "firewall_exports", "cli", "dashboard", "multi_agent_protocol", "github_sync", "canonical_project_state", "resumable_job_state", "durable_dispatch_completion", "multi_signal_detection", "cross_version_ci", "repository_policy_gates", "release_readiness_docs", "privacy_safe_observability", "job_shard_lifecycle_telemetry", "detection_telemetry_contract", "dashboard_observability_status", "release_documentation", "release_versioning_policy", "pipeline_recovery_integration_tests", "public_artifact_sanitization"],
+  "quality_gates": {"authorized_targets_required": true, "public_credential_redaction_required": true, "ci_required": true, "tests_required": true, "resumable_jobs_required": true, "shard_idempotency_required": true, "job_completion_requires_all_shards": true, "telemetry_must_be_privacy_safe": true, "telemetry_must_not_store_raw_targets": true, "supported_python_floor": "3.10"},
+  "backlog": {"p0": [], "p1_completed_in_batch": ["SCAN-ARCH-002", "SCAN-ARCH-003", "SCAN-DET-001", "SCAN-DET-002", "SCAN-CI-001", "SCAN-CI-002", "SCAN-DOC-001"], "p2_completed_in_observability": ["SCAN-OBS-001", "SCAN-OBS-002"], "p2_completed_in_release": ["SCAN-DOC-002", "SCAN-REL-001", "SCAN-TEST-001"], "security_completed_in_production_batch": ["SCAN-SEC-004"], "p2": ["SCAN-OBS-003", "SCAN-OBS-004", "SCAN-DASH-003"]},
+  "next_phase": "maintenance"
 }
