@@ -169,24 +169,50 @@ def export_credentials(agent_id="aios"):
 
 
 def sync_to_github(commit_msg=None):
+    """Sync only sanitized public exports to an explicitly configured non-main branch."""
     os.chdir(BASE_DIR)
+    sync_branch = os.environ.get("SCAN_SYNC_BRANCH", "").strip()
+    if not sync_branch:
+        raise RuntimeError("SCAN_SYNC_BRANCH is required for automated Git sync")
+    if sync_branch in {"main", "master"}:
+        raise RuntimeError("Automated Git sync to protected main/master is forbidden")
+    if sync_branch.startswith("-") or any(c.isspace() for c in sync_branch):
+        raise RuntimeError("Invalid SCAN_SYNC_BRANCH")
     if not commit_msg:
-        commit_msg = f"chore(sync): automated data sync & scan chunks at {datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
-    print("🚀 Отправка изменений в Git...")
-    subprocess.run(["git", "add", "data/", "STATUS.md", "agent_state.json", "*.py", "*.sh", "*.md"], check=False)
-    db_size_mb = os.path.getsize(DB_FILE) / (1024 * 1024) if os.path.exists(DB_FILE) else 0
-    if db_size_mb < 95.0:
-        subprocess.run(["git", "add", "isp_cidr.db"], check=False)
-    else:
-        subprocess.run(["git", "add", "isp_cidr.db.gz"], check=False)
-    subprocess.run(["git", "commit", "-m", commit_msg], check=False)
+        commit_msg = f"chore(sync): sanitized data sync at {datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
+    print(f"🚀 Отправка только санитизированных экспортов в ветку {sync_branch}...")
+
+    # Never stage the whole data tree, source files, agent state, or databases.
+    public_paths = [
+        "data/scans/",
+        "data/routers/",
+        "data/creds/",
+        "STATUS.md",
+    ]
+    subprocess.run(["git", "add", "--"] + public_paths, check=True)
+
+    staged = subprocess.run(
+        ["git", "diff", "--cached", "--name-only"],
+        check=True, capture_output=True, text=True,
+    ).stdout.splitlines()
+    allowed_prefixes = ("data/scans/", "data/routers/", "data/creds/")
+    allowed_exact = {"STATUS.md"}
+    if any(not (path in allowed_exact or path.startswith(allowed_prefixes)) for path in staged):
+        subprocess.run(["git", "reset", "--"] + staged, check=False)
+        raise RuntimeError("Staging policy violation: unexpected file selected for public sync")
+
+    commit = subprocess.run(["git", "commit", "-m", commit_msg], capture_output=True, text=True)
+    if commit.returncode not in (0, 1):
+        raise RuntimeError(commit.stderr or commit.stdout or "git commit failed")
+    if commit.returncode == 1 and "nothing to commit" not in (commit.stdout + commit.stderr).lower():
+        raise RuntimeError(commit.stderr or commit.stdout or "git commit failed")
+
     env = dict(os.environ, GIT_TERMINAL_PROMPT="0")
-    subprocess.run(["git", "pull", "--rebase", "origin", "main"], check=False, env=env, capture_output=True, text=True)
-    res = subprocess.run(["git", "push", "origin", "main"], capture_output=True, text=True, env=env)
-    if res.returncode == 0:
-        print("🎉 Успешно синхронизировано с GitHub!")
-    else:
-        print(f"⚠️ Git push output: {res.stderr or res.stdout}")
+    subprocess.run(["git", "pull", "--rebase", "origin", sync_branch], check=True, env=env, capture_output=True, text=True)
+    res = subprocess.run(["git", "push", "origin", f"HEAD:{sync_branch}"], check=False, capture_output=True, text=True, env=env)
+    if res.returncode != 0:
+        raise RuntimeError(res.stderr or res.stdout or "git push failed")
+    print("🎉 Безопасный sync успешно отправлен в GitHub!")
 
 
 def main():
