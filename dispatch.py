@@ -1,525 +1,203 @@
 #!/usr/bin/env python3
-"""
-RouterScan Dispatcher — раздача задач по исполнителям (машинам)
-================================================================
-Генерирует N шардов задачи и раздаёт их доступным исполнителям:
+"""Fail-closed dispatcher for RouterScan jobs.
 
-  * local      — N процессов на этом сервере (всегда доступен)
-  * ssh        — машины из MACHINES="ip1,ip2,..." (Oracle ARM, VPS и т.д.)
-  * codespaces — GitHub Codespaces через gh CLI (если установлен+авторизован)
-  * e2b        — E2B песочницы (если есть E2B_API_KEY)
-
-Порядок приоритета: ssh → codespaces → e2b → local (последние добивают local'ом).
-
-Задачи:
-  * scan        — port_scanner.py run --batch N --shard i/total
-  * audit_raw   — router_auth_check.py --fast
-  * audit_browser — router_auth_browser.py --only-no-channel
-  * internetdb  — internetdb_enrich.py
-  * probe       — port_probe.py
-
-Usage:
-    python3 dispatch.py scan --batch 100000 --shards 4
-    python3 dispatch.py audit_raw --shards 2
-    python3 dispatch.py scan --batch 100000 --shards 6 --force-ssh "10.0.0.2,10.0.0.3"
-    MACHINES="10.0.0.2,10.0.0.3" python3 dispatch.py scan --batch 100000 --shards 4
-
-Флаг --parallel: исполнители работают одновременно (по умолчанию последовательно).
+Scan shards are always launched through ``resumable_dispatch.py`` so durable
+job/shard state, authorization and bounded concurrency apply to every launch.
+Non-scan legacy jobs remain available as single local subprocesses; active
+scan/audit entrypoints enforce their own authorization boundaries.
 """
 
-import os
-import sys
-import time
-import json
-import shutil
 import argparse
+import os
+import shutil
 import subprocess
-import datetime
+import sys
+from pathlib import Path
 
-def _load_env():
-    """Загрузка .env (ключи E2B/CircleCI) в os.environ."""
-    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
-    if os.path.exists(env_path):
-        with open(env_path) as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    k, v = line.split("=", 1)
-                    os.environ.setdefault(k.strip(), v.strip())
+from authorization import require_authorization
+
+BASE_DIR = Path(__file__).resolve().parent
+DEFAULT_BATCH = 10_000
+DEFAULT_CONCURRENCY = 100
+DEFAULT_MAX_CONCURRENCY = 500
+DEFAULT_TIMEOUT = 2.0
 
 
-_load_env()
-
-REPO = "https://github.com/JoTalbot/scan.git"
-TASKS = {
-    "dev": {
-        "cmd": "openhands_agent.py --task \"{task}\"",
-        "local_ok": True, "ssh_ok": False, "codespaces_ok": False, "e2b_ok": False,
-    },
-    "scan": {
-        "cmd": "python3 port_scanner.py run --batch {batch} --shard {shard} --shard-total {total} "
-               "--concurrency 1000 --timeout 1.0 --ports {ports}",
-        "local_ok": True, "ssh_ok": True, "codespaces_ok": True, "e2b_ok": True,
-    },
-    "audit_raw": {
-        "cmd": "python3 router_auth_check.py --fast --concurrency 30 --timeout 4",
-        "local_ok": True, "ssh_ok": True, "codespaces_ok": True, "e2b_ok": True,
-    },
-    "audit_browser": {
-        "cmd": ".venv/bin/python -u router_auth_browser.py --only-no-channel --pairs 8 "
-               "--concurrency 4 --timeout 7 --wait 2.5",
-        "local_ok": True, "ssh_ok": True, "codespaces_ok": True, "e2b_ok": True,
-    },
-    "internetdb": {
-        "cmd": "python3 internetdb_enrich.py --delay 0.2",
-        "local_ok": True, "ssh_ok": True, "codespaces_ok": True, "e2b_ok": True,
-    },
-    "probe": {
-        "cmd": "python3 port_probe.py --concurrency 50 --timeout 2",
-        "local_ok": True, "ssh_ok": True, "codespaces_ok": True, "e2b_ok": True,
-    },
-    "e2b_probe": {
-        "cmd": "e2b_targets_audit.py",
-        "local_ok": False, "ssh_ok": False, "codespaces_ok": False, "e2b_ok": True,
-    },
-    "csb_probe": {
-        "cmd": "csb_audit.js",
-        "local_ok": False, "ssh_ok": False, "codespaces_ok": False, "e2b_ok": False, "csb_ok": True,
-    },
-}
-
-CIRCLE_API = "https://circleci.com/api/v2"
-CIRCLE_PROJECT = "gh/JoTalbot/scan"  # заменить на ваш slug при необходимости
+def _positive_int(value, name):
+    value = int(value)
+    if value <= 0:
+        raise ValueError(f"{name} must be positive")
+    return value
 
 
-def get_now():
-    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-
-
-# ---------------------------------------------------------------------------
-# Исполнители
-# ---------------------------------------------------------------------------
-def available_workers(force_ssh=None):
-    """Возвращает список доступных исполнителей с их ёмкостью (сколько шардов могут взять)."""
+def _workers(force_ssh=None):
     workers = []
-
-    # 1. SSH-машины
     machines = force_ssh or os.environ.get("MACHINES", "")
-    if machines:
-        ssh_list = [m.strip() for m in machines.split(",") if m.strip()]
-        if ssh_list:
-            workers.append({"type": "ssh", "machines": ssh_list})
-
-    # 2. Codespaces (gh CLI)
-    gh = shutil.which("gh")
-    gh_ok = False
-    if gh:
-        r = subprocess.run([gh, "auth", "status"], capture_output=True, text=True, timeout=15)
-        gh_ok = r.returncode == 0
-    if gh_ok:
-        workers.append({"type": "codespaces", "cli": gh})
-
-    # 3. E2B
-    if os.environ.get("E2B_API_KEY"):
-        workers.append({"type": "e2b"})
-
-    # 3b. CircleCI (токен + проект подключён)
-    if os.environ.get("CIRCLE_CI_TOKEN"):
+    for machine in (m.strip() for m in machines.split(",")):
+        if machine:
+            workers.append(("ssh", machine))
+    if shutil.which("gh"):
         try:
-            r = subprocess.run(
-                ["curl", "-s", "-H", f"Circle-Token: {os.environ['CIRCLE_CI_TOKEN']}",
-                 f"{CIRCLE_API}/project/{CIRCLE_PROJECT}"],
-                capture_output=True, text=True, timeout=20)
-            if '"slug"' in (r.stdout or ""):
-                workers.append({"type": "circleci"})
-        except Exception:
+            result = subprocess.run(["gh", "auth", "status"], capture_output=True,
+                                    text=True, timeout=15)
+            if result.returncode == 0:
+                workers.append(("codespaces", None))
+        except (OSError, subprocess.SubprocessError):
             pass
-
-    # 4. local (всегда)
-    workers.append({"type": "local"})
-
+    workers.append(("local", None))
     return workers
 
 
-def run_local(cmd, logfile, env_extra=None):
-    """Запуск команды локально в фоне."""
-    env = dict(os.environ)
-    if env_extra:
-        env.update(env_extra)
-    log = open(logfile, "w")
-    p = subprocess.Popen(f"ulimit -n 65535 2>/dev/null; {cmd}", shell=True,
-                         stdout=log, stderr=subprocess.STDOUT, env=env)
-    return p
+def _scan_argv(job_id, shard, total, batch, ports, concurrency, max_concurrency, timeout):
+    return [
+        sys.executable, str(BASE_DIR / "resumable_dispatch.py"),
+        "--job-id", job_id,
+        "--authorization-ref", os.environ["SCAN_AUTHORIZATION_REF"],
+        "--scope-ref", os.environ["SCAN_SCOPE_REF"],
+        "--shard", str(shard), "--shard-total", str(total),
+        "--batch", str(batch), "--ports", ports,
+        "--concurrency", str(concurrency),
+        "--max-concurrency", str(max_concurrency),
+        "--timeout", str(timeout),
+    ]
 
 
-def run_ssh(machine, cmd, logfile):
-    """Запуск команды на SSH-машине в фоне."""
-    log = open(logfile, "w")
-    remote = f"cd /root/scan && git pull --rebase origin main 2>/dev/null; ulimit -n 65535 2>/dev/null; {cmd} > /root/scan/logs/dispatch.log 2>&1 &"
-    p = subprocess.Popen(["ssh", "-o", "StrictHostKeyChecking=no", f"root@{machine}", remote],
-                         stdout=log, stderr=subprocess.STDOUT)
-    return p
+def _validate_scan(batch, shards, concurrency, max_concurrency, timeout):
+    _positive_int(batch, "batch")
+    _positive_int(shards, "shards")
+    _positive_int(concurrency, "concurrency")
+    _positive_int(max_concurrency, "max_concurrency")
+    if concurrency > max_concurrency:
+        raise ValueError("concurrency exceeds max_concurrency")
+    if float(timeout) <= 0:
+        raise ValueError("timeout must be positive")
 
 
-def run_codespaces(cli, cmd, logfile, name):
-    """Запуск в Codespace через gh CLI."""
-    log = open(logfile, "w")
-    # создание кодаспейса и выполнение команды
-    r = subprocess.run([cli, "codespace", "create", "--repo", REPO, "--display-name", name],
-                       capture_output=True, text=True, timeout=300)
-    cs_name = None
-    for line in (r.stdout or "").splitlines():
-        if line.strip():
-            cs_name = line.strip().split()[-1]
-    if not cs_name:
-        log.write(f"codespace create failed: {r.stdout} {r.stderr}")
-        log.close()
-        return None
-    time.sleep(10)  # даём загрузиться
-    p = subprocess.Popen([cli, "codespace", "ssh", "-c", "-c", cmd, "-c", "-c", cs_name],
-                         stdout=log, stderr=subprocess.STDOUT)
-    p.cs_name = cs_name  # type: ignore
-    return p
+def _run_local(argv, logfile=None):
+    if logfile:
+        logfile.parent.mkdir(parents=True, exist_ok=True)
+        with logfile.open("w", encoding="utf-8") as log:
+            return subprocess.run(argv, cwd=BASE_DIR, stdout=log, stderr=subprocess.STDOUT).returncode
+    return subprocess.run(argv, cwd=BASE_DIR).returncode
 
 
-def run_circleci(job, params, logfile, token):
-    """Запуск job на CircleCI через API v2. Возвращает pipeline number или None."""
-    import urllib.request
-    import json as _json
-    log = open(logfile, "w")
-    body = _json.dumps({
-        "branch": "main",
-        "parameters": {k: v for k, v in params.items()},
-    }).encode()
-    req = urllib.request.Request(
-        f"{CIRCLE_API}/project/{CIRCLE_PROJECT}/pipeline",
-        data=body, method="POST",
-        headers={"Circle-Token": token, "Content-Type": "application/json"})
-    try:
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            data = _json.loads(resp.read().decode())
-        pid = data.get("id")          # нужен id для опроса /pipeline/{id}/workflow
-        num = data.get("number")
-        log.write(f"pipeline #{num} (id={pid}) запущен: {data.get('state')}\n")
-        log.flush()
-        return pid
-    except Exception as e:
-        log.write(f"circleci error: {e}\n")
-        log.flush()
-        return None
+def _run_ssh(machine, argv, logfile=None):
+    """Run the remote resumable executor synchronously."""
+    remote_root = "/root/scan"
+    remote = "cd " + remote_root + " && " + " ".join(subprocess.list2cmdline([x]) for x in argv)
+    cmd = ["ssh", "-o", "StrictHostKeyChecking=no", f"root@{machine}", remote]
+    return _run_local(cmd, logfile)
 
 
-def run_e2b(script_cmd, logfile, shard):
-    """Запуск в E2B песочнице через e2b_audit.py (venv, где установлен e2b)."""
-    log = open(logfile, "w")
-    py = "/root/scan/.venv/bin/python" if os.path.exists("/root/scan/.venv/bin/python") else sys.executable
-    parts = script_cmd.split()
-    # имя скрипта — после "python3" (первый токен, оканчивающийся на .py)
-    script = None
-    for tok in parts:
-        if tok.endswith(".py"):
-            script = tok
-            break
-    if not script:
-        log.write(f"не найден .py в команде: {script_cmd}\n")
-        log.close()
-        return subprocess.Popen(["true"])
-    args = " ".join(parts[parts.index(script) + 1:])
-    p = subprocess.Popen([py, "e2b_audit.py", "--script", script,
-                          "--args", args],
-                         stdout=log, stderr=subprocess.STDOUT)
-    return p
+def dispatch_scan(shards, batch, ports, parallel, force_ssh=None, job_id=None):
+    """Dispatch all scan shards through the durable resumable executor."""
+    authorization = require_authorization()
+    scope_ref = os.environ.get("SCAN_SCOPE_REF", "").strip()
+    if not scope_ref:
+        raise PermissionError("SCAN_SCOPE_REF is required")
+    if job_id is None:
+        job_id = os.environ.get("SCAN_JOB_ID", "dispatch-scan")
+    if not job_id.strip():
+        raise ValueError("SCAN_JOB_ID is required")
+
+    concurrency = int(os.environ.get("SCAN_CONCURRENCY", DEFAULT_CONCURRENCY))
+    max_concurrency = int(os.environ.get("SCAN_MAX_CONCURRENCY", DEFAULT_MAX_CONCURRENCY))
+    timeout = float(os.environ.get("SCAN_TIMEOUT", DEFAULT_TIMEOUT))
+    _validate_scan(batch, shards, concurrency, max_concurrency, timeout)
+
+    os.environ["SCAN_AUTHORIZATION_REF"] = authorization
+    workers = _workers(force_ssh)
+    assignments = [(workers[i % len(workers)], i) for i in range(shards)]
+    procs = []
+    log_dir = BASE_DIR / "logs" / "dispatch"
+
+    for (worker_type, machine), shard in assignments:
+        argv = _scan_argv(job_id, shard, shards, batch, ports,
+                          concurrency, max_concurrency, timeout)
+        logfile = log_dir / f"scan_shard{shard}.log"
+        if worker_type == "ssh":
+            if parallel:
+                logfile.parent.mkdir(parents=True, exist_ok=True)
+                log = logfile.open("w", encoding="utf-8")
+                p = subprocess.Popen(
+                    ["ssh", "-o", "StrictHostKeyChecking=no", f"root@{machine}",
+                     "cd /root/scan && " + " ".join(subprocess.list2cmdline([x]) for x in argv)],
+                    stdout=log, stderr=subprocess.STDOUT)
+                p._dispatch_log = log  # type: ignore[attr-defined]
+                procs.append((f"ssh:{machine}:shard{shard}", p))
+            else:
+                rc = _run_ssh(machine, argv, logfile)
+                if rc != 0:
+                    return rc
+        else:
+            if parallel:
+                logfile.parent.mkdir(parents=True, exist_ok=True)
+                log = logfile.open("w", encoding="utf-8")
+                p = subprocess.Popen(argv, cwd=BASE_DIR, stdout=log, stderr=subprocess.STDOUT,
+                                     env=os.environ.copy())
+                p._dispatch_log = log  # type: ignore[attr-defined]
+                procs.append((f"{worker_type}:shard{shard}", p))
+            else:
+                rc = _run_local(argv, logfile)
+                if rc != 0:
+                    return rc
+
+    failed = 0
+    for name, proc in procs:
+        rc = proc.wait()
+        log = getattr(proc, "_dispatch_log", None)
+        if log:
+            log.close()
+        if rc != 0:
+            print(f"❌ {name} failed (rc={rc})", file=sys.stderr)
+            failed = rc or 1
+    return failed
 
 
-# ---------------------------------------------------------------------------
-# Раздача
-# ---------------------------------------------------------------------------
 def dispatch(task, shards, batch, ports, parallel, force_ssh, task_text=""):
-    cfg = TASKS[task]
+    if task == "scan":
+        return dispatch_scan(shards, batch, ports, parallel, force_ssh)
     if task == "dev":
         if not task_text:
-            print("❌ Для задачи dev нужен --task-text \"описание задачи\"")
-            return
-        print(f"[{get_now()}] OpenHands агент получает задачу: {task_text[:120]}")
-        cmd = cfg["cmd"].format(task=task_text.replace('"', '\\"')).replace(
-            "openhands_agent.py", "/root/scan/.venv/bin/python /root/scan/openhands_agent.py", 1)
-        os.makedirs("logs/dispatch", exist_ok=True)
-        logfile = "logs/dispatch/dev_openhands.log"
-        p = run_local("cd /root/scan && " + cmd, logfile)
-        p.wait()
-        print(f"[{get_now()}] ✅ Агент завершился (rc={p.returncode}). Лог: {logfile}")
-        return
-    workers = available_workers(force_ssh)
-    if task == "scan":
-        # E2B не может сканировать (OOM на больших батчах) — только circleci/local/codespaces
-        workers = [w for w in workers if w["type"] != "e2b"]
-        if not workers:
-            print("Нет исполнителей для скана (нужен circleci или local)")
-            return
-    if task == "e2b_probe":
-        import sqlite3
-        conn = sqlite3.connect("/root/scan/isp_cidr.db")
-        rows = conn.execute("SELECT ip FROM scan_routers WHERE auth_checked=0 LIMIT ?",
-                            (max(1, batch),)).fetchall()
-        conn.close()
-        ips = [r[0] for r in rows]
-        if not ips:
-            print("Нет непроверенных роутеров")
-            return
-        tfile = "/tmp/e2b_targets.txt"
-        with open(tfile, "w") as f:
-            f.write("\n".join(ips))
-        print(f"[{get_now()}] E2B-аудит {len(ips)} целей (mode=http)")
-        cmd = ("cd /root/scan && E2B_API_KEY=$(grep E2B_API_KEY .env | cut -d= -f2) "
-               "timeout 900 .venv/bin/python e2b_audit.py --script e2b_targets_audit.py "
-               "--args '--targets-file /tmp/e2b_targets.txt --mode http' --upload " + tfile)
-        os.makedirs("logs/dispatch", exist_ok=True)
-        p = run_local(cmd, "logs/dispatch/e2b_probe.log")
-        p.wait()
-        print(f"[{get_now()}] OK E2B-аудит завершён (rc={p.returncode}). Лог: logs/dispatch/e2b_probe.log")
-        return
-    if task == "csb_probe":
-        import sqlite3
-        conn = sqlite3.connect("/root/scan/isp_cidr.db")
-        rows = conn.execute("SELECT ip FROM scan_routers WHERE auth_checked=0 LIMIT ?",
-                            (max(1, batch),)).fetchall()
-        conn.close()
-        ips = [r[0] for r in rows]
-        if not ips:
-            print("Нет непроверенных роутеров")
-            return
-        tfile = "/tmp/csb_targets.txt"
-        with open(tfile, "w") as f:
-            f.write("\n".join(ips))
-        print(f"[{get_now()}] CodeSandbox-аудит {len(ips)} целей (mode=http)")
-        cmd = ("cd /root/scan && CSB_API_KEY=$(grep CODESANDBOX_TOKEN .env | cut -d= -f2) "
-               "timeout 900 node csb_audit.js --file " + tfile + " --mode http")
-        os.makedirs("logs/dispatch", exist_ok=True)
-        p = run_local(cmd, "logs/dispatch/csb_probe.log")
-        p.wait()
-        print(f"[{get_now()}] OK CodeSandbox-аудит завершён (rc={p.returncode}). Лог: logs/dispatch/csb_probe.log")
-        return
-    print(f"[{get_now()}] Задача: {task} | шардов: {shards} | исполнители: "
-          f"{[w['type'] for w in workers]}")
+            raise ValueError("--task-text is required for dev")
+        return _run_local([sys.executable, str(BASE_DIR / "openhands_agent.py"),
+                           "--task", task_text])
 
-    os.makedirs("logs/dispatch", exist_ok=True)
-    procs = []  # (name, proc, worker_type)
-
-    # сканирование раздаётся по шардам; остальные задачи — целые на исполнителях
-    if task == "scan":
-        # распределяем шарды по исполнителям
-        assignments = []  # (worker_type, machine_or_None, shard)
-        wi = 0
-        for shard in range(shards):
-            w = workers[wi % len(workers)]
-            assignments.append((w["type"], w.get("machines", [None])[wi // len(workers)] if w["type"] == "ssh" and w.get("machines") else None, shard))
-            wi += 1
-
-        token = os.environ.get("CIRCLE_CI_TOKEN", "")
-        for i, (wtype, machine, shard) in enumerate(assignments):
-            cmd = cfg["cmd"].format(batch=batch, shard=shard, total=shards, ports=ports)
-            # E2B песочницы имеют лимиты RAM/сети — меньший concurrency
-            if wtype == "e2b":
-                cmd = cmd.replace("--concurrency 1000", "--concurrency 100")
-            name = f"shard{shard}"
-            logfile = f"logs/dispatch/{task}_{name}.log"
-            if wtype == "local":
-                p = run_local(cmd, logfile)
-                procs.append((f"local:{name}", p, "local"))
-                print(f"  ➡️  {name}: local")
-            elif wtype == "ssh":
-                p = run_ssh(machine, cmd, logfile)
-                procs.append((f"ssh:{machine}:{name}", p, "ssh"))
-                print(f"  ➡️  {name}: ssh {machine}")
-            elif wtype == "codespaces":
-                p = run_codespaces(workers[i]["cli"], cmd, logfile, f"rs-{name}")
-                if p:
-                    procs.append((f"codespaces:{name}", p, "codespaces"))
-                    print(f"  ➡️  {name}: codespaces")
-            elif wtype == "circleci":
-                num = run_circleci("worker",
-                                   {"JOB": "scan", "SHARD": shard, "SHARD_TOTAL": shards,
-                                    "BATCH": batch, "PORTS": ports},
-                                   logfile, token)
-                procs.append((f"circleci:{name}", _CircleProc(num, token=token), "circleci"))
-                print(f"  ➡️  {name}: circleci (pipeline #{num})")
-            elif wtype == "e2b":
-                p = run_e2b(cmd, logfile, shard)
-                procs.append((f"e2b:{name}", p, "e2b"))
-                print(f"  ➡️  {name}: e2b")
-    else:
-        # не-скан задачи: по одной на исполнителя (по кругу)
-        for i, w in enumerate(workers):
-            cmd = cfg["cmd"]
-            name = f"job{i}"
-            logfile = f"logs/dispatch/{task}_{name}.log"
-            if w["type"] == "local":
-                p = run_local(cmd, logfile)
-                procs.append((f"local:{name}", p, "local"))
-            elif w["type"] == "ssh":
-                p = run_ssh(w["machines"][0], cmd, logfile)
-                procs.append((f"ssh:{w['machines'][0]}:{name}", p, "ssh"))
-            elif w["type"] == "codespaces":
-                p = run_codespaces(w["cli"], cmd, logfile, f"rs-{name}")
-                if p:
-                    procs.append((f"codespaces:{name}", p, "codespaces"))
-            elif w["type"] == "circleci":
-                num = run_circleci("worker", {"JOB": task}, logfile,
-                                   os.environ.get("CIRCLE_CI_TOKEN", ""))
-                procs.append((f"circleci:{name}", _CircleProc(num, token=os.environ.get("CIRCLE_CI_TOKEN", "")), "circleci"))
-            elif w["type"] == "e2b":
-                p = run_e2b(cmd, logfile, i)
-                procs.append((f"e2b:{name}", p, "e2b"))
-            print(f"  ➡️  {name}: {w['type']}")
-
-    # мониторинг
-    print(f"\n[{get_now()}] Запущено: {len(procs)} исполнителей")
-    if parallel:
-        # ждём все, но не бесконечно: потолок ожидания исполнителя (по умолчанию 45 мин)
-        max_wait = int(os.environ.get("DISPATCH_MAX_WAIT", "2700"))
-        t_start = time.time()
-        while procs:
-            now = time.time()
-            done = []
-            for name, p, wtype in procs:
-                if p.poll() is not None:
-                    rc = p.returncode
-                    print(f"[{get_now()}] ✅ {name} завершён (rc={rc})")
-                    done.append((name, p, wtype))
-            for d in done:
-                procs.remove(d)
-            if procs and now - t_start > max_wait:
-                hung = [n for n, _, _ in procs]
-                print(f"[{get_now()}] ⏰ ТАЙМАУТ {max_wait}s — принудительно завершаю зависших: {hung}")
-                for name, p, wtype in procs:
-                    try:
-                        p.terminate()
-                    except Exception:
-                        pass
-                time.sleep(5)
-                for name, p, wtype in procs:
-                    try:
-                        if p.poll() is None:
-                            p.kill()
-                    except Exception:
-                        pass
-                    print(f"[{get_now()}] ❌ {name} убит по таймауту (rc={p.returncode})")
-                procs = []
-            elif procs:
-                time.sleep(15)
-    else:
-        # последовательно: ждём по одному
-        for name, p, wtype in procs:
-            print(f"[{get_now()}] ожидание {name}...")
-            p.wait()
-            print(f"[{get_now()}] ✅ {name} завершён (rc={p.returncode})")
-
-    # сборка: импорт чанков от всех шардов + синхронизация (главная машина)
-    print(f"\n[{get_now()}] Все исполнители завершены. Импортирую чанки...")
-    if task == "scan":
-        subprocess.run(["git", "pull", "--rebase", "origin", "main"], cwd="/root/scan",
-                       capture_output=True, text=True, timeout=300)
-        subprocess.run([sys.executable, "import_chunks.py"], cwd="/root/scan", timeout=1800)
-        subprocess.run([sys.executable, "sync_manager.py", "dispatch"], cwd="/root/scan", timeout=1800)
-    print(f"[{get_now()}] ✅ Готово")
+    commands = {
+        "audit_raw": [sys.executable, str(BASE_DIR / "router_auth_check.py"), "--fast", "--concurrency", "30", "--timeout", "4"],
+        "audit_browser": [sys.executable, str(BASE_DIR / "router_auth_browser.py"), "--only-no-channel", "--pairs", "8", "--concurrency", "4", "--timeout", "7", "--wait", "2.5"],
+        "internetdb": [sys.executable, str(BASE_DIR / "internetdb_enrich.py"), "--delay", "0.2"],
+        "probe": [sys.executable, str(BASE_DIR / "port_probe.py"), "--concurrency", "50", "--timeout", "2"],
+    }
+    if task not in commands:
+        raise ValueError(f"unsupported dispatch task: {task}")
+    require_authorization()
+    return _run_local(commands[task])
 
 
-class _CircleProc:
-    """Процесс-обёртка над CircleCI pipeline: опрашивает API до завершения."""
-    def __init__(self, pipeline_num, token=""):
-        self.pipeline_num = pipeline_num
-        self.token = token
-        self._done = pipeline_num is None
-        self._status = "success" if self._done else "pending"
-
-    def _workflow_status(self):
-        if not self.pipeline_num:
-            return None
-        try:
-            import urllib.request
-            import json as _json
-            req = urllib.request.Request(
-                f"{CIRCLE_API}/pipeline/{self.pipeline_num}/workflow",
-                headers={"Circle-Token": self.token})
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                d = _json.loads(resp.read().decode())
-            items = d.get("items", [])
-            if items:
-                return items[0].get("status")
-        except Exception:
-            pass
-        return None
-
-    def poll(self):
-        if self._done:
-            return 0
-        st = self._workflow_status()
-        if st in ("success",):
-            self._done = True
-            self._status = "success"
-            return 0
-        if st in ("failed", "canceled", "error", "not_run"):
-            self._done = True
-            self._status = st
-            return 1
-        return None
-
-    def wait(self, timeout=None):
-        import time as _t
-        t0 = _t.time()
-        print(f"  ⏳ pipeline #{self.pipeline_num} на CircleCI...", flush=True)
-        while not self._done:
-            if timeout and _t.time() - t0 > timeout:
-                print("  ⏰ таймаут ожидания CircleCI")
-                break
-            rc = self.poll()
-            if rc is not None:
-                break
-            _t.sleep(20)
-        st = self._status
-        print(f"  ✅ pipeline #{self.pipeline_num}: {st}")
-        return 0 if st == "success" else 1
-
-    @property
-    def returncode(self):
-        return 0 if self._status == "success" else 1
-
-
-def main():
-    parser = argparse.ArgumentParser(description="RouterScan Dispatcher")
-    parser.add_argument("task", nargs="?", choices=list(TASKS.keys()), help="Тип задачи")
-    parser.add_argument("--shards", type=int, default=4, help="Число шардов (для scan)")
-    parser.add_argument("--batch", type=int, default=100000, help="Batch для scan")
-    parser.add_argument("--ports", default="80,8080,8443", help="Порты для scan")
-    parser.add_argument("--parallel", action="store_true", help="Параллельно, а не последовательно")
-    parser.add_argument("--force-ssh", help="Принудительно использовать эти SSH-машины (через запятую)")
-    parser.add_argument("--workers", action="store_true", help="Показать доступных исполнителей")
-    parser.add_argument("--task-text", help="Текст задачи для dev (OpenHands)")
-    args = parser.parse_args()
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="Fail-closed RouterScan dispatcher")
+    parser.add_argument("task", nargs="?", choices=["scan", "dev", "audit_raw", "audit_browser", "internetdb", "probe"])
+    parser.add_argument("--shards", type=int, default=4)
+    parser.add_argument("--batch", type=int, default=int(os.environ.get("SCAN_BATCH", DEFAULT_BATCH)))
+    parser.add_argument("--ports", default=os.environ.get("SCAN_PORTS", "80,8080,8443"))
+    parser.add_argument("--parallel", action="store_true")
+    parser.add_argument("--force-ssh")
+    parser.add_argument("--workers", action="store_true")
+    parser.add_argument("--task-text")
+    parser.add_argument("--job-id", default=os.environ.get("SCAN_JOB_ID", "dispatch-scan"))
+    args = parser.parse_args(argv)
 
     if args.workers or not args.task:
-        ws = available_workers(args.force_ssh)
-        print("Доступные исполнители:")
-        for w in ws:
-            if w["type"] == "ssh":
-                print(f"  ssh: {w['machines']}")
-            elif w["type"] == "codespaces":
-                print("  codespaces (gh CLI авторизован)")
-            elif w["type"] == "e2b":
-                print("  e2b (ключ есть)")
-            elif w["type"] == "circleci":
-                print("  circleci (проект подключён)")
-            else:
-                print("  local")
-        print("\nЗадачи:", ", ".join(TASKS.keys()))
-        if os.environ.get("OPENHANDS_API_KEY"):
-            print("\n🧠 OpenHands агент: ключ есть (задача dev)")
-        print("Пример: python3 dispatch.py scan --batch 100000 --shards 4")
-        return
+        for kind, machine in _workers(args.force_ssh):
+            print(f"{kind}: {machine or 'local'}")
+        return 0
 
-    dispatch(args.task, args.shards, args.batch, args.ports, args.parallel, args.force_ssh,
-             args.task_text)
+    if args.task == "scan":
+        os.environ["SCAN_JOB_ID"] = args.job_id
+    return dispatch(args.task, args.shards, args.batch, args.ports,
+                    args.parallel, args.force_ssh, args.task_text)
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
