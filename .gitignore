@@ -25,3 +25,7 @@ node_modules/
 *.db-wal
 *.db-shm
 *.db-journal
+
+# Local credential/audit exports: never commit operational secrets
+/data/creds/router_credentials_*.csv.gz
+/data/routers/shots/

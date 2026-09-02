@@ -1,0 +1,21 @@
+name: Security Regression
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test dependencies
+        run: python -m pip install --upgrade pip pytest
+      - name: Run security and detector tests
+        run: python -m pytest tests/test_report_sanitize.py tests/test_router_scan.py tests/test_public_repo_policy.py tests/test_public_artifacts.py tests/test_dashboard_credential_boundary.py tests/test_sync_manager_security.py tests/test_sync_manager_public_exports.py -q
