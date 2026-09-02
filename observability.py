@@ -15,6 +15,8 @@ _SENSITIVE_KEY = re.compile(
     r"(?:token|secret|password|passwd|authorization|auth|credential|api[_-]?key|private[_-]?key|target|inventory|header|scope(?:[_-]?ref)?)",
     re.IGNORECASE,
 )
+_DEFAULT_MAX_BYTES = 5 * 1024 * 1024
+_DEFAULT_ROTATIONS = 3
 
 
 def _clean_string(value):
@@ -40,11 +42,55 @@ def sanitize(value, *, key=""):
 
 
 class JsonlSink:
-    """Append-only JSONL sink. Telemetry is opt-in through SCAN_OBSERVABILITY_FILE."""
+    """Bounded append-only JSONL sink with size-based rotation."""
 
-    def __init__(self, path=None):
+    def __init__(self, path=None, max_bytes=None, rotations=None):
         configured = path or os.environ.get("SCAN_OBSERVABILITY_FILE", "")
         self.path = Path(configured) if configured else None
+        self.max_bytes = self._positive_int(
+            max_bytes if max_bytes is not None else os.environ.get("SCAN_OBSERVABILITY_MAX_BYTES"),
+            _DEFAULT_MAX_BYTES,
+        )
+        self.rotations = self._bounded_int(
+            rotations if rotations is not None else os.environ.get("SCAN_OBSERVABILITY_ROTATIONS"),
+            _DEFAULT_ROTATIONS,
+            minimum=0,
+            maximum=20,
+        )
+
+    @staticmethod
+    def _positive_int(value, default):
+        try:
+            parsed = int(value)
+            return parsed if parsed > 0 else default
+        except (TypeError, ValueError):
+            return default
+
+    @classmethod
+    def _bounded_int(cls, value, default, *, minimum, maximum):
+        parsed = cls._positive_int(value, default)
+        return max(minimum, min(parsed, maximum))
+
+    def _rotate(self):
+        if not self.path or self.rotations <= 0 or not self.path.exists():
+            return
+        for index in range(self.rotations, 0, -1):
+            source = self.path.with_name(f"{self.path.name}.{index - 1}") if index > 1 else self.path
+            destination = self.path.with_name(f"{self.path.name}.{index}")
+            if destination.exists():
+                destination.unlink()
+            if source.exists():
+                source.replace(destination)
+
+    def _ensure_capacity(self, incoming_bytes):
+        if not self.path or not self.path.exists() or self.max_bytes <= 0:
+            return
+        try:
+            current = self.path.stat().st_size
+        except OSError:
+            return
+        if current and current + incoming_bytes > self.max_bytes:
+            self._rotate()
 
     def emit(self, event, **fields):
         if not self.path:
@@ -55,8 +101,15 @@ class JsonlSink:
             "event": safe_id(event),
         }
         payload.update(sanitize(fields))
-        with self.path.open("a", encoding="utf-8") as fh:
-            fh.write(json.dumps(payload, ensure_ascii=False, sort_keys=True) + "\n")
+        line = json.dumps(payload, ensure_ascii=False, sort_keys=True) + "\n"
+        encoded = line.encode("utf-8")
+        self._ensure_capacity(len(encoded))
+        try:
+            with self.path.open("a", encoding="utf-8") as fh:
+                fh.write(line)
+        except OSError:
+            # Telemetry is best-effort and must never alter scan behavior.
+            return None
         return payload
 
 
