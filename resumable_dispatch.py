@@ -9,7 +9,6 @@ returns successfully.
 
 import argparse
 import os
-import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -66,10 +65,11 @@ def run_shard(job_id, shard, total, *, batch=DEFAULT_BATCH, ports="80,8080,8443"
     if not scope_ref:
         raise ValueError("SCAN_SCOPE_REF is required")
 
-    if not job_id.strip():
+    if not isinstance(job_id, str) or not job_id.strip():
         raise ValueError("job_id is required")
     total = _positive_int(total, "shard_total")
-    shard = _positive_int(shard + 1, "shard") - 1
+    if not isinstance(shard, int) or shard < 0:
+        raise ValueError("shard must be a non-negative integer")
     if shard >= total:
         raise ValueError("shard must be less than shard_total")
     batch = _positive_int(batch, "batch")
@@ -85,7 +85,8 @@ def run_shard(job_id, shard, total, *, batch=DEFAULT_BATCH, ports="80,8080,8443"
     if state_path:
         kwargs["state_path"] = state_path
     job_state.start_job(job_id, **kwargs)
-    if job_state.shard_completed(job_id, str(shard), **({"state_path": state_path} if state_path else {})):
+    state_kwargs = {"state_path": state_path} if state_path else {}
+    if job_state.shard_completed(job_id, str(shard), **state_kwargs):
         return 0
 
     argv = build_scan_command(batch, shard, total, ports, concurrency, timeout)
@@ -93,8 +94,7 @@ def run_shard(job_id, shard, total, *, batch=DEFAULT_BATCH, ports="80,8080,8443"
     if proc.returncode != 0:
         return proc.returncode
 
-    mark_kwargs = {"state_path": state_path} if state_path else {}
-    job_state.mark_shard_completed(job_id, str(shard), **mark_kwargs)
+    job_state.mark_shard_completed(job_id, str(shard), **state_kwargs)
     return 0
 
 
