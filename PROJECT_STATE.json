@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "project": "RouterScan",
-  "version": "1.1.0-hardening",
-  "status": "hardening",
+  "version": "1.2.0-pre-observability",
+  "status": "pre-observability",
   "source_of_truth": "PROJECT_STATE.json",
-  "active_work": ["SCAN-ARCH-002"],
+  "active_work": [],
   "completed_foundation": [
     "database",
     "firewall_exports",
@@ -13,7 +13,12 @@
     "multi_agent_protocol",
     "github_sync",
     "canonical_project_state",
-    "resumable_job_state"
+    "resumable_job_state",
+    "durable_dispatch_completion",
+    "multi_signal_detection",
+    "cross_version_ci",
+    "repository_policy_gates",
+    "release_readiness_docs"
   ],
   "quality_gates": {
     "authorized_targets_required": true,
@@ -21,7 +26,9 @@
     "ci_required": true,
     "tests_required": true,
     "resumable_jobs_required": true,
-    "shard_idempotency_required": true
+    "shard_idempotency_required": true,
+    "job_completion_requires_all_shards": true,
+    "supported_python_floor": "3.10"
   },
   "backlog": {
     "p0": [
@@ -30,7 +37,7 @@
       "SCAN-SEC-003",
       "SCAN-SEC-004"
     ],
-    "p1": [
+    "p1_completed_in_batch": [
       "SCAN-ARCH-002",
       "SCAN-ARCH-003",
       "SCAN-DET-001",
@@ -46,5 +53,6 @@
       "SCAN-REL-001",
       "SCAN-TEST-001"
     ]
-  }
+  },
+  "next_phase": "observability"
 }
