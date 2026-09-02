@@ -101,6 +101,7 @@ def run_shard(job_id, shard, total, *, batch=DEFAULT_BATCH, ports="80,8080,8443"
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Resumable authorized scan shard executor")
     parser.add_argument("--job-id", default=os.environ.get("SCAN_JOB_ID", ""))
+    parser.add_argument("--authorization-ref", default=os.environ.get("SCAN_AUTHORIZATION_REF", ""))
     parser.add_argument("--scope-ref", default=os.environ.get("SCAN_SCOPE_REF", ""))
     parser.add_argument("--shard", type=int, required=True)
     parser.add_argument("--shard-total", type=int, required=True)
@@ -112,6 +113,8 @@ def main(argv=None):
     parser.add_argument("--state-path", default=os.environ.get("SCAN_JOB_STATE_PATH", ""))
     args = parser.parse_args(argv)
 
+    if args.authorization_ref:
+        os.environ["SCAN_AUTHORIZATION_REF"] = args.authorization_ref
     if args.scope_ref:
         os.environ["SCAN_SCOPE_REF"] = args.scope_ref
     if not args.job_id:
