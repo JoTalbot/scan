@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""Fail-closed resumable dispatcher for authorized scan shards.
-
-The dispatcher is deliberately boring: validate authorization and bounds, make
-an argv-only subprocess call, persist a shard marker only after success, and
-close the job only when every declared shard has completed. State contains
-operational metadata only and never targets, credentials, or secrets.
-"""
+"""Fail-closed resumable dispatcher for authorized scan shards."""
 
 import argparse
 import os
@@ -15,6 +9,7 @@ from pathlib import Path
 
 from authorization import require_authorization
 import job_state
+import observability
 
 BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_BATCH = 10_000
@@ -51,25 +46,19 @@ def _validate_ports(ports):
 
 
 def build_scan_command(batch, shard, total, ports, concurrency, timeout):
-    """Build an argv list, avoiding shell interpolation of scan parameters."""
-    return [
-        sys.executable,
-        str(BASE_DIR / "port_scanner.py"),
-        "run",
-        "--batch", str(batch),
-        "--shard", str(shard),
-        "--shard-total", str(total),
-        "--concurrency", str(concurrency),
-        "--timeout", str(timeout),
-        "--ports", ports,
-    ]
+    return [sys.executable, str(BASE_DIR / "port_scanner.py"), "run",
+            "--batch", str(batch), "--shard", str(shard), "--shard-total", str(total),
+            "--concurrency", str(concurrency), "--timeout", str(timeout), "--ports", ports]
 
 
 def _record_shard_and_maybe_complete(job_id, shard, total, state_kwargs):
     record = job_state.mark_shard_completed(job_id, str(shard), **state_kwargs)
     completed = set(record.get("completed_shards", []))
+    observability.emit("shard.completed", job_id=job_id, shard=shard,
+                       shard_total=total, completed_shards=len(completed))
     if len(completed) >= total:
-        return job_state.complete_job(job_id, **state_kwargs)
+        record = job_state.complete_job(job_id, **state_kwargs)
+        observability.emit("job.completed", job_id=job_id, shard_total=total)
     return record
 
 
@@ -81,7 +70,6 @@ def run_shard(job_id, shard, total, *, batch=DEFAULT_BATCH, ports="80,8080,8443"
     scope_ref = os.environ.get("SCAN_SCOPE_REF", "").strip()
     if not scope_ref:
         raise ValueError("SCAN_SCOPE_REF is required")
-
     if not isinstance(job_id, str) or not job_id.strip():
         raise ValueError("job_id is required")
     job_id = job_id.strip()
@@ -106,19 +94,24 @@ def run_shard(job_id, shard, total, *, batch=DEFAULT_BATCH, ports="80,8080,8443"
     if record.get("shard_total") not in (None, total):
         raise ValueError("shard_total does not match the existing job")
     if record.get("shard_total") is None:
-        # Persist the declaration once so independent workers agree on the job shape.
         state = job_state.load_state(state_path or job_state.DEFAULT_STATE_FILE)
         state["jobs"][job_id]["shard_total"] = total
         job_state.save_state(state, state_path or job_state.DEFAULT_STATE_FILE)
 
     if job_state.shard_completed(job_id, str(shard), **state_kwargs):
+        observability.emit("shard.skipped", job_id=job_id, shard=shard, reason="already_completed")
         return 0
     if job_state.load_state(state_path or job_state.DEFAULT_STATE_FILE)["jobs"].get(job_id, {}).get("status") == "completed":
+        observability.emit("shard.skipped", job_id=job_id, shard=shard, reason="job_completed")
         return 0
 
+    observability.emit("shard.started", job_id=job_id, shard=shard, shard_total=total,
+                       batch=batch, concurrency=concurrency, timeout=timeout)
     argv = build_scan_command(batch, shard, total, ports, concurrency, timeout)
     proc = subprocess.run(argv, cwd=BASE_DIR)
     if proc.returncode != 0:
+        observability.emit("shard.failed", job_id=job_id, shard=shard,
+                           shard_total=total, return_code=proc.returncode)
         return proc.returncode
 
     _record_shard_and_maybe_complete(job_id, shard, total, state_kwargs)
@@ -139,19 +132,16 @@ def main(argv=None):
     parser.add_argument("--timeout", type=float, default=float(os.environ.get("SCAN_TIMEOUT", DEFAULT_TIMEOUT)))
     parser.add_argument("--state-path", default=os.environ.get("SCAN_JOB_STATE_PATH", ""))
     args = parser.parse_args(argv)
-
     if args.authorization_ref:
         os.environ["SCAN_AUTHORIZATION_REF"] = args.authorization_ref
     if args.scope_ref:
         os.environ["SCAN_SCOPE_REF"] = args.scope_ref
     if not args.job_id:
         parser.error("--job-id or SCAN_JOB_ID is required")
-    return run_shard(
-        args.job_id, args.shard, args.shard_total,
-        batch=args.batch, ports=args.ports, concurrency=args.concurrency,
-        max_concurrency=args.max_concurrency, timeout=args.timeout,
-        state_path=args.state_path or None,
-    )
+    return run_shard(args.job_id, args.shard, args.shard_total,
+                     batch=args.batch, ports=args.ports, concurrency=args.concurrency,
+                     max_concurrency=args.max_concurrency, timeout=args.timeout,
+                     state_path=args.state_path or None)
 
 
 if __name__ == "__main__":
