@@ -12,7 +12,7 @@ This backlog is the canonical implementation order for the current hardening cyc
 ## P1
 
 - [x] SCAN-ARCH-001 Make `PROJECT_STATE.json` the machine-readable source of truth.
-- [ ] SCAN-ARCH-002 Make distributed jobs resumable and shard-idempotent. Durable job/shard state and a fail-closed resumable shard executor are implemented; legacy `dispatch.py` still needs to route every distributed scan launch through the executor before this item can close.
+- [x] SCAN-ARCH-002 Make distributed jobs resumable and shard-idempotent. `dispatch.py` now routes every distributed scan shard through the fail-closed `resumable_dispatch.py` executor, which persists operational job/shard state and marks completion only after successful execution.
 - [x] SCAN-ARCH-003 Replace hard-coded scanner limits with central configuration and bounded concurrency.
 - [x] SCAN-DET-001 Add multi-signal router detection scoring. Detection now combines independent server-header, realm, title and banner evidence with deterministic scoring, agreement bonuses and trap suppression.
 - [x] SCAN-DET-002 Expand router detection regression coverage. Added a detection matrix covering strong signals, cross-field agreement, generic servers, traps, model extraction and determinism.
@@ -37,7 +37,7 @@ This backlog is the canonical implementation order for the current hardening cyc
 
 ## Newly discovered product/architecture follow-ups
 
-- [ ] SCAN-ARCH-004 Make remote shard completion observable before marking a shard complete. SSH dispatch currently backgrounds the remote command, so process exit alone cannot prove the remote scan finished; use synchronous execution or an explicit completion sentinel/receipt before treating the shard as successful.
+- [x] SCAN-ARCH-004 Make remote shard completion observable before marking a shard complete. SSH dispatch now runs the remote resumable executor synchronously, so the SSH process cannot report success before the executor returns successfully.
 
 ## Batch rule
 
