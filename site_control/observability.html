@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RouterScan — Observability</title>
+<style>
+body{font-family:system-ui,sans-serif;background:#0d1117;color:#c9d1d9;margin:0;padding:24px}.wrap{max-width:1100px;margin:auto}h1{color:#f0f6fc}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:18px}.metric{font-size:28px;color:#f0f6fc;font-weight:700}.muted{color:#8b949e;font-size:13px}.bar{height:14px;background:#21262d;border-radius:7px;overflow:hidden;margin:8px 0}.fill{height:100%;background:#58a6ff}.row{margin:12px 0}.error{color:#f85149}.ok{color:#3fb950}button{background:#238636;color:#fff;border:0;border-radius:6px;padding:9px 14px;cursor:pointer}</style>
+</head>
+<body><div class="wrap">
+<h1>📊 RouterScan Observability</h1><p class="muted">Только агрегированные метрики. Цели, credentials и raw HTTP данные здесь не отображаются.</p>
+<button onclick="load()">Обновить</button><div id="status" class="muted"></div>
+<div class="grid" id="cards"></div>
+<div class="grid"><div class="card"><h2>Jobs</h2><div id="jobs"></div></div><div class="card"><h2>Shards</h2><div id="shards"></div></div><div class="card"><h2>Detections by vendor</h2><div id="vendors"></div></div><div class="card"><h2>Duration</h2><div id="duration"></div></div></div>
+</div><script>
+const n=v=>Number(v||0).toLocaleString('ru-RU');
+const pct=v=>(Number(v||0)*100).toFixed(1)+'%';
+function bar(label,value,max){let w=max?Math.min(100,value/max*100):0;return `<div class="row"><div>${label}: ${n(value)}</div><div class="bar"><div class="fill" style="width:${w}%"></div></div></div>`}
+async function load(){try{const r=await fetch('/api/observability/metrics');const d=await r.json();if(d.read_error)throw Error('read_error');document.getElementById('status').textContent=d.enabled?'Telemetry enabled':'Telemetry disabled';document.getElementById('cards').innerHTML=`<div class="card"><div class="muted">Jobs terminal</div><div class="metric">${n(d.jobs?.total_terminal)}</div></div><div class="card"><div class="muted">Detections</div><div class="metric">${n(d.detections?.total)}</div></div><div class="card"><div class="muted">Job failure rate</div><div class="metric">${pct(d.jobs?.failure_rate)}</div></div><div class="card"><div class="muted">Shard failure rate</div><div class="metric">${pct(d.shards?.failure_rate)}</div></div>`;let j=d.jobs||{},s=d.shards||{};document.getElementById('jobs').innerHTML=bar('Completed',j.completed,j.total_terminal)+bar('Failed',j.failed,j.total_terminal);document.getElementById('shards').innerHTML=bar('Completed',s.completed,s.completed+s.failed)+bar('Failed',s.failed,s.completed+s.failed)+`<div>Retries: ${n(s.retried)}</div>`;let vs=d.detections?.by_vendor||{}, max=Math.max(1,...Object.values(vs).map(Number));document.getElementById('vendors').innerHTML=Object.entries(vs).map(([k,v])=>bar(k,v,max)).join('')||'<span class="muted">Нет данных</span>';let du=d.duration_ms||{};document.getElementById('duration').innerHTML=`<div>Samples: ${n(du.count)}</div><div>Mean: ${n(du.mean)} ms</div><div>Max: ${n(du.max)} ms</div>`}catch(e){document.getElementById('status').innerHTML='<span class="error">Observability unavailable</span>'}}
+load();setInterval(load,30000);
+</script></body></html>
