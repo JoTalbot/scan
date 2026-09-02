@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""Small dependency-free observability layer for RouterScan.
-
-The sink emits structured JSON events while enforcing a privacy boundary:
-credentials, target inventories, authorization values, and arbitrary sensitive
-headers are never copied into telemetry. The default sink is opt-in via
-SCAN_OBSERVABILITY_FILE so existing deployments remain quiet.
-"""
+"""Small dependency-free privacy-safe observability layer for RouterScan."""
 
 import json
 import os
@@ -16,7 +10,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 _MAX_STRING = 256
-_MAX_EVENTS = 10_000
 _SAFE_ID = re.compile(r"[^A-Za-z0-9_.:-]+")
 _SENSITIVE_KEY = re.compile(
     r"(?:token|secret|password|passwd|authorization|auth|credential|api[_-]?key|private[_-]?key|target|inventory|header)",
@@ -25,9 +18,7 @@ _SENSITIVE_KEY = re.compile(
 
 
 def _clean_string(value):
-    value = str(value)
-    value = value.replace("\r", " ").replace("\n", " ")
-    return value[:_MAX_STRING]
+    return str(value).replace("\r", " ").replace("\n", " ")[:_MAX_STRING]
 
 
 def safe_id(value):
@@ -49,7 +40,7 @@ def sanitize(value, *, key=""):
 
 
 class JsonlSink:
-    """Append-only JSONL sink with bounded event retention."""
+    """Append-only JSONL sink. Telemetry is opt-in through SCAN_OBSERVABILITY_FILE."""
 
     def __init__(self, path=None):
         configured = path or os.environ.get("SCAN_OBSERVABILITY_FILE", "")
@@ -77,6 +68,26 @@ def emit(event, **fields):
     return _DEFAULT_SINK.emit(event, **fields)
 
 
+def record_detection(result):
+    """Emit only safe detection metadata, never raw HTTP artifacts."""
+    if not result:
+        emit("detection.none")
+        return None
+    sources = result.get("matched_sources", [])
+    return emit(
+        "detection.result",
+        vendor=result.get("vendor"),
+        model=result.get("model"),
+        device_type=result.get("device_type"),
+        confidence=result.get("confidence"),
+        score=result.get("score"),
+        score_confidence=result.get("score_confidence"),
+        matched_on=result.get("matched_on"),
+        matched_sources=[safe_id(s) for s in sources],
+        signal_count=len(result.get("signals", [])),
+    )
+
+
 @contextmanager
 def timed(event, **fields):
     """Emit ``*.started`` and a terminal event with bounded duration metadata."""
@@ -85,7 +96,8 @@ def timed(event, **fields):
     try:
         yield
     except Exception as exc:
-        emit(f"{event}.failed", duration_ms=round((time.monotonic() - started) * 1000, 3), error_type=type(exc).__name__, **fields)
+        emit(f"{event}.failed", duration_ms=round((time.monotonic() - started) * 1000, 3),
+             error_type=type(exc).__name__, **fields)
         raise
     else:
         emit(f"{event}.completed", duration_ms=round((time.monotonic() - started) * 1000, 3), **fields)
