@@ -4,13 +4,13 @@
 
 Do not weaken authorization, public-data sanitization, resumable execution, shard idempotency, or privacy-safe telemetry to make maintenance changes easier.
 
-## Observability backlog
+## Completed maintenance batch
 
-- **SCAN-OBS-003:** bounded and rotating local metrics sink.
-- **SCAN-OBS-004:** alert thresholds and SLOs after production baselines.
-- **SCAN-DASH-003:** aggregate dashboard charts without exposing live targets.
+- **SCAN-OBS-003:** bounded and rotating local JSONL telemetry sink.
+- **SCAN-OBS-004:** production baseline and alert/SLO promotion policy.
+- **SCAN-DASH-003:** aggregate dashboard metrics and privacy-safe dashboard view.
 
-These items are maintenance enhancements and do not change the fail-closed scanning boundary.
+These maintenance enhancements do not change the fail-closed scanning boundary.
 
 ## Batch workflow
 
