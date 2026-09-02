@@ -30,8 +30,8 @@ This backlog is the canonical implementation order for the current hardening cyc
 
 ## Newly discovered security follow-ups
 
-- [ ] SCAN-SEC-005 Remove credential material from dashboard/API responses and expose classification/counts only.
-- [ ] SCAN-SEC-006 Ensure synchronization never pushes generated credential evidence to a public branch.
+- [x] SCAN-SEC-005 Remove credential material from dashboard/API responses and expose classification/counts only.
+- [x] SCAN-SEC-006 Ensure synchronization never pushes generated credential evidence to a public branch. Sync now requires an explicit non-main branch and stages only approved public export paths.
 - [ ] SCAN-SEC-007 Apply the authorization gate consistently to browser, SSH, and Telnet audit entrypoints.
 - [ ] SCAN-SEC-008 Add a CI check for sensitive-field names and known credential-artifact paths in tracked files.
 
