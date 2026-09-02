@@ -21,6 +21,9 @@ This backlog is the canonical implementation order for the current hardening cyc
 
 - [x] SCAN-OBS-001 Add durable privacy-safe telemetry for jobs, shards and detection outcomes.
 - [x] SCAN-OBS-002 Add worker/job telemetry visibility to the dashboard through `/api/observability` with aggregate counts only.
+- [x] SCAN-OBS-003 Add bounded/rotating JSONL telemetry storage with configurable byte and retention limits.
+- [x] SCAN-OBS-004 Define production alert/SLO candidates and require observed baselines before promoting thresholds to automated gates.
+- [x] SCAN-DASH-003 Add a privacy-safe dashboard view for aggregate job/shard/detection/duration charts.
 - [x] SCAN-DOC-002 Refresh README against the current implementation.
 - [x] SCAN-REL-001 Establish release/versioning rules.
 - [x] SCAN-TEST-001 Add integration tests for pipeline recovery and synchronization.
@@ -36,9 +39,6 @@ This backlog is the canonical implementation order for the current hardening cyc
 ## Product/architecture follow-ups
 
 - [x] SCAN-ARCH-004 Make remote shard completion observable before marking a shard complete.
-- [ ] SCAN-OBS-003 Replace JSONL storage with a bounded/rotating metrics backend when deployment scale requires it.
-- [ ] SCAN-OBS-004 Add alert thresholds and SLOs after production traffic baselines exist.
-- [ ] SCAN-DASH-003 Add dashboard charts for shard duration, failure rate and detection confidence distributions.
 
 ## Batch rule
 
