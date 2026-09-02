@@ -145,12 +145,7 @@ def _legacy_detect(server_header=None, title=None, banner=None):
 
 
 def _score(result, matches, traps):
-    """Deterministic evidence score for the selected vendor.
-
-    A strong legacy match starts high enough to preserve existing semantics.
-    Independent fields add evidence, while known service/CDN traps reduce weak
-    classifications. The score is informational and does not trigger probes.
-    """
+    """Deterministic evidence score for the selected vendor."""
     base = {CONF_HIGH: 0.80, CONF_MEDIUM: 0.45, CONF_LOW: 0.20}[result["confidence"]]
     weights = {"server_header": 0.55, "realm": 0.25, "title": 0.20, "banner": 0.15}
     sources = {m["matched_on"] for m in matches if m["vendor"] == result["vendor"]}
@@ -185,12 +180,20 @@ def detect_router_scored(server_header=None, title=None, banner=None):
             m = _match(rules, text, source)
             if m:
                 matches.append(m)
+    vendor_matches = [m for m in matches if m["vendor"] == result["vendor"]]
+    if not result.get("model"):
+        for match in vendor_matches:
+            if match.get("model"):
+                result = dict(result)
+                result["model"] = match["model"]
+                break
     traps = [source for source, text, _ in fields if any(rx.search(text) for rx in _TRAPS)]
     score = _score(result, matches, traps)
     out = dict(result)
     out["score"] = score
     out["score_confidence"] = CONF_HIGH if score >= 0.75 else CONF_MEDIUM if score >= 0.45 else CONF_LOW
-    out["matched_on"] = list(dict.fromkeys(m["matched_on"] for m in matches if m["vendor"] == result["vendor"])) or result["matched_on"]
+    out["matched_on"] = result["matched_on"]
+    out["matched_sources"] = list(dict.fromkeys(m["matched_on"] for m in vendor_matches))
     out["signals"] = [
         {"source": m["matched_on"], "vendor": m["vendor"], "model": m["model"]}
         for m in matches
