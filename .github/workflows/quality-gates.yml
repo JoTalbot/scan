@@ -36,7 +36,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if git grep -I -nE '(^|[^A-Za-z0-9_])(ghp_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{20,}|OPENAI_API_KEY=[^<[:space:]]+|BEGIN (RSA|OPENSSH|EC) PRIVATE KEY)' -- . ':!*.md' ':!SECURITY_POLICY.md'; then
+          ghp_prefix='ghp_'
+          sk_prefix='sk-'
+          openai_key='OPENAI_API_KEY='
+          private_key='BEGIN (RSA|OPENSSH|EC) PRIVATE KEY'
+          secret_pattern="(^|[^A-Za-z0-9_])(${ghp_prefix}[A-Za-z0-9_]{20,}|${sk_prefix}[A-Za-z0-9_-]{20,}|${openai_key}[^<[:space:]]+|${private_key})"
+          if git grep -I -nE "$secret_pattern" -- . ':!*.md' ':!SECURITY_POLICY.md'; then
             echo 'Potential credential material detected in tracked source.' >&2
             exit 1
           fi
