@@ -52,6 +52,7 @@ def _scan_argv(job_id, shard, total, batch, ports, concurrency, max_concurrency,
     return [
         sys.executable, str(BASE_DIR / "resumable_dispatch.py"),
         "--job-id", job_id,
+        "--authorization-ref", os.environ["SCAN_AUTHORIZATION_REF"],
         "--scope-ref", os.environ["SCAN_SCOPE_REF"],
         "--shard", str(shard), "--shard-total", str(total),
         "--batch", str(batch), "--ports", ports,
@@ -81,11 +82,7 @@ def _run_local(argv, logfile=None):
 
 
 def _run_ssh(machine, argv, logfile=None):
-    """Run the remote resumable executor synchronously.
-
-    SSH returning successfully means the executor itself returned successfully,
-    which is required before the worker may consider the shard complete.
-    """
+    """Run the remote resumable executor synchronously."""
     remote_root = "/root/scan"
     remote = "cd " + remote_root + " && " + " ".join(subprocess.list2cmdline([x]) for x in argv)
     cmd = ["ssh", "-o", "StrictHostKeyChecking=no", f"root@{machine}", remote]
@@ -120,12 +117,13 @@ def dispatch_scan(shards, batch, ports, parallel, force_ssh=None, job_id=None):
         logfile = log_dir / f"scan_shard{shard}.log"
         if worker_type == "ssh":
             if parallel:
-                # A background local SSH process is safe because the remote
-                # command itself is synchronous and runs the resumable executor.
+                logfile.parent.mkdir(parents=True, exist_ok=True)
+                log = logfile.open("w", encoding="utf-8")
                 p = subprocess.Popen(
                     ["ssh", "-o", "StrictHostKeyChecking=no", f"root@{machine}",
                      "cd /root/scan && " + " ".join(subprocess.list2cmdline([x]) for x in argv)],
-                    stdout=logfile.open("w", encoding="utf-8"), stderr=subprocess.STDOUT)
+                    stdout=log, stderr=subprocess.STDOUT)
+                p._dispatch_log = log  # type: ignore[attr-defined]
                 procs.append((f"ssh:{machine}:shard{shard}", p))
             else:
                 rc = _run_ssh(machine, argv, logfile)
@@ -165,8 +163,6 @@ def dispatch(task, shards, batch, ports, parallel, force_ssh, task_text=""):
         return _run_local([sys.executable, str(BASE_DIR / "openhands_agent.py"),
                            "--task", task_text])
 
-    # Non-scan jobs intentionally remain single-process compatibility commands.
-    # Their active network entrypoints retain their own fail-closed gates.
     commands = {
         "audit_raw": [sys.executable, str(BASE_DIR / "router_auth_check.py"), "--fast", "--concurrency", "30", "--timeout", "4"],
         "audit_browser": [sys.executable, str(BASE_DIR / "router_auth_browser.py"), "--only-no-channel", "--pairs", "8", "--concurrency", "4", "--timeout", "7", "--wait", "2.5"],
