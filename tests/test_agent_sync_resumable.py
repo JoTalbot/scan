@@ -15,7 +15,8 @@ def test_agent_sync_job_adapter_is_idempotent(tmp_path, monkeypatch):
     agent_sync.record_shard_completed("job-42", "0001")
     assert agent_sync.shard_completed("job-42", "0001")
     state = json.loads((tmp_path / "job_state.json").read_text(encoding="utf-8"))
-    assert state["jobs"]["job-42"]["completed_steps"] == ["scan", "shard:0001"]
+    assert state["jobs"]["job-42"]["completed_steps"] == ["scan"]
+    assert state["jobs"]["job-42"]["completed_shards"] == ["shard:0001"]
     assert agent_sync.finish_resumable_job("job-42")["status"] == "completed"
 
 
