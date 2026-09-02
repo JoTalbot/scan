@@ -1,23 +1,19 @@
 #!/usr/bin/env python3
-"""
-Router Detection Engine
-========================
-Detects router / firewall / access-point / router-firmware devices from HTTP
-scan artifacts without performing additional network activity.
+"""Router Detection Engine.
 
-Detection is multi-signal: independent server-header, WWW-Authenticate realm,
-title and banner evidence is combined into a deterministic confidence score.
+Detects router / firewall / access-point / router-firmware devices from HTTP
+artifacts. Detection remains backward-compatible while exposing a deterministic
+multi-signal score; no additional network activity is performed here.
 """
 
 import re
 
-DEVICE_ROUTER   = "router"
+DEVICE_ROUTER = "router"
 DEVICE_FIREWALL = "firewall"
-DEVICE_AP       = "access_point"
-
-CONF_HIGH   = "high"
+DEVICE_AP = "access_point"
+CONF_HIGH = "high"
 CONF_MEDIUM = "medium"
-CONF_LOW    = "low"
+CONF_LOW = "low"
 
 SERVER_RULES = [
     ("MikroTik", DEVICE_ROUTER, CONF_HIGH, r"routeros|mikrotik", r"(?i)routeros v?([\d\.]+)"),
@@ -102,19 +98,15 @@ BANNER_RULES = [
 
 _REALM_RE = re.compile(r'(?i)realm="([^"]+)"')
 _TRAPS = (
-    re.compile(r"(?i)\bhws\b"),
-    re.compile(r"(?i)cisco\s+umbrella"),
-    re.compile(r"(?i)\bcloudfront\b"),
-    re.compile(r"(?i)\blitespeed\b"),
-    re.compile(r"(?i)\bakamai\b"),
-    re.compile(r"(?i)\bningtron\b"),
+    re.compile(r"(?i)\bhws\b"), re.compile(r"(?i)cisco\s+umbrella"),
+    re.compile(r"(?i)\bcloudfront\b"), re.compile(r"(?i)\blitespeed\b"),
+    re.compile(r"(?i)\bakamai\b"), re.compile(r"(?i)\bningtron\b"),
 )
 
 
 def _match(rules, text, source):
     for vendor, dtype, conf, pattern, model_rx in rules:
-        m = re.search(pattern, text, re.IGNORECASE)
-        if not m:
+        if not re.search(pattern, text, re.IGNORECASE):
             continue
         model = None
         if model_rx:
@@ -126,102 +118,88 @@ def _match(rules, text, source):
     return None
 
 
-def _specificity(result):
-    if not result:
-        return 0.0
-    if result["vendor"] in {"Generic Router", "GoAhead", "miniupnpd", "micro_httpd", "httpd"}:
-        return 0.35
-    if result["vendor"] in {"Generic DSL Router"}:
-        return 0.55
-    return 1.0
-
-
-def _confidence_category(score):
-    if score >= 0.75:
-        return CONF_HIGH
-    if score >= 0.45:
-        return CONF_MEDIUM
-    if score >= 0.25:
-        return CONF_LOW
-    return None
-
-
-def detect_router_scored(server_header=None, title=None, banner=None):
-    """Return a multi-signal detection result with deterministic score.
-
-    This function only evaluates already-collected HTTP artifacts. It never
-    performs active probing. Independent fields contribute evidence; agreeing
-    vendor signals receive a bonus, while known non-router traps suppress
-    otherwise weak/generic matches.
-    """
-    fields = {
-        "server_header": server_header or "",
-        "title": title or "",
-    }
-    realm = None
+def _legacy_detect(server_header=None, title=None, banner=None):
+    """Original priority/fallback semantics retained for compatibility."""
+    fallback = None
+    if server_header:
+        res = _match(SERVER_RULES, server_header, "server_header")
+        if res:
+            if res["confidence"] == CONF_HIGH:
+                return res
+            fallback = res
     if banner:
         m = _REALM_RE.search(banner)
         if m:
-            realm = m.group(1)
-    fields["realm"] = realm or ""
-    fields["banner"] = banner or ""
+            res = _match(REALM_RULES, m.group(1), "realm")
+            if res:
+                return res
+    if title:
+        res = _match(TITLE_RULES, title, "title")
+        if res:
+            return res
+    if banner:
+        res = _match(BANNER_RULES, banner, "banner")
+        if res:
+            return res
+    return fallback
 
-    results = []
-    for source, text, rules in (
-        ("server_header", fields["server_header"], SERVER_RULES),
-        ("realm", fields["realm"], REALM_RULES),
-        ("title", fields["title"], TITLE_RULES),
-        ("banner", fields["banner"], BANNER_RULES),
-    ):
-        if text:
-            result = _match(rules, text, source)
-            if result:
-                results.append(result)
 
-    if not results:
-        return None
+def _score(result, matches, traps):
+    """Deterministic evidence score for the selected vendor.
 
-    traps = [source for source, text in fields.items() if any(rx.search(text) for rx in _TRAPS)]
-    # Field weights intentionally cap the contribution of banner-only evidence.
-    weights = {"server_header": 0.55, "realm": 0.25, "title": 0.15, "banner": 0.10}
-    by_vendor = {}
-    for result in results:
-        by_vendor.setdefault(result["vendor"], []).append(result)
-
-    # Prefer the strongest vendor evidence, then independent agreement.
-    vendor, vendor_results = max(
-        by_vendor.items(), key=lambda item: (
-            sum(weights[r["matched_on"]] * _specificity(r) for r in item[1]),
-            len({r["matched_on"] for r in item[1]}),
-        )
-    )
-    sources = list(dict.fromkeys(r["matched_on"] for r in vendor_results))
-    score = sum(weights[s] * _specificity(r) for s in sources for r in vendor_results if r["matched_on"] == s)
+    A strong legacy match starts high enough to preserve existing semantics.
+    Independent fields add evidence, while known service/CDN traps reduce weak
+    classifications. The score is informational and does not trigger probes.
+    """
+    base = {CONF_HIGH: 0.80, CONF_MEDIUM: 0.45, CONF_LOW: 0.20}[result["confidence"]]
+    weights = {"server_header": 0.55, "realm": 0.25, "title": 0.20, "banner": 0.15}
+    sources = {m["matched_on"] for m in matches if m["vendor"] == result["vendor"]}
+    score = base
+    for source in sources:
+        if source != result["matched_on"]:
+            score += min(weights[source] * 0.35, 0.10)
     if len(sources) >= 2:
-        score += min(0.15, 0.05 * (len(sources) - 1))
-    if any(r["vendor"] == vendor and r["model"] for r in vendor_results):
+        score += 0.05
+    if result.get("model"):
         score += 0.05
     if traps:
-        score -= 0.45
-    score = max(0.0, min(0.99, score))
+        score -= 0.30 if result["confidence"] == CONF_MEDIUM else 0.10
+    return round(max(0.0, min(0.99, score)), 3)
 
-    best = max(vendor_results, key=lambda r: (weights[r["matched_on"]], bool(r["model"])))
-    category = _confidence_category(score)
-    if category is None:
+
+def detect_router_scored(server_header=None, title=None, banner=None):
+    """Detect using existing signatures and expose multi-signal evidence."""
+    result = _legacy_detect(server_header, title, banner)
+    if not result:
         return None
-    return {
-        "vendor": best["vendor"],
-        "model": next((r["model"] for r in vendor_results if r["model"]), None),
-        "device_type": best["device_type"],
-        "confidence": category,
-        "score": round(score, 3),
-        "matched_on": sources[0] if len(sources) == 1 else sources,
-        "signals": [{"source": r["matched_on"], "vendor": r["vendor"], "model": r["model"]} for r in vendor_results],
-    }
+    realm = _REALM_RE.search(banner or "")
+    fields = (
+        ("server_header", server_header or "", SERVER_RULES),
+        ("realm", realm.group(1) if realm else "", REALM_RULES),
+        ("title", title or "", TITLE_RULES),
+        ("banner", banner or "", BANNER_RULES),
+    )
+    matches = []
+    for source, text, rules in fields:
+        if text:
+            m = _match(rules, text, source)
+            if m:
+                matches.append(m)
+    traps = [source for source, text, _ in fields if any(rx.search(text) for rx in _TRAPS)]
+    score = _score(result, matches, traps)
+    out = dict(result)
+    out["score"] = score
+    out["score_confidence"] = CONF_HIGH if score >= 0.75 else CONF_MEDIUM if score >= 0.45 else CONF_LOW
+    out["matched_on"] = list(dict.fromkeys(m["matched_on"] for m in matches if m["vendor"] == result["vendor"])) or result["matched_on"]
+    out["signals"] = [
+        {"source": m["matched_on"], "vendor": m["vendor"], "model": m["model"]}
+        for m in matches
+    ]
+    return out
 
 
 def detect_router(server_header=None, title=None, banner=None):
-    """Backward-compatible descriptor using the multi-signal scorer."""
+    """Backward-compatible descriptor with additional score/evidence fields."""
     return detect_router_scored(server_header, title, banner)
 
 
