@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Fail-closed resumable dispatcher for authorized scan shards.
 
-This is the state-aware execution boundary for distributed scanning. It keeps
-only operational job/shard metadata in job_state.py and never persists targets,
-credentials or secrets. A shard is marked complete only after its subprocess
-returns successfully.
+The dispatcher is deliberately boring: validate authorization and bounds, make
+an argv-only subprocess call, persist a shard marker only after success, and
+close the job only when every declared shard has completed. State contains
+operational metadata only and never targets, credentials, or secrets.
 """
 
 import argparse
@@ -41,6 +41,15 @@ def _bounded_concurrency(value, maximum):
     return value
 
 
+def _validate_ports(ports):
+    if not ports:
+        raise ValueError("ports must be a comma-separated list of TCP port numbers")
+    parts = [part.strip() for part in ports.split(",")]
+    if not parts or any(not part.isdigit() or not 1 <= int(part) <= 65535 for part in parts):
+        raise ValueError("ports must be a comma-separated list of TCP port numbers")
+    return ",".join(dict.fromkeys(parts))
+
+
 def build_scan_command(batch, shard, total, ports, concurrency, timeout):
     """Build an argv list, avoiding shell interpolation of scan parameters."""
     return [
@@ -56,6 +65,14 @@ def build_scan_command(batch, shard, total, ports, concurrency, timeout):
     ]
 
 
+def _record_shard_and_maybe_complete(job_id, shard, total, state_kwargs):
+    record = job_state.mark_shard_completed(job_id, str(shard), **state_kwargs)
+    completed = set(record.get("completed_shards", []))
+    if len(completed) >= total:
+        return job_state.complete_job(job_id, **state_kwargs)
+    return record
+
+
 def run_shard(job_id, shard, total, *, batch=DEFAULT_BATCH, ports="80,8080,8443",
               concurrency=DEFAULT_CONCURRENCY, max_concurrency=DEFAULT_MAX_CONCURRENCY,
               timeout=DEFAULT_TIMEOUT, state_path=None):
@@ -67,6 +84,7 @@ def run_shard(job_id, shard, total, *, batch=DEFAULT_BATCH, ports="80,8080,8443"
 
     if not isinstance(job_id, str) or not job_id.strip():
         raise ValueError("job_id is required")
+    job_id = job_id.strip()
     total = _positive_int(total, "shard_total")
     if not isinstance(shard, int) or shard < 0:
         raise ValueError("shard must be a non-negative integer")
@@ -77,16 +95,25 @@ def run_shard(job_id, shard, total, *, batch=DEFAULT_BATCH, ports="80,8080,8443"
     timeout = float(timeout)
     if timeout <= 0:
         raise ValueError("timeout must be positive")
-    if not ports or any(not part.strip().isdigit() or not 1 <= int(part.strip()) <= 65535
-                        for part in ports.split(",")):
-        raise ValueError("ports must be a comma-separated list of TCP port numbers")
+    ports = _validate_ports(ports)
 
     kwargs = {"authorization_ref": authorization, "scope_ref": scope_ref}
     if state_path:
         kwargs["state_path"] = state_path
     job_state.start_job(job_id, **kwargs)
     state_kwargs = {"state_path": state_path} if state_path else {}
+    record = job_state.load_state(state_path or job_state.DEFAULT_STATE_FILE)["jobs"].get(job_id, {})
+    if record.get("shard_total") not in (None, total):
+        raise ValueError("shard_total does not match the existing job")
+    if record.get("shard_total") is None:
+        # Persist the declaration once so independent workers agree on the job shape.
+        state = job_state.load_state(state_path or job_state.DEFAULT_STATE_FILE)
+        state["jobs"][job_id]["shard_total"] = total
+        job_state.save_state(state, state_path or job_state.DEFAULT_STATE_FILE)
+
     if job_state.shard_completed(job_id, str(shard), **state_kwargs):
+        return 0
+    if job_state.load_state(state_path or job_state.DEFAULT_STATE_FILE)["jobs"].get(job_id, {}).get("status") == "completed":
         return 0
 
     argv = build_scan_command(batch, shard, total, ports, concurrency, timeout)
@@ -94,7 +121,7 @@ def run_shard(job_id, shard, total, *, batch=DEFAULT_BATCH, ports="80,8080,8443"
     if proc.returncode != 0:
         return proc.returncode
 
-    job_state.mark_shard_completed(job_id, str(shard), **state_kwargs)
+    _record_shard_and_maybe_complete(job_id, shard, total, state_kwargs)
     return 0
 
 
