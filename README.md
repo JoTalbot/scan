@@ -7,60 +7,53 @@
 
 ---
 
-## 📊 Статистика (август 2026)
+## 📌 Текущий статус
 
-| Метрика | Значение |
-| :--- | :--- |
-| Просканировано IP | **3 550 000+** (порты 80/8080/8443) |
-| Обнаружено роутеров | **433** |
-| CIDR-блоков в базе | 508 879+ |
-| Верифицированных пар | 0 (все проверенные устройства закрыты) |
-| CVE-строк (InternetDB) | 436 |
+**Версия: 1.3.0 — release candidate.** Базовая архитектура, resumable execution,
+детекция, CI/security gates и privacy-safe observability реализованы.
+Production-релиз пока блокирует `SCAN-SEC-004`: существующие публичные findings
+и история должны быть санированы или удалены там, где это практически возможно.
 
----
+Машиночитаемый источник истины: `PROJECT_STATE.json`.
 
 ## 🛠️ Инструменты
 
 | Инструмент | Назначение |
 | :--- | :--- |
 | `isp_tool.py` | Поиск по IP/ASN, экспорт правил (MikroTik, ipset, iptables, nginx, cisco) |
-| `web_server.py` | Дашборд (порт 8899): CIDR-поиск, роутеры, гео-карта, статусы аудита |
-| `port_scanner.py` | Скан 3 портов, детекция роутеров, шарды, приоритизация ISP |
-| `router_detect.py` | Движок детекции роутеров (35+ вендоров) |
-| `router_auth_check.py` | Аудит паролей: Basic/REST/MikroTik API/Zyxel/SonicWALL/LuCI (fast-режим) |
-| `router_auth_browser.py` | Playwright-аудит SPA-конфигураторов (строгий критерий) |
-| `port_probe.py` | Доп. порты + raw SNMP (public/private, 4 OID) |
-| `bgp_looking_glass.py` | RIPE Stat: announced-prefixes, routing-status, `--update-db` |
-| `cve_check.py` | CVE-маппинг версий → CVE_REPORT.md |
-| `internetdb_enrich.py` | Shodan InternetDB: порты/CVE/CPE без ключа |
+| `web_server.py` | Дашборд: CIDR-поиск, роутеры, гео-карта, статусы аудита и aggregate observability |
+| `port_scanner.py` | Скан портов, детекция роутеров, шарды, приоритизация ISP |
+| `router_detect.py` | Движок multi-signal детекции роутеров |
+| `router_auth_check.py` | Авторизованный аудит конфигурации |
+| `router_auth_browser.py` | Авторизованный аудит SPA-конфигураторов |
+| `port_probe.py` | Дополнительные авторизованные probes |
+| `bgp_looking_glass.py` | RIPE Stat: announced-prefixes и routing-status |
+| `cve_check.py` | CVE-маппинг версий |
+| `internetdb_enrich.py` | Shodan InternetDB enrichment |
 | `dispatch.py` | Раздача задач по исполнителям |
 | `resumable_dispatch.py` | Fail-closed resumable executor с shard-idempotency |
+| `job_state.py` | Durable job/shard state |
 | `observability.py` | Privacy-safe JSONL lifecycle telemetry и detection contract |
-| `web_server.py` | Агрегированная observability-панель через `/api/observability` |
-| `pipeline.sh` | Автоцикл: скан → аудит → dispatch → sync |
+| `pipeline.sh` | Автоцикл pipeline |
 | `openhands_agent.py` | ИИ-агент для задач разработки |
-| `extract_routers.py` | Ретроспективная детекция по старым сканам |
-| `generate_report.py` | Отчёт REPORT.md |
+| `extract_routers.py` | Ретроспективная детекция |
+| `generate_report.py` | Генерация отчёта |
 
-## 🔐 Observability
+## 🔐 Безопасность
 
-Telemetry включается только при заданном `SCAN_OBSERVABILITY_FILE`. В JSONL
-пишутся lifecycle-события jobs/shards и безопасные результаты детекции.
-Сырые цели, inventories, HTTP headers, authorization refs, credentials,
-passwords, tokens, API keys и private keys в telemetry не попадают.
+- Активное сканирование выполняется только при явной авторизации и bounded scope.
+- Credentials, tokens, API keys, private keys и raw HTTP artifacts не должны попадать в Git или публичные отчёты.
+- Telemetry включается только через `SCAN_OBSERVABILITY_FILE` и рекурсивно редактирует чувствительные поля.
+- `GET /api/observability` возвращает только aggregate event counts, без raw telemetry.
+- Retry успешного shard идемпотентен; job завершается только после всех объявленных shard.
 
-`GET /api/observability` отдаёт только aggregate event counts. Raw telemetry
-через dashboard API намеренно недоступна.
-
-Подробности: `docs/OBSERVABILITY.md`.
-
-## 🤖 Исполнители (пул)
+## 🤖 Исполнители
 
 | Исполнитель | Роль | Статус |
 | :--- | :--- | :--- |
 | `local` | основной сервер: скан + аудит | ✅ |
 | `circleci` | шарды скана | ✅ |
-| `e2b` | точечный аудит целей | ✅ |
+| `e2b` | точечный аудит | ✅ |
 | `codesandbox` | точечный аудит | ✅ |
 | `openhands` | ИИ-агент: dev-задачи, анализ, PR | ✅ |
 | `vercel` | serverless-аудит | ⏳ ждёт активации |
@@ -71,7 +64,6 @@ passwords, tokens, API keys и private keys в telemetry не попадают.
 ./pipeline.sh 100000
 SCAN_MODE=dispatch SHARDS=6 ./pipeline.sh 100000
 python3 dispatch.py dev --task-text "Добавь сигнатуры в router_detect.py и запушь"
-python3 bgp_looking_glass.py --asn 3320 --update-db
 python3 web_server.py
 ```
 
@@ -82,20 +74,22 @@ export SCAN_OBSERVABILITY_FILE=/var/lib/routerscan/observability.jsonl
 python3 -m pytest tests/ -q
 ```
 
-## 📈 Отчёты
-- `REPORT.md` — ежедневный
-- `CVE_REPORT.md` — уязвимые устройства
-- `internetdb_report.md` — порты/CVE по Shodan
-- Дашборд: роутеры, гео-карта, статусы аудита и агрегированная telemetry
+## 🧪 Проверки
 
-## 🧪 Тесты
 ```bash
 .venv/bin/python -m pytest tests/ -v
+python3 -m compileall -q .
 ```
 
+CI проверяет поддерживаемые Python 3.10/3.11/3.12, security regression и repository policy gates.
+
 ## 📚 Документация
+
 - `AGENTS.md` — протокол мультиагентной работы
 - `PROJECT_STATE.json` — canonical project state
 - `docs/BACKLOG.md` — backlog и принятые/непринятые улучшения
 - `docs/OBSERVABILITY.md` — observability contract и runbook
+- `docs/RELEASE_CHECKLIST.md` — release gates
+- `docs/RELEASE_POLICY.md` — правила версий и выпуска
+- `docs/RELEASE_NOTES_1.3.0.md` — release notes текущего кандидата
 - `skills/` — база скилов агентов
