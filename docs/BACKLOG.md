@@ -12,10 +12,10 @@ This backlog is the canonical implementation order for the current hardening cyc
 ## P1
 
 - [x] SCAN-ARCH-001 Make `PROJECT_STATE.json` the machine-readable source of truth.
-- [ ] SCAN-ARCH-002 Make distributed jobs resumable and shard-idempotent. Durable job/shard state is implemented and wired into the standalone/multimachine and Codespaces worker lifecycles; dispatcher-level shard launch still needs to route through the same executor before this item is closed.
+- [ ] SCAN-ARCH-002 Make distributed jobs resumable and shard-idempotent. Durable job/shard state and a fail-closed resumable shard executor are implemented; legacy `dispatch.py` still needs to route every distributed scan launch through the executor before this item can close.
 - [x] SCAN-ARCH-003 Replace hard-coded scanner limits with central configuration and bounded concurrency.
-- [ ] SCAN-DET-001 Add multi-signal router detection scoring.
-- [ ] SCAN-DET-002 Expand router detection regression coverage.
+- [x] SCAN-DET-001 Add multi-signal router detection scoring. Detection now combines independent server-header, realm, title and banner evidence with deterministic scoring, agreement bonuses and trap suppression.
+- [x] SCAN-DET-002 Expand router detection regression coverage. Added a detection matrix covering strong signals, cross-field agreement, generic servers, traps, model extraction and determinism.
 - [x] SCAN-CI-001 Make tests a required CI gate. Full pytest workflow is now present; repository branch protection still needs to require it.
 - [x] SCAN-CI-002 Fail pipeline stages loudly instead of silently swallowing operational failures.
 - [ ] SCAN-DOC-001 Generate status/report views from canonical state and sanitized result data.
