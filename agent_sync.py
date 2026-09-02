@@ -37,9 +37,14 @@ def save_state(state):
 
 
 def _safe_ref(value, name):
-    if not isinstance(value, str) or not value.strip() or not _SAFE_REF.fullmatch(value.strip()):
+    if not isinstance(value, str) or not value.strip():
+        if name == "authorization_ref":
+            raise PermissionError("authorization_ref is required")
         raise ValueError(f"{name} must be a bounded operational reference")
-    return value.strip()
+    value = value.strip()
+    if not _SAFE_REF.fullmatch(value):
+        raise ValueError(f"{name} must be a bounded operational reference")
+    return value
 
 
 def _job_state():
