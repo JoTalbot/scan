@@ -15,6 +15,6 @@ def test_maintenance_observability_policy_is_privacy_safe():
 
 def test_project_state_remains_maintenance_source_of_truth():
     text = (ROOT / "PROJECT_STATE.json").read_text(encoding="utf-8")
-    assert '"version": "1.3.0"' in text
+    assert '"version": "1.3.1"' in text
     assert '"status": "production-ready"' in text
     assert '"next_phase": "maintenance"' in text
