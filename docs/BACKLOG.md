@@ -4,9 +4,6 @@ This backlog is the canonical implementation order for the current hardening cyc
 
 ## P0
 
-- [x] SCAN-SEC-001 Public reports never contain discovered passwords. Foundation sanitizer and public-report CLI added; credential export is excluded from Git. Remaining: remove legacy public/API exposure paths.
-- [x] SCAN-SEC-002 Active probing requires an explicit authorization reference/target policy. Pipeline and scan entrypoints are fail-closed; shared authorization contract added.
-- [x] SCAN-SEC-003 CI regression test blocks credential/secret leakage. Security regression workflow and static regression tests added.
 - [ ] SCAN-SEC-004 Existing public findings are sanitized or removed from generated reports/history where practical.
 
 ## P1
@@ -24,9 +21,9 @@ This backlog is the canonical implementation order for the current hardening cyc
 
 - [x] SCAN-OBS-001 Add durable privacy-safe telemetry for jobs, shards and detection outcomes.
 - [x] SCAN-OBS-002 Add worker/job telemetry visibility to the dashboard through `/api/observability` with aggregate counts only.
-- [ ] SCAN-DOC-002 Refresh README against the current implementation.
-- [ ] SCAN-REL-001 Establish release/versioning rules.
-- [ ] SCAN-TEST-001 Add integration tests for pipeline recovery and synchronization.
+- [x] SCAN-DOC-002 Refresh README against the current implementation.
+- [x] SCAN-REL-001 Establish release/versioning rules.
+- [x] SCAN-TEST-001 Add integration tests for pipeline recovery and synchronization.
 
 ## Newly discovered security follow-ups
 
