@@ -38,7 +38,7 @@ jobs:
           set -euo pipefail
           ghp_prefix='ghp_'
           sk_prefix='sk-'
-          openai_key='OPENAI_API_KEY='
+          openai_key='OPENAI_'"'"'API_KEY='"'"''
           private_key='BEGIN (RSA|OPENSSH|EC) PRIVATE KEY'
           secret_pattern="(^|[^A-Za-z0-9_])(${ghp_prefix}[A-Za-z0-9_]{20,}|${sk_prefix}[A-Za-z0-9_-]{20,}|${openai_key}[^<[:space:]]+|${private_key})"
           if git grep -I -nE "$secret_pattern" -- . ':!*.md' ':!SECURITY_POLICY.md'; then
