@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Small durable state store for resumable, idempotent scan jobs.
+"""Durable, resumable and shard-idempotent scan job state.
 
-The state file contains operational metadata only. Target addresses, credentials,
-and secrets must never be persisted here.
+State contains operational metadata only. Targets, credentials and secrets must
+never be persisted here.
 """
 
 import json
 import os
 import tempfile
+from contextlib import contextmanager
 from datetime import datetime, timezone
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -28,6 +29,31 @@ def _validate_step(step):
     if not isinstance(step, str) or not step.strip():
         raise ValueError("step must be a non-empty string")
     return step.strip()
+
+
+def _lock_path(path):
+    return os.path.abspath(path) + ".lock"
+
+
+@contextmanager
+def _state_lock(path):
+    """Serialize read-modify-write operations between local workers."""
+    lock_path = _lock_path(path)
+    os.makedirs(os.path.dirname(lock_path) or ".", exist_ok=True)
+    with open(lock_path, "a+", encoding="utf-8") as lock:
+        try:
+            import fcntl
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+        except ImportError:  # pragma: no cover - Windows fallback
+            pass
+        try:
+            yield
+        finally:
+            try:
+                import fcntl
+                fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+            except ImportError:  # pragma: no cover
+                pass
 
 
 def load_state(path=DEFAULT_STATE_FILE):
@@ -65,39 +91,43 @@ def start_job(job_id, *, authorization_ref, scope_ref, state_path=DEFAULT_STATE_
         raise PermissionError("authorization_ref is required")
     if not scope_ref:
         raise ValueError("scope_ref is required")
-    state = load_state(state_path)
-    existing = state["jobs"].get(job_id)
-    if existing and existing.get("status") == "completed":
-        return existing
-    record = existing or {
-        "job_id": job_id,
-        "status": "pending",
-        "completed_steps": [],
-        "created_at": _now(),
-    }
-    record.update({
-        "status": "running",
-        "scope_ref": str(scope_ref),
-        "authorization_ref": str(authorization_ref),
-        "updated_at": _now(),
-    })
-    state["jobs"][job_id] = record
-    save_state(state, state_path)
-    return record
+    with _state_lock(state_path):
+        state = load_state(state_path)
+        existing = state["jobs"].get(job_id)
+        if existing and existing.get("status") == "completed":
+            return existing
+        record = existing or {
+            "job_id": job_id,
+            "status": "pending",
+            "completed_steps": [],
+            "completed_shards": [],
+            "created_at": _now(),
+        }
+        record.setdefault("completed_shards", [])
+        record.update({
+            "status": "running",
+            "scope_ref": str(scope_ref),
+            "authorization_ref": str(authorization_ref),
+            "updated_at": _now(),
+        })
+        state["jobs"][job_id] = record
+        save_state(state, state_path)
+        return record
 
 
 def mark_step(job_id, step, *, state_path=DEFAULT_STATE_FILE):
     job_id = _validate_job_id(job_id)
     step = _validate_step(step)
-    state = load_state(state_path)
-    if job_id not in state["jobs"]:
-        raise KeyError(job_id)
-    steps = state["jobs"][job_id].setdefault("completed_steps", [])
-    if step not in steps:
-        steps.append(step)
-    state["jobs"][job_id]["updated_at"] = _now()
-    save_state(state, state_path)
-    return state["jobs"][job_id]
+    with _state_lock(state_path):
+        state = load_state(state_path)
+        if job_id not in state["jobs"]:
+            raise KeyError(job_id)
+        steps = state["jobs"][job_id].setdefault("completed_steps", [])
+        if step not in steps:
+            steps.append(step)
+        state["jobs"][job_id]["updated_at"] = _now()
+        save_state(state, state_path)
+        return state["jobs"][job_id]
 
 
 def step_completed(job_id, step, *, state_path=DEFAULT_STATE_FILE):
@@ -108,25 +138,39 @@ def step_completed(job_id, step, *, state_path=DEFAULT_STATE_FILE):
 
 def complete_job(job_id, *, state_path=DEFAULT_STATE_FILE):
     job_id = _validate_job_id(job_id)
-    state = load_state(state_path)
-    if job_id not in state["jobs"]:
-        raise KeyError(job_id)
-    state["jobs"][job_id].update({"status": "completed", "updated_at": _now()})
-    save_state(state, state_path)
-    return state["jobs"][job_id]
+    with _state_lock(state_path):
+        state = load_state(state_path)
+        if job_id not in state["jobs"]:
+            raise KeyError(job_id)
+        state["jobs"][job_id].update({"status": "completed", "updated_at": _now()})
+        save_state(state, state_path)
+        return state["jobs"][job_id]
 
 
 def shard_key(shard_id):
-    """Return the stable logical key used for shard completion."""
     if not isinstance(shard_id, str) or not shard_id.strip():
         raise ValueError("shard_id must be a non-empty string")
     return f"shard:{shard_id.strip()}"
 
 
 def shard_completed(job_id, shard_id, *, state_path=DEFAULT_STATE_FILE):
-    return step_completed(job_id, shard_key(shard_id), state_path=state_path)
+    key = shard_key(shard_id)
+    state = load_state(state_path)
+    record = state["jobs"].get(_validate_job_id(job_id), {})
+    return key in record.get("completed_shards", []) or key in record.get("completed_steps", [])
 
 
 def mark_shard_completed(job_id, shard_id, *, state_path=DEFAULT_STATE_FILE):
-    """Atomically persist a shard completion marker; retries are harmless."""
-    return mark_step(job_id, shard_key(shard_id), state_path=state_path)
+    """Persist one shard completion marker under an inter-process lock."""
+    job_id = _validate_job_id(job_id)
+    key = shard_key(shard_id)
+    with _state_lock(state_path):
+        state = load_state(state_path)
+        if job_id not in state["jobs"]:
+            raise KeyError(job_id)
+        shards = state["jobs"][job_id].setdefault("completed_shards", [])
+        if key not in shards:
+            shards.append(key)
+        state["jobs"][job_id]["updated_at"] = _now()
+        save_state(state, state_path)
+        return state["jobs"][job_id]
