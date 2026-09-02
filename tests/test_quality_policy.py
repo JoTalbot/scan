@@ -5,12 +5,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_project_state_is_observability_and_points_to_next_phase():
+def test_project_state_is_production_ready_and_points_to_maintenance():
     state = json.loads((ROOT / "PROJECT_STATE.json").read_text(encoding="utf-8"))
-    assert state["status"] == "observability"
-    assert state["next_phase"] == "documentation-and-release"
+    assert state["status"] == "production-ready"
+    assert state["next_phase"] == "maintenance"
     assert not state["active_work"]
     assert state["backlog"]["p2_completed_in_observability"]
+    assert state["backlog"]["security_completed_in_production_batch"]
 
 
 def test_release_docs_exist():
