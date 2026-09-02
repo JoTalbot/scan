@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""
-Storage Scaling & Auto-Sync Manager for Multi-Agent Network
-Handles compression (gzip), sharded scan exports, and Git synchronization.
-"""
+"""Storage Scaling & Auto-Sync Manager.
 
+Credential exports are metadata-only. Never export credential material.
+"""
 import os
 import sys
 import gzip
@@ -21,194 +20,79 @@ def get_now_str():
 
 def export_and_compress_scans(agent_id="aios"):
     os.makedirs(SCANS_DIR, exist_ok=True)
-    if not os.path.exists(DB_FILE):
-        return None
-
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    
-    # Check if scan_results exists
+    if not os.path.exists(DB_FILE): return None
+    conn = sqlite3.connect(DB_FILE); cur = conn.cursor()
     cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='scan_results'")
-    if not cur.fetchone():
-        conn.close()
-        return None
-
-    cur.execute("""
-        SELECT ip, port, http_status, server_header, title, asn, isp_name,
-               country_code, country_name_ru, response_time_ms, scanned_at
-        FROM scan_results
-        WHERE has_banner = 1
-        ORDER BY id DESC
-    """)
-    rows = cur.fetchall()
-    conn.close()
-
-    if not rows:
-        return None
-
-    chunk_name = f"scan_{agent_id}_{get_now_str()}.csv.gz"
-    chunk_path = os.path.join(SCANS_DIR, chunk_name)
-
-    print(f"📦 Сжатие {len(rows):,} найденных баннеров в {chunk_name}...")
+    if not cur.fetchone(): conn.close(); return None
+    cur.execute("SELECT ip, port, http_status, server_header, title, asn, isp_name, country_code, country_name_ru, response_time_ms, scanned_at FROM scan_results WHERE has_banner = 1 ORDER BY id DESC")
+    rows = cur.fetchall(); conn.close()
+    if not rows: return None
+    chunk_path = os.path.join(SCANS_DIR, f"scan_{agent_id}_{get_now_str()}.csv.gz")
     with gzip.open(chunk_path, "wt", encoding="utf-8") as f:
         f.write("IP,Port,HTTP_Status,Server_Header,Title,ASN,ISP_Name,Country_Code,Country_Name,Latency_MS,Scanned_At\n")
         for r in rows:
-            srv = (r[3] or "").replace('"', '""')
-            title = (r[4] or "").replace('"', '""')
-            isp = (r[6] or "").replace('"', '""')
-            f.write(f'{r[0]},{r[1]},{r[2] or ""},"{srv}","{title}",{r[5]},"{isp}",{r[7]},{r[8]},{r[9]},{r[10]}\n')
-
-    size_kb = os.path.getsize(chunk_path) / 1024
-    print(f"✅ Чанк сохранен: {chunk_path} ({size_kb:.1f} KB)")
+            q=lambda v: '"'+str(v or '').replace('"','""')+'"'
+            f.write(f'{r[0]},{r[1]},{r[2] or ""},{q(r[3])},{q(r[4])},{r[5]},"{str(r[6] or "").replace(chr(34), chr(34)*2)}",{r[7]},{r[8]},{r[9]},{r[10]}\n')
     return chunk_path
 
 def check_db_integrity():
-    """№1: проверка целостности БД + checkpoint WAL перед синком."""
-    if not os.path.exists(DB_FILE):
-        return False
+    if not os.path.exists(DB_FILE): return False
     try:
-        conn = sqlite3.connect(DB_FILE, timeout=60)
-        conn.execute("PRAGMA busy_timeout = 30000;")
-        # коммитим WAL в основную БД
-        conn.execute("PRAGMA wal_checkpoint(TRUNCATE);")
-        res = conn.execute("PRAGMA integrity_check").fetchone()
-        conn.close()
-        ok = res and res[0] == "ok"
-        print(f"🧪 Целостность БД: {'OK' if ok else 'ПОВРЕЖДЕНА: ' + str(res)}")
-        return ok
+        conn=sqlite3.connect(DB_FILE, timeout=60); conn.execute("PRAGMA busy_timeout = 30000;"); conn.execute("PRAGMA wal_checkpoint(TRUNCATE);"); res=conn.execute("PRAGMA integrity_check").fetchone(); conn.close()
+        return bool(res and res[0] == "ok")
     except Exception as e:
-        print(f"⚠️ Ошибка проверки БД: {e}")
-        return False
-
+        print(f"⚠️ Ошибка проверки БД: {e}"); return False
 
 def compress_main_db():
-    if not os.path.exists(DB_FILE):
-        return
-    
-    # 0. integrity + checkpoint (защита от повреждения WAL)
-    check_db_integrity()
-    
-    # 1. Vacuum SQLite
-    conn = sqlite3.connect(DB_FILE, timeout=60)
-    conn.execute("PRAGMA busy_timeout = 30000;")
-    conn.execute("PRAGMA page_size = 4096;")
-    conn.execute("VACUUM;")
-    conn.close()
-
-    raw_mb = os.path.getsize(DB_FILE) / (1024 * 1024)
-    print(f"📊 Текущий размер isp_cidr.db: {raw_mb:.2f} МБ")
-
-    # If DB exceeds 90MB, create compressed archive for Git
-    gz_path = DB_FILE + ".gz"
-    print(f"🗜 Архивирование базы в {gz_path}...")
-    with open(DB_FILE, "rb") as f_in, gzip.open(gz_path, "wb", compresslevel=6) as f_out:
-        shutil.copyfileobj(f_in, f_out)
-    
-    gz_mb = os.path.getsize(gz_path) / (1024 * 1024)
-    print(f"✅ База сжата: {gz_mb:.2f} МБ (сжатие в {raw_mb/gz_mb:.1f} раз!)")
+    if not os.path.exists(DB_FILE): return
+    check_db_integrity(); conn=sqlite3.connect(DB_FILE, timeout=60); conn.execute("PRAGMA busy_timeout = 30000;"); conn.execute("VACUUM;"); conn.close()
+    with open(DB_FILE,"rb") as f_in, gzip.open(DB_FILE+".gz","wb",compresslevel=6) as f_out: shutil.copyfileobj(f_in,f_out)
 
 def export_routers(agent_id="aios"):
-    """Export scan_routers inventory to data/routers/scan_routers_<ts>.csv.gz."""
-    routers_dir = os.path.join(BASE_DIR, "data", "routers")
-    os.makedirs(routers_dir, exist_ok=True)
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    try:
-        cur.execute("""
-            SELECT ip, port, http_status, vendor, model, device_type, confidence, matched_on,
-                   server_header, title, asn, isp_name, country_code, country_name_ru, detected_at
-            FROM scan_routers ORDER BY detected_at DESC
-        """)
-    except sqlite3.OperationalError:
-        conn.close()
-        return None
-    rows = cur.fetchall()
-    conn.close()
-    if not rows:
-        print("ℹ️ Таблица scan_routers пуста — экспорт пропущен.")
-        return None
-
-    ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d_%H%M%S")
-    chunk_path = os.path.join(routers_dir, f"scan_routers_{agent_id}_{ts}.csv.gz")
-    with gzip.open(chunk_path, "wt", encoding="utf-8") as f:
+    routers_dir=os.path.join(BASE_DIR,"data","routers"); os.makedirs(routers_dir,exist_ok=True)
+    conn=sqlite3.connect(DB_FILE); cur=conn.cursor()
+    try: cur.execute("SELECT ip, port, http_status, vendor, model, device_type, confidence, matched_on, server_header, title, asn, isp_name, country_code, country_name_ru, detected_at FROM scan_routers ORDER BY detected_at DESC")
+    except sqlite3.OperationalError: conn.close(); return None
+    rows=cur.fetchall(); conn.close()
+    if not rows: return None
+    path=os.path.join(routers_dir,f"scan_routers_{agent_id}_{get_now_str()}.csv.gz")
+    with gzip.open(path,"wt",encoding="utf-8") as f:
         f.write("IP,Port,HTTP_Status,Vendor,Model,Device_Type,Confidence,Matched_On,Server_Header,Title,ASN,ISP_Name,Country_Code,Country_Name,Detected_At\n")
         for r in rows:
             def q(v):
-                v = "" if v is None else str(v)
-                return '"' + v.replace('"', '""') + '"' if any(c in v for c in '",\n\r') else v
-            f.write(",".join(q(x) for x in r) + "\n")
-    print(f"✅ Экспорт роутеров: {chunk_path} ({os.path.getsize(chunk_path)/1024:.1f} KB, {len(rows):,} записей)")
-    return chunk_path
-
+                v="" if v is None else str(v); return '"'+v.replace('"','""')+'"' if any(c in v for c in '",\n\r') else v
+            f.write(",".join(q(x) for x in r)+"\n")
+    return path
 
 def export_credentials(agent_id="aios"):
-    """Export found default credentials to data/creds/router_credentials_<ts>.csv.gz."""
-    creds_dir = os.path.join(BASE_DIR, "data", "creds")
-    os.makedirs(creds_dir, exist_ok=True)
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-    try:
-        cur.execute("""
-            SELECT ip, port, vendor, model, device_type, username, password,
-                   auth_method, http_status, realm, checked_at
-            FROM router_credentials ORDER BY checked_at DESC
-        """)
-    except sqlite3.OperationalError:
-        conn.close()
-        return None
-    rows = cur.fetchall()
-    conn.close()
-    if not rows:
-        print("ℹ️ Таблица router_credentials пуста — экспорт пропущен.")
-        return None
-
-    ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d_%H%M%S")
-    chunk_path = os.path.join(creds_dir, f"router_credentials_{agent_id}_{ts}.csv.gz")
-    with gzip.open(chunk_path, "wt", encoding="utf-8") as f:
-        f.write("IP,Port,Vendor,Model,Device_Type,Username,Password,Auth_Method,HTTP_Status,Realm,Checked_At\n")
-        for r in rows:
-            def q(v):
-                v = "" if v is None else str(v)
-                return '"' + v.replace('"', '""') + '"' if any(c in v for c in '",\n\r') else v
-            f.write(",".join(q(x) for x in r) + "\n")
-    print(f"✅ Экспорт найденных пар: {chunk_path} ({os.path.getsize(chunk_path)/1024:.1f} KB, {len(rows):,} записей)")
-    return chunk_path
-
+    """Write aggregate authentication metadata only, never target or credential values."""
+    creds_dir=os.path.join(BASE_DIR,"data","creds"); os.makedirs(creds_dir,exist_ok=True)
+    conn=sqlite3.connect(DB_FILE); cur=conn.cursor()
+    try: cur.execute("SELECT vendor, auth_method, COUNT(*) FROM router_credentials GROUP BY vendor, auth_method ORDER BY vendor, auth_method")
+    except sqlite3.OperationalError: conn.close(); return None
+    rows=cur.fetchall(); conn.close()
+    if not rows: return None
+    path=os.path.join(creds_dir,f"router_credentials_summary_{agent_id}_{get_now_str()}.csv.gz")
+    with gzip.open(path,"wt",encoding="utf-8") as f:
+        f.write("Vendor,Auth_Method,Count\n")
+        for vendor, method, count in rows:
+            q=lambda v: '"'+str(v or '').replace('"','""')+'"' if any(c in str(v or '') for c in '",\n\r') else str(v or '')
+            f.write(",".join(q(x) for x in (vendor,method,count))+"\n")
+    return path
 
 def sync_to_github(commit_msg=None):
     os.chdir(BASE_DIR)
-    if not commit_msg:
-        commit_msg = f"chore(sync): automated data sync & scan chunks at {datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
-
-    print("🚀 Отправка изменений в Git...")
-    subprocess.run(["git", "add", "data/", "STATUS.md", "agent_state.json", "*.py", "*.sh", "*.md"], check=False)
-    
-    # If uncompressed DB < 95MB, track directly, else track .gz
-    db_size_mb = os.path.getsize(DB_FILE) / (1024 * 1024) if os.path.exists(DB_FILE) else 0
-    if db_size_mb < 95.0:
-        subprocess.run(["git", "add", "isp_cidr.db"], check=False)
-    else:
-        subprocess.run(["git", "add", "isp_cidr.db.gz"], check=False)
-
-    subprocess.run(["git", "commit", "-m", commit_msg], check=False)
-    # pull --rebase перед push: мульти-исполнители пушат параллельно
-    env = dict(os.environ, GIT_TERMINAL_PROMPT="0")
-    subprocess.run(["git", "pull", "--rebase", "origin", "main"], check=False,
-                   env=env, capture_output=True, text=True)
-    res = subprocess.run(["git", "push", "origin", "main"], capture_output=True, text=True, env=env)
-    if res.returncode == 0:
-        print("🎉 Успешно синхронизировано с GitHub!")
-    else:
-        print(f"⚠️ Git push output: {res.stderr or res.stdout}")
+    if not commit_msg: commit_msg=f"chore(sync): automated data sync at {get_now_str()}"
+    subprocess.run(["git","add","data/","STATUS.md","agent_state.json","*.py","*.sh","*.md"],check=False)
+    if os.path.exists(DB_FILE): subprocess.run(["git","add","isp_cidr.db" if os.path.getsize(DB_FILE)<95*1024*1024 else "isp_cidr.db.gz"],check=False)
+    subprocess.run(["git","commit","-m",commit_msg],check=False)
+    env=dict(os.environ,GIT_TERMINAL_PROMPT="0")
+    subprocess.run(["git","pull","--rebase","origin","main"],check=False,env=env,capture_output=True,text=True)
+    res=subprocess.run(["git","push","origin","main"],capture_output=True,text=True,env=env)
+    print("🎉 Успешно синхронизировано с GitHub!" if res.returncode==0 else f"⚠️ Git push output: {res.stderr or res.stdout}")
 
 def main():
-    agent = sys.argv[1] if len(sys.argv) > 1 else "aios-server"
-    print("=== 🔄 Запуск Storage Scaling Manager ===")
-    export_and_compress_scans(agent)
-    export_routers(agent)
-    export_credentials(agent)
-    compress_main_db()
-    sync_to_github()
+    agent=sys.argv[1] if len(sys.argv)>1 else "aios-server"
+    export_and_compress_scans(agent); export_routers(agent); export_credentials(agent); compress_main_db(); sync_to_github()
 
-if __name__ == "__main__":
-    main()
+if __name__ == "__main__": main()
