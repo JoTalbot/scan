@@ -2,25 +2,24 @@
 
 RouterScan 1.3.x keeps observability privacy-safe, bounded, and optional.
 
-## Metrics backend
+The production implementation uses a bounded JSONL sink with size-based rotation. It is configured through `SCAN_OBSERVABILITY_FILE`, `SCAN_OBSERVABILITY_MAX_BYTES`, and `SCAN_OBSERVABILITY_ROTATIONS`.
 
-`SCAN_OBSERVABILITY_FILE` may point to a local JSONL sink. Implementations must:
+## Guarantees
 
-- use bounded event names and labels;
-- rotate before the sink exceeds its configured size;
-- retain only a bounded number of rotated files;
-- never persist raw targets, authorization material, credentials, inventory, or HTTP bodies;
-- tolerate a full or unavailable sink without changing scan behavior.
+- event names and labels are bounded;
+- the active sink rotates before exceeding the configured byte budget;
+- only a bounded number of rotated files are retained;
+- sensitive keys and values are redacted before serialization;
+- sink failures never change scan behavior;
+- raw targets, authorization material, credentials, inventory, and HTTP bodies are never persisted.
 
-Production defaults should remain conservative. External metrics backends are optional and must not be required for scanning.
+External metrics backends remain optional and are not required for scanning.
 
-## Baselines
+## Baselines and SLOs
 
-For the first production baseline, track only aggregate job, shard, detection, error, and duration measurements. Establish alert thresholds from observed behavior rather than guessed values.
+For the first production baseline, track aggregate job, shard, detection, error, duration, and sink-health measurements. Thresholds must be derived from observed production distributions rather than guessed values.
 
-## SLO policy
-
-Initial SLO candidates are operational hypotheses, not release gates. Review after a meaningful production sample:
+Initial SLO candidates are operational hypotheses until a meaningful production sample exists:
 
 - job completion success rate;
 - shard recovery success rate;
@@ -28,4 +27,4 @@ Initial SLO candidates are operational hypotheses, not release gates. Review aft
 - telemetry write failure rate;
 - dashboard/API availability.
 
-Thresholds must be documented before becoming automated alerts.
+Thresholds become automated alerts only after review and documentation.
