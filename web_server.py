@@ -2,6 +2,8 @@
 """Secure entrypoint for the RouterScan dashboard."""
 import json
 import os
+import statistics
+from collections import Counter
 import web_server_legacy as _legacy
 from report_sanitize import target_id
 from web_server_legacy import *  # noqa: F401,F403,E402
@@ -47,39 +49,91 @@ def _safe_get_routers(self, limit=100):
     return {"count": len(routers), "routers": routers}
 
 
-def _safe_get_observability(self):
-    """Return aggregated telemetry state, never raw events or sensitive values."""
-    path = os.environ.get("SCAN_OBSERVABILITY_FILE", "")
-    if not path or not os.path.exists(path):
-        return {"enabled": False, "events": 0, "event_types": {}}
-    counts = {}
-    total = 0
+def _read_telemetry(path):
+    """Read bounded aggregate telemetry without returning raw event records."""
+    counts = Counter()
+    durations = []
+    detections = Counter()
     try:
         with open(path, encoding="utf-8") as fh:
             for line in fh:
                 if not line.strip():
                     continue
-                event = json.loads(line).get("event", "unknown")
-                counts[event] = counts.get(event, 0) + 1
-                total += 1
-    except (OSError, ValueError):
+                row = json.loads(line)
+                event = str(row.get("event", "unknown"))[:96]
+                counts[event] += 1
+                duration = row.get("duration_ms")
+                if isinstance(duration, (int, float)) and duration >= 0:
+                    durations.append(float(duration))
+                if event == "detection.result":
+                    vendor = str(row.get("vendor", "unknown"))[:96]
+                    detections[vendor] += 1
+    except (OSError, ValueError, TypeError):
+        return None
+    return counts, durations, detections
+
+
+def _safe_get_observability(self):
+    """Return aggregated telemetry state, never raw events or sensitive values."""
+    path = os.environ.get("SCAN_OBSERVABILITY_FILE", "")
+    if not path or not os.path.exists(path):
+        return {"enabled": False, "events": 0, "event_types": {}}
+    data = _read_telemetry(path)
+    if data is None:
         return {"enabled": True, "events": 0, "event_types": {}, "read_error": True}
-    return {"enabled": True, "events": total, "event_types": dict(sorted(counts.items()))}
+    counts, _, _ = data
+    return {"enabled": True, "events": sum(counts.values()), "event_types": dict(sorted(counts.items()))}
+
+
+def _safe_get_observability_metrics(self):
+    """Return chart-ready aggregate metrics with no targets or raw telemetry."""
+    path = os.environ.get("SCAN_OBSERVABILITY_FILE", "")
+    if not path or not os.path.exists(path):
+        return {"enabled": False, "jobs": {}, "shards": {}, "detections": {}, "duration_ms": {}}
+    data = _read_telemetry(path)
+    if data is None:
+        return {"enabled": True, "read_error": True}
+    counts, durations, detections = data
+    job_completed = counts.get("job.completed", 0)
+    job_failed = counts.get("job.failed", 0)
+    shard_completed = counts.get("shard.completed", 0)
+    shard_failed = counts.get("shard.failed", 0)
+    shard_retried = counts.get("shard.retry", 0) + counts.get("shard.retried", 0)
+    return {
+        "enabled": True,
+        "jobs": {"completed": job_completed, "failed": job_failed,
+                 "total_terminal": job_completed + job_failed,
+                 "failure_rate": (job_failed / (job_completed + job_failed)) if job_completed + job_failed else 0.0},
+        "shards": {"completed": shard_completed, "failed": shard_failed, "retried": shard_retried,
+                   "failure_rate": (shard_failed / (shard_completed + shard_failed)) if shard_completed + shard_failed else 0.0},
+        "detections": {"total": counts.get("detection.result", 0), "by_vendor": dict(detections.most_common(20))},
+        "duration_ms": {
+            "count": len(durations),
+            "mean": statistics.fmean(durations) if durations else 0.0,
+            "max": max(durations) if durations else 0.0,
+        },
+    }
 
 
 _legacy.ISPHandler.get_creds = _safe_get_creds
 _legacy.ISPHandler.get_routers = _safe_get_routers
 _legacy.ISPHandler.get_observability = _safe_get_observability
+_legacy.ISPHandler.get_observability_metrics = _safe_get_observability_metrics
 ISPHandler.get_creds = _safe_get_creds
 ISPHandler.get_routers = _safe_get_routers
 ISPHandler.get_observability = _safe_get_observability
+ISPHandler.get_observability_metrics = _safe_get_observability_metrics
 
 _original_do_get = _legacy.ISPHandler.do_GET
 
 
 def _secure_do_get(self):
-    if self.path.split("?", 1)[0] == "/api/observability":
+    path = self.path.split("?", 1)[0]
+    if path == "/api/observability":
         self.send_json(self.get_observability())
+        return
+    if path == "/api/observability/metrics":
+        self.send_json(self.get_observability_metrics())
         return
     _original_do_get(self)
 

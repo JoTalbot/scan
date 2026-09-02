@@ -9,10 +9,9 @@
 
 ## 📌 Текущий статус
 
-**Версия: 1.3.0 — release candidate.** Базовая архитектура, resumable execution,
-детекция, CI/security gates и privacy-safe observability реализованы.
-Production-релиз пока блокирует `SCAN-SEC-004`: существующие публичные findings
-и история должны быть санированы или удалены там, где это практически возможно.
+**Версия: 1.3.1 — maintenance release candidate.** Production 1.3.0 завершён.
+Текущий batch добавляет bounded/rotating privacy-safe telemetry, aggregate observability
+metrics API и отдельный privacy-safe dashboard для операционных графиков.
 
 Машиночитаемый источник истины: `PROJECT_STATE.json`.
 
@@ -33,7 +32,7 @@ Production-релиз пока блокирует `SCAN-SEC-004`: существ
 | `dispatch.py` | Раздача задач по исполнителям |
 | `resumable_dispatch.py` | Fail-closed resumable executor с shard-idempotency |
 | `job_state.py` | Durable job/shard state |
-| `observability.py` | Privacy-safe JSONL lifecycle telemetry и detection contract |
+| `observability.py` | Privacy-safe JSONL telemetry с bounded rotation и detection contract |
 | `pipeline.sh` | Автоцикл pipeline |
 | `openhands_agent.py` | ИИ-агент для задач разработки |
 | `extract_routers.py` | Ретроспективная детекция |
@@ -44,8 +43,20 @@ Production-релиз пока блокирует `SCAN-SEC-004`: существ
 - Активное сканирование выполняется только при явной авторизации и bounded scope.
 - Credentials, tokens, API keys, private keys и raw HTTP artifacts не должны попадать в Git или публичные отчёты.
 - Telemetry включается только через `SCAN_OBSERVABILITY_FILE` и рекурсивно редактирует чувствительные поля.
-- `GET /api/observability` возвращает только aggregate event counts, без raw telemetry.
+- `GET /api/observability` и `GET /api/observability/metrics` возвращают только агрегированные данные, без raw telemetry.
 - Retry успешного shard идемпотентен; job завершается только после всех объявленных shard.
+
+## 📊 Maintenance observability
+
+Для telemetry можно задать:
+
+```bash
+export SCAN_OBSERVABILITY_FILE=/var/lib/routerscan/observability.jsonl
+export SCAN_OBSERVABILITY_MAX_BYTES=5242880
+export SCAN_OBSERVABILITY_ROTATIONS=3
+```
+
+Privacy-safe dashboard: `site_control/observability.html`.
 
 ## 🤖 Исполнители
 
@@ -67,13 +78,6 @@ python3 dispatch.py dev --task-text "Добавь сигнатуры в router_d
 python3 web_server.py
 ```
 
-Для локальной проверки telemetry:
-
-```bash
-export SCAN_OBSERVABILITY_FILE=/var/lib/routerscan/observability.jsonl
-python3 -m pytest tests/ -q
-```
-
 ## 🧪 Проверки
 
 ```bash
@@ -89,7 +93,10 @@ CI проверяет поддерживаемые Python 3.10/3.11/3.12, securi
 - `PROJECT_STATE.json` — canonical project state
 - `docs/BACKLOG.md` — backlog и принятые/непринятые улучшения
 - `docs/OBSERVABILITY.md` — observability contract и runbook
-- `docs/RELEASE_CHECKLIST.md` — release gates
+- `docs/MAINTENANCE_OBSERVABILITY.md` — bounded telemetry, rotation и SLO policy
+- `docs/OBSERVABILITY_BASELINE.md` — production baseline
+- `docs/DASHBOARD_CHARTS.md` — privacy-safe dashboard chart contract
 - `docs/RELEASE_POLICY.md` — правила версий и выпуска
-- `docs/RELEASE_NOTES_1.3.0.md` — release notes текущего кандидата
+- `docs/RELEASE_NOTES_1.3.0.md` — production release notes
+- `site_control/observability.html` — aggregate observability dashboard
 - `skills/` — база скилов агентов
