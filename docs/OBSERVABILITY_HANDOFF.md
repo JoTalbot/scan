@@ -1,15 +1,24 @@
-# Observability handoff
+# Observability Handoff
 
-The pre-observability phase leaves the following stable events available for telemetry work:
+## Completed in this batch
 
-- job started / resumed;
-- shard started;
-- shard skipped because it is already complete;
-- shard completed successfully;
-- shard failed;
-- job completed;
-- detection result with vendor, device type, score and evidence-source names.
+- Structured JSONL event sink with opt-in activation.
+- Recursive redaction of sensitive fields and bounded strings/labels.
+- Job lifecycle telemetry: start and resume-skip, completion.
+- Shard lifecycle telemetry: start, skip, success, failure.
+- Detection telemetry contract limited to vendor/model/device type, score and evidence-source names.
+- Dashboard aggregate endpoint: `GET /api/observability`.
+- Regression tests for privacy and lifecycle behavior.
+- Project state and backlog updated to version `1.3.0-observability`.
 
-Telemetry must not copy authorization secrets, credentials, raw target inventories, authentication headers, or other sensitive artifacts into metrics, traces, or logs.
+## Production acceptance criteria
 
-The observability phase should add metrics, structured events and tracing around these lifecycle boundaries without changing their authorization or correctness semantics.
+- Telemetry path is outside public export/synchronization paths.
+- `SCAN_OBSERVABILITY_FILE` is writable by the service account.
+- `/api/observability` is reachable only where the dashboard itself is authorized to be reachable.
+- No telemetry event contains a raw target, target inventory, authorization value, credential, password, token or HTTP header.
+- CI remains green on Python 3.10, 3.11 and 3.12.
+
+## Next engineering phase
+
+The remaining backlog is documentation/release hardening plus integration coverage. External metrics backends and alert thresholds remain intentionally deferred until deployment baselines exist.
