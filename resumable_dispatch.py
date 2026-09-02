@@ -58,7 +58,6 @@ def _record_shard_and_maybe_complete(job_id, shard, total, state_kwargs):
                        shard_total=total, completed_shards=len(completed))
     if len(completed) >= total:
         record = job_state.complete_job(job_id, **state_kwargs)
-        observability.emit("job.completed", job_id=job_id, shard_total=total)
     return record
 
 
@@ -90,18 +89,19 @@ def run_shard(job_id, shard, total, *, batch=DEFAULT_BATCH, ports="80,8080,8443"
         kwargs["state_path"] = state_path
     job_state.start_job(job_id, **kwargs)
     state_kwargs = {"state_path": state_path} if state_path else {}
-    record = job_state.load_state(state_path or job_state.DEFAULT_STATE_FILE)["jobs"].get(job_id, {})
+    state_file = state_path or job_state.DEFAULT_STATE_FILE
+    record = job_state.load_state(state_file)["jobs"].get(job_id, {})
     if record.get("shard_total") not in (None, total):
         raise ValueError("shard_total does not match the existing job")
     if record.get("shard_total") is None:
-        state = job_state.load_state(state_path or job_state.DEFAULT_STATE_FILE)
+        state = job_state.load_state(state_file)
         state["jobs"][job_id]["shard_total"] = total
-        job_state.save_state(state, state_path or job_state.DEFAULT_STATE_FILE)
+        job_state.save_state(state, state_file)
 
     if job_state.shard_completed(job_id, str(shard), **state_kwargs):
         observability.emit("shard.skipped", job_id=job_id, shard=shard, reason="already_completed")
         return 0
-    if job_state.load_state(state_path or job_state.DEFAULT_STATE_FILE)["jobs"].get(job_id, {}).get("status") == "completed":
+    if job_state.load_state(state_file)["jobs"].get(job_id, {}).get("status") == "completed":
         observability.emit("shard.skipped", job_id=job_id, shard=shard, reason="job_completed")
         return 0
 
