@@ -4,20 +4,24 @@
   "version": "1.1.0-hardening",
   "status": "hardening",
   "source_of_truth": "PROJECT_STATE.json",
-  "active_work": [],
+  "active_work": ["SCAN-ARCH-002"],
   "completed_foundation": [
     "database",
     "firewall_exports",
     "cli",
     "dashboard",
     "multi_agent_protocol",
-    "github_sync"
+    "github_sync",
+    "canonical_project_state",
+    "resumable_job_state"
   ],
   "quality_gates": {
     "authorized_targets_required": true,
     "public_credential_redaction_required": true,
     "ci_required": true,
-    "tests_required": true
+    "tests_required": true,
+    "resumable_jobs_required": true,
+    "shard_idempotency_required": true
   },
   "backlog": {
     "p0": [
@@ -27,7 +31,6 @@
       "SCAN-SEC-004"
     ],
     "p1": [
-      "SCAN-ARCH-001",
       "SCAN-ARCH-002",
       "SCAN-ARCH-003",
       "SCAN-DET-001",
