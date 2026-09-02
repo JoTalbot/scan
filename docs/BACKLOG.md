@@ -35,6 +35,10 @@ This backlog is the canonical implementation order for the current hardening cyc
 - [x] SCAN-SEC-007 Apply the authorization gate to the HTTP and browser audit entrypoints; no dedicated SSH/Telnet audit entrypoints were found in the active tree, so no separate active gate was required there.
 - [x] SCAN-SEC-008 Add a CI check for sensitive-field names and known credential-artifact paths in tracked files.
 
+## Newly discovered product/architecture follow-ups
+
+- [ ] SCAN-ARCH-004 Make remote shard completion observable before marking a shard complete. SSH dispatch currently backgrounds the remote command, so process exit alone cannot prove the remote scan finished; use synchronous execution or an explicit completion sentinel/receipt before treating the shard as successful.
+
 ## Batch rule
 
 Each hardening batch is executed in ordered iterations. A later iteration must not weaken an earlier security gate. Product improvements discovered during implementation are added here before implementation rather than silently becoming scope.
