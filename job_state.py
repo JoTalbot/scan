@@ -24,6 +24,12 @@ def _validate_job_id(job_id):
     return job_id.strip()
 
 
+def _validate_step(step):
+    if not isinstance(step, str) or not step.strip():
+        raise ValueError("step must be a non-empty string")
+    return step.strip()
+
+
 def load_state(path=DEFAULT_STATE_FILE):
     if not os.path.exists(path):
         return {"schema_version": 1, "jobs": {}}
@@ -82,8 +88,7 @@ def start_job(job_id, *, authorization_ref, scope_ref, state_path=DEFAULT_STATE_
 
 def mark_step(job_id, step, *, state_path=DEFAULT_STATE_FILE):
     job_id = _validate_job_id(job_id)
-    if not isinstance(step, str) or not step.strip():
-        raise ValueError("step must be a non-empty string")
+    step = _validate_step(step)
     state = load_state(state_path)
     if job_id not in state["jobs"]:
         raise KeyError(job_id)
@@ -96,8 +101,9 @@ def mark_step(job_id, step, *, state_path=DEFAULT_STATE_FILE):
 
 
 def step_completed(job_id, step, *, state_path=DEFAULT_STATE_FILE):
-    state = load_state(state_path)
-    return step in state["jobs"].get(job_id, {}).get("completed_steps", [])
+    return _validate_step(step) in load_state(state_path)["jobs"].get(
+        _validate_job_id(job_id), {}
+    ).get("completed_steps", [])
 
 
 def complete_job(job_id, *, state_path=DEFAULT_STATE_FILE):
@@ -108,3 +114,19 @@ def complete_job(job_id, *, state_path=DEFAULT_STATE_FILE):
     state["jobs"][job_id].update({"status": "completed", "updated_at": _now()})
     save_state(state, state_path)
     return state["jobs"][job_id]
+
+
+def shard_key(shard_id):
+    """Return the stable logical key used for shard completion."""
+    if not isinstance(shard_id, str) or not shard_id.strip():
+        raise ValueError("shard_id must be a non-empty string")
+    return f"shard:{shard_id.strip()}"
+
+
+def shard_completed(job_id, shard_id, *, state_path=DEFAULT_STATE_FILE):
+    return step_completed(job_id, shard_key(shard_id), state_path=state_path)
+
+
+def mark_shard_completed(job_id, shard_id, *, state_path=DEFAULT_STATE_FILE):
+    """Atomically persist a shard completion marker; retries are harmless."""
+    return mark_step(job_id, shard_key(shard_id), state_path=state_path)
