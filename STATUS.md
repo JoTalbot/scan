@@ -1,7 +1,8 @@
 # 📍 RouterScan Project Status
 
 > **Статус:** Production-ready candidate  
-> **Версия:** 1.3.0  
+> **Baseline version:** 1.3.1  
+> **Current phase:** 1.4 integration hardening and product validation  
 > **Последнее обновление:** 2026-09-03  
 > **Source of truth:** `PROJECT_STATE.json`
 
@@ -23,10 +24,15 @@
 | Public artifact sanitization | ✅ |
 | Integration recovery tests | ✅ |
 | Release documentation | ✅ |
+| 1.4 reliability primitives | ✅ |
+| 1.4 detection/intelligence hardening | ✅ |
+| 1.4 outbound security hardening | ✅ |
+| 1.4 evidence / profiles / capabilities | ✅ |
+| 1.4 integration validation | ✅ |
 
 ## 🔐 Public-data policy
 
-Public status and reports contain aggregate operational information only. Live target addresses, credentials, authentication evidence, raw HTTP artifacts, authorization references and private telemetry are not published.
+Public status and reports contain aggregate policy and validation information only. Live target addresses, credentials, authentication evidence, raw HTTP artifacts, authorization references, historical live-scan findings and private telemetry are not published.
 
 ## 🧪 Release validation
 
@@ -36,9 +42,10 @@ Public status and reports contain aggregate operational information only. Live t
 - Source compilation: required.
 - Active probing: fail-closed and authorization-gated.
 - Observability: opt-in and privacy-safe.
+- Integration validation: offline, deterministic and authorization-neutral.
 
 ## 📦 Release posture
 
-The project is prepared for a stable production release after CI validates the final security-remediation batch. Deferred observability scaling features remain backlog items and are not production blockers.
+The 1.4 integration hardening work is implemented on `main`. A stable production release remains gated on final security-remediation validation and clean release checks.
 
 No live scan findings are embedded in this status document.
