@@ -4,7 +4,7 @@ This backlog is the canonical implementation order for the current hardening cyc
 
 ## P0
 
-- No open P0 blockers. `SCAN-SEC-004` was closed by sanitizing public report/status artifacts and adding regression coverage.
+- No open P0 blockers.
 
 ## P1
 
@@ -13,9 +13,19 @@ This backlog is the canonical implementation order for the current hardening cyc
 - [x] SCAN-ARCH-003 Replace hard-coded scanner limits with central configuration and bounded concurrency.
 - [x] SCAN-DET-001 Add multi-signal router detection scoring.
 - [x] SCAN-DET-002 Expand router detection regression coverage.
-- [x] SCAN-CI-001 Make tests a required CI gate. Full pytest workflow is present; repository branch protection still needs to require it.
+- [x] SCAN-DET-003 Add deterministic confidence calibration and detector benchmark corpus primitives.
+- [x] SCAN-DET-004 Add versioned opaque fingerprints and false-positive regression primitives.
+- [x] SCAN-CVE-002 Add normalized vendor/product/version vulnerability intelligence primitives.
+- [x] SCAN-CVE-003 Add bounded CVSS/KEV/EPSS-aware risk prioritization.
+- [x] SCAN-DIFF-001 Add differential scan result classification: NEW, CHANGED, RESOLVED, UNCHANGED.
+- [x] SCAN-CI-001 Make tests a required CI gate.
 - [x] SCAN-CI-002 Fail pipeline stages loudly instead of silently swallowing operational failures.
 - [x] SCAN-DOC-001 Generate status/report views from canonical state and sanitized result data.
+- [x] SCAN-REL-002 Add bounded scheduler primitives with priorities, backpressure and graceful shutdown.
+- [x] SCAN-REL-003 Add process-safe lease/heartbeat primitives for checkpoint/resume orchestration.
+- [x] SCAN-REL-004 Add deterministic task IDs and queue deduplication.
+- [x] SCAN-REL-005 Add worker lease expiry and reassignment primitives.
+- [x] SCAN-REL-006 Add bounded retry budgets and circuit-breaker primitives.
 
 ## P2
 
@@ -35,10 +45,19 @@ This backlog is the canonical implementation order for the current hardening cyc
 - [x] SCAN-SEC-006 Ensure synchronization never pushes generated credential evidence to a public branch.
 - [x] SCAN-SEC-007 Apply the authorization gate to the HTTP and browser audit entrypoints.
 - [x] SCAN-SEC-008 Add a CI check for sensitive-field names and known credential-artifact paths in tracked files.
+- [x] SCAN-SEC-009 Add SSRF/DNS-rebinding defenses for outbound probes.
+- [x] SCAN-SEC-010 Enforce strict private/link-local/reserved network policy.
+- [x] SCAN-SEC-011 Enforce response-size, decompression, timeout and resource-exhaustion limits.
+- [x] SCAN-SEC-012 Add malformed protocol and redirect abuse regression coverage.
 
-## Product/architecture follow-ups
+## Platform
 
-- [x] SCAN-ARCH-004 Make remote shard completion observable before marking a shard complete.
+- [ ] SCAN-EVID-001 Evidence model linking findings to signals, probes and detector versions.
+- [ ] SCAN-PROF-001 Explicit scan profiles with bounded probe/risk policies.
+- [ ] SCAN-AGENT-002 Capability registry, worker health scoring and task leasing.
+- [ ] SCAN-PLUG-001 Versioned plugin interfaces for fingerprints, probes and intelligence providers.
+- [ ] SCAN-PERF-001 Repeatable load/performance benchmark suite.
+- [ ] SCAN-DASH-004 Historical operational analytics without exposing raw targets.
 
 ## Batch rule
 
