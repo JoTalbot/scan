@@ -6,9 +6,9 @@
 - [x] Target scope is explicit and bounded.
 - [x] Credentials and tokens are supplied outside Git.
 - [x] Current public reports/history-facing artifacts are sanitized; live targets and credential evidence are excluded from the current tree.
-- [x] CI policy checks are green on the remediation branch.
-- [ ] Historical Git objects containing superseded public findings are rewritten/removed and independently revalidated.
-- [ ] No open P0 security blockers remain after historical remediation.
+- [x] CI policy checks are green on `main`.
+- [x] Historical Git refs containing superseded public findings were rewritten and public refs independently revalidated.
+- [x] No open P0 security blockers remain after historical remediation.
 
 ## Distributed execution
 
@@ -27,9 +27,9 @@
 
 ## CI and documentation
 
-- [x] Full pytest suite is green on supported Python versions on the remediation branch.
-- [x] Security regression suite is green on the remediation branch.
-- [x] Source compilation passes on the remediation branch.
+- [x] Full pytest suite is green on supported Python versions on `main`.
+- [x] Security regression suite is green on `main`.
+- [x] Source compilation passes on `main`.
 - [x] `PROJECT_STATE.json` is valid and current.
 - [x] Architecture, observability, security, and release documentation match the implementation.
 - [x] Public artifact regression tests cover credentials and target addresses.
@@ -38,10 +38,12 @@
 
 - [x] Observability work is tracked separately from correctness fixes.
 - [x] No production credentials or live findings are copied into current public release artifacts.
+- [x] `v1.4.0` production release is published from `main`.
 
 ## Release decision
 
-**Production release is blocked until historical Git remediation is completed and the complete release gate is revalidated.**
+**Production release gate passed. RouterScan 1.4.0 is published.**
 
-Current baseline: `main` after public-artifact remediation.
-Historical remediation tracker: Issue #7.
+Current baseline: `main` at `26ac2d11284115bfff80163448d469bdd4e62691`.
+Release: `v1.4.0`.
+Historical remediation tracker: Issue #7 (completed).
