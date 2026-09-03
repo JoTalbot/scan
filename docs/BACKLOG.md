@@ -26,6 +26,8 @@ This backlog is the canonical implementation order for the current hardening cyc
 - [x] SCAN-REL-004 Add deterministic task IDs and queue deduplication.
 - [x] SCAN-REL-005 Add worker lease expiry and reassignment primitives.
 - [x] SCAN-REL-006 Add bounded retry budgets and circuit-breaker primitives.
+- [x] SCAN-EVID-001 Evidence model linking findings to signals, probes and detector versions.
+- [x] SCAN-PROF-001 Explicit scan profiles with bounded probe/risk policies.
 
 ## P2
 
@@ -37,6 +39,10 @@ This backlog is the canonical implementation order for the current hardening cyc
 - [x] SCAN-DOC-002 Refresh README against the current implementation.
 - [x] SCAN-REL-001 Establish release/versioning rules.
 - [x] SCAN-TEST-001 Add integration tests for pipeline recovery and synchronization.
+- [x] SCAN-AGENT-002 Capability registry, worker health scoring and task leasing.
+- [x] SCAN-PLUG-001 Versioned plugin interfaces for fingerprints, probes and intelligence providers.
+- [x] SCAN-PERF-001 Repeatable load/performance benchmark suite.
+- [x] SCAN-DASH-004 Historical operational analytics without exposing raw targets.
 
 ## Security follow-ups
 
@@ -52,12 +58,12 @@ This backlog is the canonical implementation order for the current hardening cyc
 
 ## Platform
 
-- [ ] SCAN-EVID-001 Evidence model linking findings to signals, probes and detector versions.
-- [ ] SCAN-PROF-001 Explicit scan profiles with bounded probe/risk policies.
-- [ ] SCAN-AGENT-002 Capability registry, worker health scoring and task leasing.
-- [ ] SCAN-PLUG-001 Versioned plugin interfaces for fingerprints, probes and intelligence providers.
-- [ ] SCAN-PERF-001 Repeatable load/performance benchmark suite.
-- [ ] SCAN-DASH-004 Historical operational analytics without exposing raw targets.
+- [x] SCAN-EVID-001 Evidence model linking findings to signals, probes and detector versions.
+- [x] SCAN-PROF-001 Explicit scan profiles with bounded probe/risk policies.
+- [x] SCAN-AGENT-002 Capability registry, worker health scoring and task leasing.
+- [x] SCAN-PLUG-001 Versioned plugin interfaces for fingerprints, probes and intelligence providers.
+- [x] SCAN-PERF-001 Repeatable load/performance benchmark suite.
+- [x] SCAN-DASH-004 Historical operational analytics without exposing raw targets.
 
 ## Batch rule
 
