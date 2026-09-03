@@ -13,8 +13,8 @@ def test_maintenance_observability_policy_is_privacy_safe():
     assert "rotation" in text
 
 
-def test_project_state_remains_maintenance_source_of_truth():
+def test_project_state_remains_production_source_of_truth():
     text = (ROOT / "PROJECT_STATE.json").read_text(encoding="utf-8")
     assert '"version": "1.3.1"' in text
     assert '"status": "production-ready"' in text
-    assert '"next_phase": "maintenance"' in text
+    assert '"next_phase": "1.4 integration hardening and product validation"' in text
