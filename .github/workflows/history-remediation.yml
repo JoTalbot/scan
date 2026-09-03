@@ -1,5 +1,182 @@
-# Public Scan Report
+name: History Remediation (manual)
 
-Historical operational scan findings are intentionally excluded from this public artifact.
-This file contains policy-safe release metadata only. Target inventories, credentials,
-authorization material, raw HTTP evidence, and private telemetry must not be published.
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: 'Type REWRITE_SCAN_HISTORY to authorize the destructive history rewrite'
+        required: true
+        type: string
+      push_rewritten_history:
+        description: 'Actually force-push rewritten refs (false = dry run)'
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  history-remediation:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.confirmation == 'REWRITE_SCAN_HISTORY' }}
+    steps:
+      - name: Checkout full repository history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Materialize every remote branch as a local ref
+        run: |
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*'
+          while read -r ref sha; do
+            branch="${ref#refs/remotes/origin/}"
+            [ "$branch" = 'HEAD' ] && continue
+            git update-ref "refs/heads/$branch" "$sha"
+          done < <(git for-each-ref --format='%(refname) %(objectname)' refs/remotes/origin/)
+          echo 'Branches selected for rewrite:'
+          git for-each-ref --format='%(refname) %(objectname)' refs/heads
+
+      - name: Install git-filter-repo
+        run: python3 -m pip install --user git-filter-repo
+
+      - name: Record refs before rewrite
+        run: |
+          git for-each-ref --format='%(refname) %(objectname)' refs/heads refs/tags | tee refs-before.txt
+          git rev-parse HEAD | tee head-before.txt
+
+      - name: Verify current public artifacts are sanitized
+        run: |
+          set -o pipefail
+          markers=(
+            'generated 2026-09-02 09:17 UTC'
+            '1,028 routers'
+            '1,028 raw-channel checks'
+            '586 browser checks'
+            '7 credential findings'
+          )
+          for marker in "${markers[@]}"; do
+            if grep -nF -- "$marker" REPORT.md CVE_REPORT.md >/dev/null; then
+              echo "Current public artifact contains forbidden historical marker: $marker"
+              exit 1
+            fi
+          done
+
+      - name: Create local mirror backup
+        run: |
+          mkdir -p .history-remediation-backup
+          git clone --mirror "$GITHUB_WORKSPACE" .history-remediation-backup/scan-pre-rewrite.git
+          tar -czf .history-remediation-backup/scan-pre-rewrite.tgz -C .history-remediation-backup scan-pre-rewrite.git
+
+      - name: Rewrite historical public reports
+        run: |
+          cat > /tmp/safe-report.md <<'EOF'
+          # Public Scan Report
+
+          Historical operational scan findings are intentionally excluded from this public artifact.
+          This file contains policy-safe release metadata only. Target inventories, credentials,
+          authorization material, raw HTTP evidence, and private telemetry must not be published.
+          EOF
+          cat > /tmp/safe-cve.md <<'EOF'
+          # CVE Report
+
+          This public artifact contains policy-level information only. Historical device-level
+          findings, target inventories, scan results, operational evidence, credentials,
+          authorization material, and raw HTTP evidence are excluded.
+          EOF
+          git filter-repo --force --blob-callback '
+          markers = (
+              b"generated 2026-09-02 09:17 UTC",
+              b"1,028 routers",
+              b"1,028 raw-channel checks",
+              b"586 browser checks",
+              b"7 credential findings",
+          )
+          if any(marker in blob.data for marker in markers):
+              if blob.data.startswith(b"# CVE"):
+                  blob.data = open(b"/tmp/safe-cve.md", "rb").read()
+              elif blob.data.startswith(b"# Public Scan Report"):
+                  blob.data = open(b"/tmp/safe-report.md", "rb").read()
+          '
+
+      - name: Verify rewritten history no longer contains known exposed strings
+        run: |
+          set -o pipefail
+          markers=(
+            'generated 2026-09-02 09:17 UTC'
+            '1,028 routers'
+            '1,028 raw-channel checks'
+            '586 browser checks'
+            '7 credential findings'
+          )
+          for marker in "${markers[@]}"; do
+            if git rev-list --objects --all | grep -E 'REPORT\.md|CVE_REPORT\.md' | while read -r sha path; do git cat-file blob "$sha" 2>/dev/null || true; done | grep -F -- "$marker" >/dev/null; then
+              echo "Known historical exposure marker still present: $marker"
+              exit 1
+            fi
+          done
+
+      - name: Show rewritten refs and require explicit push mode
+        run: |
+          echo 'Rewritten refs:'
+          git for-each-ref --format='%(refname) %(objectname)' refs/heads refs/tags
+          echo "push_rewritten_history=${{ github.event.inputs.push_rewritten_history }}"
+          if [ "${{ github.event.inputs.push_rewritten_history }}" != 'true' ]; then
+            echo 'DRY RUN ONLY: no remote refs will be changed.'
+            exit 0
+          fi
+
+      - name: Push rewritten non-main branches and tags
+        if: ${{ github.event.inputs.push_rewritten_history == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git remote get-url origin >/dev/null 2>&1 || git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          while read -r ref sha; do
+            branch="${ref#refs/heads/}"
+            [ "$branch" = 'main' ] && continue
+            git push --force origin "$sha:refs/heads/$branch"
+          done < <(git for-each-ref --format='%(refname) %(objectname)' refs/heads)
+          git push --force --prune origin 'refs/tags/*:refs/tags/*'
+
+      - name: Update rewritten main ref through GitHub API
+        if: ${{ github.event.inputs.push_rewritten_history == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          main_sha="$(git rev-parse refs/heads/main)"
+          echo "Rewritten main SHA: $main_sha"
+          curl --fail-with-body --silent --show-error \
+            -X PATCH \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs/heads/main" \
+            -d "{\"sha\":\"${main_sha}\",\"force\":true}"
+
+      - name: Post-rewrite validation
+        if: ${{ github.event.inputs.push_rewritten_history == 'true' }}
+        run: |
+          git fetch --all --tags --prune
+          git fsck --full --no-reflogs
+          echo 'Remote refs after rewrite:'
+          git ls-remote --heads --tags origin
+          echo 'Known old exposed commit reachability:'
+          if git ls-remote origin 'refs/heads/*' 'refs/tags/*' | grep -F '1b268cb3696925ac88c1a7de4d1d79fc0b6c67ff'; then
+            echo 'ERROR: old exposed commit is still directly advertised by a public ref.'
+            exit 1
+          fi
+
+      - name: Upload pre-rewrite backup
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-pre-rewrite-backup
+          path: |
+            .history-remediation-backup/scan-pre-rewrite.tgz
+            refs-before.txt
+            head-before.txt
+          if-no-files-found: error
+          retention-days: 7
