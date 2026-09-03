@@ -14,6 +14,8 @@ from scan_profiles import get_profile
 def validate_pipeline(*, profile_name: str, finding_id: str, detector_version: str,
                       signal_sources: tuple[str, ...], probe_name: str,
                       worker_id: str, capabilities: tuple[str, ...]) -> dict[str, object]:
+    if not capabilities:
+        raise ValueError("at least one worker capability is required")
     profile = get_profile(profile_name)
     registry = CapabilityRegistry()
     registry.register(Worker(worker_id, frozenset(capabilities)))
