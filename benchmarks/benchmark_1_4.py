@@ -2,7 +2,7 @@
 """Repeatable offline performance smoke benchmarks, not a CI timing gate."""
 from __future__ import annotations
 import json, time
-from detection_intelligence import classify_differential, normalize_vulnerability
+from detection_intelligence import differential, VulnerabilityRecord, normalize_vulnerabilities
 from scheduler import deterministic_task_id
 
 ITERATIONS = 2000
@@ -10,8 +10,8 @@ ITERATIONS = 2000
 def run(iterations=ITERATIONS):
     cases = {
         "task_id": lambda: deterministic_task_id("job", "shard-1"),
-        "diff": lambda: classify_differential("a", "a"),
-        "vuln": lambda: normalize_vulnerability("vendor", "product", "1.0"),
+        "diff": lambda: differential({"fingerprint": "a"}, {"fingerprint": "a"}),
+        "vuln": lambda: normalize_vulnerabilities((VulnerabilityRecord("CVE-2026-0001", "vendor", "product", "1.0"),)),
     }
     result = {"iterations": iterations, "benchmarks": {}, "network": False}
     for name, fn in cases.items():
