@@ -1,0 +1,99 @@
+name: History Remediation (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: 'Type REWRITE_SCAN_HISTORY to authorize the destructive history rewrite'
+        required: true
+        type: string
+      push_rewritten_history:
+        description: 'Actually force-push rewritten refs (false = dry run)'
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  history-remediation:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.confirmation == 'REWRITE_SCAN_HISTORY' }}
+    steps:
+      - name: Checkout full repository history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Install git-filter-repo
+        run: python3 -m pip install --user git-filter-repo
+
+      - name: Record refs before rewrite
+        run: |
+          git for-each-ref --format='%(refname) %(objectname)' refs/heads refs/tags | tee refs-before.txt
+          git rev-parse HEAD | tee head-before.txt
+
+      - name: Verify current public artifacts are sanitized
+        run: |
+          ! grep -nE 'credential findings|raw-channel checks|browser checks|1,028|generated 2026-09-02 09:17' REPORT.md CVE_REPORT.md
+
+      - name: Create local mirror backup
+        run: |
+          git clone --mirror "$GITHUB_WORKSPACE" ../scan-pre-rewrite.git
+          tar -czf ../scan-pre-rewrite.tgz -C .. scan-pre-rewrite.git
+
+      - name: Rewrite historical public reports
+        run: |
+          cat > /tmp/safe-report.md <<'EOF'
+          # Public Scan Report
+
+          Historical operational scan findings are intentionally excluded from this public artifact.
+          This file contains policy-safe release metadata only. Target inventories, credentials,
+          authorization material, raw HTTP evidence, and private telemetry must not be published.
+          EOF
+          cat > /tmp/safe-cve.md <<'EOF'
+          # CVE Report
+
+          This public artifact contains policy-level information only. Historical device-level
+          findings, target inventories, scan results, operational evidence, credentials,
+          authorization material, and raw HTTP evidence are excluded.
+          EOF
+          git filter-repo --force --blob-callback '
+          if blob.path == b"REPORT.md":
+              blob.data = open(b"/tmp/safe-report.md", "rb").read()
+          elif blob.path == b"CVE_REPORT.md":
+              blob.data = open(b"/tmp/safe-cve.md", "rb").read()
+          '
+
+      - name: Verify rewritten history no longer contains known exposed strings
+        run: |
+          ! git rev-list --objects --all | grep -E 'REPORT\.md|CVE_REPORT\.md' | while read sha path; do git cat-file blob "$sha" 2>/dev/null || true; done | grep -E 'credential findings|raw-channel checks|browser checks|1,028|generated 2026-09-02 09:17'
+
+      - name: Show rewritten refs and require explicit push mode
+        run: |
+          echo 'Rewritten refs:'
+          git for-each-ref --format='%(refname) %(objectname)' refs/heads refs/tags
+          echo "push_rewritten_history=${{ github.event.inputs.push_rewritten_history }}"
+          if [ "${{ github.event.inputs.push_rewritten_history }}" != 'true' ]; then
+            echo 'DRY RUN ONLY: no remote refs will be changed.'
+            exit 0
+          fi
+
+      - name: Push rewritten refs
+        if: ${{ github.event.inputs.push_rewritten_history == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force --all origin
+          git push --force --tags origin
+
+      - name: Post-rewrite validation
+        if: ${{ github.event.inputs.push_rewritten_history == 'true' }}
+        run: |
+          git fetch --all --tags --prune
+          git fsck --full --no-reflogs
+          echo 'Remote refs after rewrite:'
+          git ls-remote --heads --tags origin
