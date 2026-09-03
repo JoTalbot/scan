@@ -69,7 +69,11 @@ jobs:
 
       - name: Verify rewritten history no longer contains known exposed strings
         run: |
-          ! git rev-list --objects --all | grep -E 'REPORT\.md|CVE_REPORT\.md' | while read sha path; do git cat-file blob "$sha" 2>/dev/null || true; done | grep -E 'credential findings|raw-channel checks|browser checks|1,028|generated 2026-09-02 09:17'
+          set -o pipefail
+          if git rev-list --objects --all | grep -E 'REPORT\.md|CVE_REPORT\.md' | while read -r sha path; do git cat-file blob "$sha" 2>/dev/null || true; done | grep -E 'credential findings|raw-channel checks|browser checks|1,028|generated 2026-09-02 09:17'; then
+            echo 'Known historical exposure marker still present.'
+            exit 1
+          fi
 
       - name: Show rewritten refs and require explicit push mode
         run: |
@@ -81,14 +85,15 @@ jobs:
             exit 0
           fi
 
-      - name: Push rewritten refs
+      - name: Push rewritten refs and remove stale public refs
         if: ${{ github.event.inputs.push_rewritten_history == 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          git remote get-url origin >/dev/null 2>&1 || git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push --force --all origin
-          git push --force --tags origin
+          git push --force --prune origin 'refs/heads/*:refs/heads/*'
+          git push --force --prune origin 'refs/tags/*:refs/tags/*'
 
       - name: Post-rewrite validation
         if: ${{ github.event.inputs.push_rewritten_history == 'true' }}
