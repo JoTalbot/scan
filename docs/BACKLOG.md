@@ -13,6 +13,11 @@ This backlog is the canonical implementation order for the current hardening cyc
 - [x] SCAN-ARCH-003 Replace hard-coded scanner limits with central configuration and bounded concurrency.
 - [x] SCAN-DET-001 Add multi-signal router detection scoring.
 - [x] SCAN-DET-002 Expand router detection regression coverage.
+- [x] SCAN-DET-003 Add deterministic confidence calibration and detector benchmark corpus primitives.
+- [x] SCAN-DET-004 Add versioned opaque fingerprints and false-positive regression primitives.
+- [x] SCAN-CVE-002 Add normalized vendor/product/version vulnerability intelligence primitives.
+- [x] SCAN-CVE-003 Add bounded CVSS/KEV/EPSS-aware risk prioritization.
+- [x] SCAN-DIFF-001 Add differential scan result classification: NEW, CHANGED, RESOLVED, UNCHANGED.
 - [x] SCAN-CI-001 Make tests a required CI gate.
 - [x] SCAN-CI-002 Fail pipeline stages loudly instead of silently swallowing operational failures.
 - [x] SCAN-DOC-001 Generate status/report views from canonical state and sanitized result data.
@@ -40,18 +45,10 @@ This backlog is the canonical implementation order for the current hardening cyc
 - [x] SCAN-SEC-006 Ensure synchronization never pushes generated credential evidence to a public branch.
 - [x] SCAN-SEC-007 Apply the authorization gate to the HTTP and browser audit entrypoints.
 - [x] SCAN-SEC-008 Add a CI check for sensitive-field names and known credential-artifact paths in tracked files.
-- [ ] SCAN-SEC-009 SSRF/DNS-rebinding defenses for all outbound probes.
-- [ ] SCAN-SEC-010 Strict private/link-local/reserved network policy.
-- [ ] SCAN-SEC-011 Response-size, decompression, timeout and resource-exhaustion limits.
-- [ ] SCAN-SEC-012 Malformed protocol and redirect abuse regression suite.
-
-## Detection/intelligence
-
-- [ ] SCAN-DET-003 Confidence calibration and detector benchmark corpus.
-- [ ] SCAN-DET-004 Fingerprint versioning and false-positive regression corpus.
-- [ ] SCAN-CVE-002 Normalized vendor/product/version vulnerability intelligence.
-- [ ] SCAN-CVE-003 CVSS/KEV/EPSS-aware risk prioritization.
-- [ ] SCAN-DIFF-001 Differential scan results: NEW, CHANGED, RESOLVED, UNCHANGED.
+- [x] SCAN-SEC-009 Add SSRF/DNS-rebinding defenses for outbound probes.
+- [x] SCAN-SEC-010 Enforce strict private/link-local/reserved network policy.
+- [x] SCAN-SEC-011 Enforce response-size, decompression, timeout and resource-exhaustion limits.
+- [x] SCAN-SEC-012 Add malformed protocol and redirect abuse regression coverage.
 
 ## Platform
 
