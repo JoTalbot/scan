@@ -27,6 +27,12 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      - name: Materialize every remote branch as a local ref
+        run: |
+          git fetch origin '+refs/heads/*:refs/heads/*' '+refs/tags/*:refs/tags/*'
+          echo 'Branches selected for rewrite:'
+          git for-each-ref --format='%(refname) %(objectname)' refs/heads
+
       - name: Install git-filter-repo
         run: python3 -m pip install --user git-filter-repo
 
