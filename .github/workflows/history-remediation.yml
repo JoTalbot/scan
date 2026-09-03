@@ -29,7 +29,12 @@ jobs:
 
       - name: Materialize every remote branch as a local ref
         run: |
-          git fetch origin '+refs/heads/*:refs/heads/*' '+refs/tags/*:refs/tags/*'
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*'
+          while read -r ref sha; do
+            branch="${ref#refs/remotes/origin/}"
+            [ "$branch" = 'HEAD' ] && continue
+            git update-ref "refs/heads/$branch" "$sha"
+          done < <(git for-each-ref --format='%(refname) %(objectname)' refs/remotes/origin/)
           echo 'Branches selected for rewrite:'
           git for-each-ref --format='%(refname) %(objectname)' refs/heads
 
@@ -108,3 +113,15 @@ jobs:
           git fsck --full --no-reflogs
           echo 'Remote refs after rewrite:'
           git ls-remote --heads --tags origin
+
+      - name: Upload pre-rewrite backup
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-pre-rewrite-backup
+          path: |
+            ../scan-pre-rewrite.tgz
+            refs-before.txt
+            head-before.txt
+          if-no-files-found: ignore
+          retention-days: 7
