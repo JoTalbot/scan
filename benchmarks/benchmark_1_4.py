@@ -8,6 +8,8 @@ from scheduler import deterministic_task_id
 ITERATIONS = 2000
 
 def run(iterations=ITERATIONS):
+    if not 1 <= iterations <= 100_000:
+        raise ValueError("iterations out of bounds")
     cases = {
         "task_id": lambda: deterministic_task_id("job", "shard-1"),
         "diff": lambda: differential({"fingerprint": "a"}, {"fingerprint": "a"}),
